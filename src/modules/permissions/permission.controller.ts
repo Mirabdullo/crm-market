@@ -10,7 +10,7 @@ import {
 	PermissionRetrieveAllRequestDto,
 	PermissionRetrieveAllResponseDto,
 } from './dtos'
-import { ApiBearerAuth, ApiNoContentResponse, ApiResponse, ApiTags } from '@nestjs/swagger'
+import { ApiBearerAuth, ApiNoContentResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger'
 import { PermissionRetriveAllResponse, PermissionRetriveResponse } from './interfaces'
 
 @ApiTags('Permission')
@@ -24,24 +24,24 @@ export class PermissionController {
 	}
 
 	@Get()
-	@ApiResponse({ type: PermissionRetrieveAllResponseDto })
+	@ApiOkResponse({ type: PermissionRetrieveAllResponseDto })
 	PermissionRetrieveAll(@Query() payload: PermissionRetrieveAllRequestDto): Promise<PermissionRetriveAllResponse> {
 		return this.#_service.permissionRetrieveAll({
 			...payload,
 			pageNumber: payload.pageNumber ?? PAGE_NUMBER,
 			pageSize: payload.pageSize ?? PAGE_SIZE,
-			pagination: [true, 'true'].includes(payload.pagination) ? true : false,
+			pagination: [true, 'true'].includes(payload.pagination) ? false : true,
 		})
 	}
 
 	@Get('role/:id')
-	@ApiResponse({ type: PermissionRetrieveResponseDto })
+	@ApiOkResponse({ type: PermissionRetrieveResponseDto })
 	PermissionRetrieveByRoleId(@Param() payload: PermissionRetrieveRequestDto): Promise<PermissionRetriveResponse[]> {
 		return this.#_service.permissionRetrieveByRoleId(payload)
 	}
 
 	@Get(':id')
-	@ApiResponse({ type: PermissionRetrieveResponseDto })
+	@ApiOkResponse({ type: PermissionRetrieveResponseDto })
 	PermissionRetrieve(@Param() payload: PermissionRetrieveRequestDto): Promise<PermissionRetriveResponse> {
 		return this.#_service.permissionRetrieve(payload)
 	}

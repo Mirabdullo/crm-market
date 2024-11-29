@@ -10,7 +10,7 @@ import {
 	RoleRetrieveAllRequestDto,
 	RoleRetrieveAllResponseDto,
 } from './dtos'
-import { ApiBearerAuth, ApiNoContentResponse, ApiResponse, ApiTags } from '@nestjs/swagger'
+import { ApiBearerAuth, ApiNoContentResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger'
 import { RoleRetriveAllResponse, RoleRetriveResponse } from './interfaces'
 
 @ApiTags('Role')
@@ -24,18 +24,18 @@ export class RoleController {
 	}
 
 	@Get()
-	@ApiResponse({ type: RoleRetrieveAllResponseDto })
+	@ApiOkResponse({ type: RoleRetrieveAllResponseDto })
 	RoleRetrieveAll(@Query() payload: RoleRetrieveAllRequestDto): Promise<RoleRetriveAllResponse> {
 		return this.#_service.roleRetrieveAll({
 			...payload,
 			pageNumber: payload.pageNumber ?? PAGE_NUMBER,
 			pageSize: payload.pageSize ?? PAGE_SIZE,
-			pagination: [true, 'true'].includes(payload.pagination) ? true : false,
+			pagination: [true, 'true'].includes(payload.pagination) ? false : true,
 		})
 	}
 
 	@Get(':id')
-	@ApiResponse({ type: RoleRetrieveResponseDto })
+	@ApiOkResponse({ type: RoleRetrieveResponseDto })
 	RoleRetrieve(@Param() payload: RoleRetrieveRequestDto): Promise<RoleRetriveResponse> {
 		return this.#_service.roleRetrieve(payload)
 	}

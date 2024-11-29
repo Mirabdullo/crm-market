@@ -1,10 +1,6 @@
 import type { Request } from 'express'
 import type { CanActivate, ExecutionContext } from '@nestjs/common'
-import {
-	Injectable,
-	UnauthorizedException,
-	ForbiddenException,
-} from '@nestjs/common'
+import { Injectable, UnauthorizedException } from '@nestjs/common'
 import { Reflector } from '@nestjs/core'
 import { isJWT } from 'class-validator'
 import { JwtService } from '@nestjs/jwt'
@@ -27,10 +23,7 @@ export class CheckPermissionGuard implements CanActivate {
 
 		const request = context.switchToHttp().getRequest<Request>()
 
-		const accessToken = request.headers.authorization?.replace(
-			/^(bearer)\s/i,
-			'',
-		)
+		const accessToken = request.headers.authorization?.replace(/^(bearer)\s/i, '')
 
 		if (!accessToken || !isJWT(accessToken)) {
 			throw new UnauthorizedException('Unauthorized')

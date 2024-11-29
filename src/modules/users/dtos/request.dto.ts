@@ -1,6 +1,6 @@
-import { IsArray, IsBooleanString, IsIP, IsInt, IsNotEmpty, IsOptional, IsPositive, IsString, IsUUID } from 'class-validator'
+import { IsBooleanString, IsInt, IsNotEmpty, IsOptional, IsPositive, IsString, IsUUID } from 'class-validator'
 import { Type } from 'class-transformer'
-import { UserCreateRequest, UserDeleteRequest, UserRetriveAllRequest, UserRetriveAllResponse, UserRetriveRequest, UserUpdateRequest } from '../interfaces'
+import { UserCreateRequest, UserDeleteRequest, UserRetriveAllRequest, UserRetriveRequest, UserUpdateRequest } from '../interfaces'
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
 
 export class UserRetrieveAllRequestDto implements UserRetriveAllRequest {

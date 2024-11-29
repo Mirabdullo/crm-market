@@ -1,6 +1,7 @@
 import { Injectable, ForbiddenException, NotFoundException } from '@nestjs/common'
 import { PrismaService } from '@prisma'
 import { UserCreateRequest, UserDeleteRequest, UserRetriveAllRequest, UserRetriveAllResponse, UserRetriveRequest, UserRetriveResponse, UserUpdateRequest } from './interfaces'
+import { UserTypeEnum } from '@prisma/client'
 
 @Injectable()
 export class UserService {
@@ -24,6 +25,7 @@ export class UserService {
 				deletedAt: null,
 				name: { contains: payload.search, mode: 'insensitive' },
 				phone: { contains: payload.search, mode: 'insensitive' },
+				type: payload.type as UserTypeEnum,
 			},
 			...paginationOptions,
 			select: {
@@ -70,12 +72,12 @@ export class UserService {
 
 	async supplierCreate(payload: UserCreateRequest): Promise<null> {
 		const user = await this.#_prisma.users.findFirst({
-			where: {phone: payload.phone,}
+			where: { phone: payload.phone },
 		})
 
 		if (user && user.deletedAt === null) {
 			throw new ForbiddenException('This phone already exists')
-		} else if (user && user.createdAt !== null) { 
+		} else if (user && user.createdAt !== null) {
 			throw new ForbiddenException('This user deleted')
 		}
 
@@ -83,7 +85,7 @@ export class UserService {
 			data: {
 				name: payload.name,
 				phone: payload.phone,
-				type: 'supplier'
+				type: 'supplier',
 			},
 		})
 
@@ -92,12 +94,12 @@ export class UserService {
 
 	async clientCreate(payload: UserCreateRequest): Promise<null> {
 		const user = await this.#_prisma.users.findFirst({
-			where: {phone: payload.phone,}
+			where: { phone: payload.phone },
 		})
 
 		if (user && user.deletedAt === null) {
 			throw new ForbiddenException('This phone already exists')
-		} else if (user && user.createdAt !== null) { 
+		} else if (user && user.createdAt !== null) {
 			throw new ForbiddenException('This user deleted')
 		}
 
@@ -105,7 +107,7 @@ export class UserService {
 			data: {
 				name: payload.name,
 				phone: payload.phone,
-				type: 'client'
+				type: 'client',
 			},
 		})
 
@@ -114,7 +116,7 @@ export class UserService {
 
 	async userUpdate(payload: UserUpdateRequest): Promise<null> {
 		const user = await this.#_prisma.users.findUnique({
-			where: {id: payload.id}
+			where: { id: payload.id },
 		})
 
 		if (!user) throw new NotFoundException('user not found')
@@ -132,7 +134,7 @@ export class UserService {
 
 	async userDelete(payload: UserDeleteRequest): Promise<null> {
 		const user = await this.#_prisma.users.findUnique({
-			where: {id: payload.id}
+			where: { id: payload.id },
 		})
 
 		if (!user) throw new NotFoundException('user not found')

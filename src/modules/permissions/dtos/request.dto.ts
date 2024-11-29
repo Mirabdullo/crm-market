@@ -1,6 +1,6 @@
-import { IsArray, IsBooleanString, IsIP, IsInt, IsNotEmpty, IsOptional, IsPositive, IsString, IsUUID } from 'class-validator'
+import { IsBooleanString, IsInt, IsNotEmpty, IsOptional, IsPositive, IsString, IsUUID } from 'class-validator'
 import { Type } from 'class-transformer'
-import { PermissionCreateRequest, PermissionDeleteRequest, PermissionRetriveAllRequest, PermissionRetriveAllResponse, PermissionRetriveRequest, PermissionUpdateRequest } from '../interfaces'
+import { PermissionCreateRequest, PermissionDeleteRequest, PermissionRetriveAllRequest, PermissionRetriveRequest, PermissionUpdateRequest } from '../interfaces'
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
 
 export class PermissionRetrieveAllRequestDto implements PermissionRetriveAllRequest {

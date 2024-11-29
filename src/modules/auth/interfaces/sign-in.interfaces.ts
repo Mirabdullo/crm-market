@@ -1,4 +1,4 @@
-import { AdminRetriveResponse } from "../../admins"
+import { AdminRetriveResponse } from '../../admins'
 
 export declare interface AdminSignInRequest {
 	phone: string

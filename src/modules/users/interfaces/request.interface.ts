@@ -3,20 +3,21 @@ export declare interface UserCreateRequest {
 	phone: string
 }
 
-export declare interface UserUpdateRequest { 
-	id: string 
+export declare interface UserUpdateRequest {
+	id: string
 	name?: string
 	phone?: string
 }
 
-export declare interface UserDeleteRequest { 
-	id: string 
+export declare interface UserDeleteRequest {
+	id: string
 }
 
 export declare interface UserRetriveAllRequest {
 	pageSize?: number
 	pageNumber?: number
 	search?: string
+	type?: string
 	pagination?: boolean
 }
 

@@ -55,12 +55,13 @@ model Permissions {
 }
 
 model Users {
-  id         String         @map("id")          @db.Uuid       @default(dbgenerated("GEN_RANDOM_UUID()"))
+  id         String         @map("id")          @db.Uuid           @default(dbgenerated("GEN_RANDOM_UUID()"))
   name       String         @map("name")        @db.VarChar() 
   phone      String         @map("phone")       @db.VarChar()
   type       UserTypeEnum
-  createdAt  DateTime       @map("created_at")  @db.Timestamp  @default(now())
-  updatedAt  DateTime       @map("updated_at")  @db.Timestamp  @updatedAt
+  debt       Decimal        @map("debt")        @db.Decimal(10,3)  @default(0)
+  createdAt  DateTime       @map("created_at")  @db.Timestamp      @default(now())
+  updatedAt  DateTime       @map("updated_at")  @db.Timestamp      @updatedAt
   deletedAt  DateTime?      @map("deleted_at")  @db.Timestamp
 
   orders     Order[]
@@ -79,8 +80,8 @@ model Products {
   avarage_cost     Decimal        @map("avarage_cost")     @db.Decimal(20,12)
   selling_price    Decimal        @map("selling_price")    @db.Decimal(10,3)
   wholesale_price  Decimal        @map("wholesale_price")  @db.Decimal(10,3)
-  image            String         @map("role")             @db.VarChar()
-  category         String         @map("category")         @db.VarChar()
+  image            String?        @map("role")             @db.VarChar()
+  category         String?        @map("category")         @db.VarChar()
   createdAt        DateTime       @map("created_at")       @db.Timestamp  @default(now())
   updatedAt        DateTime       @map("updated_at")       @db.Timestamp  @updatedAt
   deletedAt        DateTime?      @map("deleted_at")       @db.Timestamp

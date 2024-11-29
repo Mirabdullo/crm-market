@@ -3,13 +3,13 @@ export declare interface PermissionCreateRequest {
 	role_id: string
 }
 
-export declare interface PermissionUpdateRequest { 
-	id: string 
+export declare interface PermissionUpdateRequest {
+	id: string
 	name?: string
 }
 
-export declare interface PermissionDeleteRequest { 
-	id: string 
+export declare interface PermissionDeleteRequest {
+	id: string
 }
 
 export declare interface PermissionRetriveAllRequest {

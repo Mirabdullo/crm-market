@@ -3,7 +3,6 @@ import { AdminSignInRequest, AdminSignInResponse } from '../interfaces'
 import { IsNotEmpty, IsString } from 'class-validator'
 import { AdminRetrieveResponseDto, AdminRetriveResponse } from '../../admins'
 
-
 export class AdminSignInRequestDto implements AdminSignInRequest {
 	@ApiProperty({ type: String })
 	@IsString()
@@ -23,4 +22,3 @@ export class AdminSignInResponseDto implements AdminSignInResponse {
 	@ApiProperty({ type: String })
 	accessToken: string
 }
-

@@ -1,4 +1,4 @@
-import { IsArray, IsIP, IsInt, IsNotEmpty, IsOptional, IsPositive, IsString, IsUUID } from 'class-validator'
+import { IsArray, IsInt, IsNotEmpty, IsOptional, IsPositive, IsString, IsUUID } from 'class-validator'
 import { Type } from 'class-transformer'
 import { AdminCreateRequest, AdminDeleteRequest, AdminRetriveAllRequest, AdminRetriveRequest, AdminUpdateRequest } from '../interfaces'
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'

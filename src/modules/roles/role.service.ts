@@ -27,7 +27,7 @@ export class RoleService {
 				id: true,
 				name: true,
 			},
-			...paginationOptions
+			...paginationOptions,
 		})
 
 		const totalCount = await this.#_prisma.roles.count({
@@ -47,7 +47,7 @@ export class RoleService {
 
 	async roleRetrieve(payload: RoleRetriveRequest): Promise<RoleRetriveResponse> {
 		const role = await this.#_prisma.roles.findUnique({
-			where: { id: payload.id},
+			where: { id: payload.id },
 			select: {
 				id: true,
 				name: true,
@@ -61,10 +61,10 @@ export class RoleService {
 
 	async roleCreate(payload: RoleCreateRequest): Promise<null> {
 		const role = await this.#_prisma.roles.findFirst({
-			where: {name: payload.name,}
+			where: { name: payload.name },
 		})
 
-		if (role ) {
+		if (role) {
 			throw new ForbiddenException('This role already exists')
 		}
 
@@ -79,7 +79,7 @@ export class RoleService {
 
 	async roleUpdate(payload: RoleUpdateRequest): Promise<null> {
 		const role = await this.#_prisma.roles.findUnique({
-			where: {id: payload.id}
+			where: { id: payload.id },
 		})
 
 		if (!role) throw new NotFoundException('role not found')
@@ -96,7 +96,7 @@ export class RoleService {
 
 	async roleDelete(payload: RoleDeleteRequest): Promise<null> {
 		const role = await this.#_prisma.roles.findUnique({
-			where: {id: payload.id}
+			where: { id: payload.id },
 		})
 
 		if (!role) throw new NotFoundException('role not found')

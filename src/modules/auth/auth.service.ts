@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common'
+import { Injectable, UnauthorizedException } from '@nestjs/common'
 import * as bcrypt from 'bcrypt'
 import { AdminSignInRequest, AdminSignInResponse } from './interfaces'
 import { JwtService } from '@nestjs/jwt'
@@ -6,18 +6,17 @@ import { PrismaService } from '../../prisma'
 import { AdminRetriveResponse } from '../admins'
 import { JwtConfig } from '../../configs'
 
-
 @Injectable()
 export class AuthService {
 	readonly #_prisma: PrismaService
 	private readonly jwtService: JwtService
-	constructor( jwtService: JwtService, prisma: PrismaService) {
+	constructor(jwtService: JwtService, prisma: PrismaService) {
 		this.jwtService = jwtService
 		this.#_prisma = prisma
 	}
 
 	async adminSignIn(payload: AdminSignInRequest): Promise<AdminSignInResponse> {
-		const admin = await this.#_prisma.admins.findFirst({ 
+		const admin = await this.#_prisma.admins.findFirst({
 			where: { phone: payload.phone, deletedAt: null },
 			select: {
 				id: true,
@@ -30,10 +29,10 @@ export class AuthService {
 					select: {
 						id: true,
 						name: true,
-					}
-				}
-			}
-		 })
+					},
+				},
+			},
+		})
 		if (!admin) {
 			throw new UnauthorizedException('admin not found')
 		}
@@ -48,19 +47,22 @@ export class AuthService {
 	}
 
 	private async getAccessToken(payload: AdminRetriveResponse): Promise<string> {
-		const accessToken = await this.jwtService.signAsync({
-			id: payload.id,
-			name: payload.name,
-			phone: payload.phone,
-			permissions: payload.permissions.map((p: any) => p.name)
-		}, {
-			secret: JwtConfig.accessToken.key,
-			expiresIn: JwtConfig.accessToken.time,
-		})
+		const accessToken = await this.jwtService.signAsync(
+			{
+				id: payload.id,
+				name: payload.name,
+				phone: payload.phone,
+				permissions: payload.permissions.map((p: any) => p.name),
+			},
+			{
+				secret: JwtConfig.accessToken.key,
+				expiresIn: JwtConfig.accessToken.time,
+			},
+		)
 
 		return accessToken
 	}
-	
+
 	// private async getRefreshToken(payload: { id: string }): Promise<string> {
 	// 	const refreshToken = await this.jwtService.signAsync(payload, {
 	// 		secret: JwtConfig.refreshToken.key,

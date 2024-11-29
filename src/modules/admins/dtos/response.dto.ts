@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger'
 import { AdminPermissions, AdminRetriveAllResponse, AdminRetriveResponse } from '../interfaces'
 
-export class AdminPermissionsDto implements AdminPermissions  {
+export class AdminPermissionsDto implements AdminPermissions {
 	@ApiProperty({ type: String })
 	id: string
 
@@ -45,4 +45,3 @@ export class AdminRetrieveAllResponseDto implements AdminRetriveAllResponse {
 	@ApiProperty({ type: [AdminRetrieveResponseDto] })
 	data: AdminRetriveResponse[]
 }
-

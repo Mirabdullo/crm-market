@@ -3,7 +3,7 @@ import { ConfigModule } from '@nestjs/config'
 import { PrismaModule } from './prisma'
 import { databaseConfig } from './configs'
 import { JwtModule } from '@nestjs/jwt'
-import { AdminModule, AuthModule, PermissionModule, RoleModule, UserModule } from './modules'
+import { AdminModule, AuthModule, PermissionModule, ProductModule, RoleModule, UserModule } from './modules'
 
 @Module({
 	imports: [
@@ -15,6 +15,7 @@ import { AdminModule, AuthModule, PermissionModule, RoleModule, UserModule } fro
 		UserModule,
 		RoleModule,
 		PermissionModule,
+		ProductModule,
 	],
 })
 export class AppModule {}

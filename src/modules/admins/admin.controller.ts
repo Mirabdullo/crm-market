@@ -10,7 +10,7 @@ import {
 	AdminRetrieveAllRequestDto,
 	AdminRetrieveAllResponseDto,
 } from './dtos'
-import { ApiBearerAuth, ApiNoContentResponse, ApiResponse, ApiTags } from '@nestjs/swagger'
+import { ApiBearerAuth, ApiNoContentResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger'
 import { AdminRetriveAllResponse, AdminRetriveResponse } from './interfaces'
 
 @ApiTags('Admin')
@@ -24,7 +24,7 @@ export class AdminController {
 	}
 
 	@Get()
-	@ApiResponse({ type: AdminRetrieveAllResponseDto })
+	@ApiOkResponse({ type: AdminRetrieveAllResponseDto })
 	AdminRetrieveAll(@Query() payload: AdminRetrieveAllRequestDto): Promise<AdminRetriveAllResponse> {
 		return this.#_service.adminRetrieveAll({
 			...payload,
@@ -34,7 +34,7 @@ export class AdminController {
 	}
 
 	@Get(':id')
-	@ApiResponse({ type: AdminRetrieveResponseDto })
+	@ApiOkResponse({ type: AdminRetrieveResponseDto })
 	AdminRetrieve(@Param() payload: AdminRetrieveRequestDto): Promise<AdminRetriveResponse> {
 		return this.#_service.adminRetrieve(payload)
 	}

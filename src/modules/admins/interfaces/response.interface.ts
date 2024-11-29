@@ -1,14 +1,14 @@
 export declare interface AdminRetriveAllResponse {
-    pageSize: number
-    pageNumber: number
-    pageCount: number
-    totalCount: number
-    data: AdminRetriveResponse[]
+	pageSize: number
+	pageNumber: number
+	pageCount: number
+	totalCount: number
+	data: AdminRetriveResponse[]
 }
 
 export declare interface AdminRetriveResponse {
-    id: string
-    name: string
+	id: string
+	name: string
 	phone: string
 	role: string
 	createdAt: Date

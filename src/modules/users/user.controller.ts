@@ -10,7 +10,7 @@ import {
 	UserRetrieveAllRequestDto,
 	UserRetrieveAllResponseDto,
 } from './dtos'
-import { ApiBearerAuth, ApiNoContentResponse, ApiResponse, ApiTags } from '@nestjs/swagger'
+import { ApiBearerAuth, ApiNoContentResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger'
 import { UserRetriveAllResponse, UserRetriveResponse } from './interfaces'
 
 @ApiTags('User')
@@ -23,19 +23,32 @@ export class UserController {
 		this.#_service = service
 	}
 
-	@Get()
-	@ApiResponse({ type: UserRetrieveAllResponseDto })
-	UserRetrieveAll(@Query() payload: UserRetrieveAllRequestDto): Promise<UserRetriveAllResponse> {
+	@Get('supplier')
+	@ApiOkResponse({ type: UserRetrieveAllResponseDto })
+	SupplierRetrieveAll(@Query() payload: UserRetrieveAllRequestDto): Promise<UserRetriveAllResponse> {
 		return this.#_service.userRetrieveAll({
 			...payload,
+			type: 'supplier',
 			pageNumber: payload.pageNumber ?? PAGE_NUMBER,
 			pageSize: payload.pageSize ?? PAGE_SIZE,
-			pagination: [true, 'true'].includes(payload.pagination) ? true : false,
+			pagination: [true, 'true'].includes(payload.pagination) ? false : true,
+		})
+	}
+
+	@Get('client')
+	@ApiOkResponse({ type: UserRetrieveAllResponseDto })
+	ClientRetrieveAll(@Query() payload: UserRetrieveAllRequestDto): Promise<UserRetriveAllResponse> {
+		return this.#_service.userRetrieveAll({
+			...payload,
+			type: 'client',
+			pageNumber: payload.pageNumber ?? PAGE_NUMBER,
+			pageSize: payload.pageSize ?? PAGE_SIZE,
+			pagination: [true, 'true'].includes(payload.pagination) ? false : true,
 		})
 	}
 
 	@Get(':id')
-	@ApiResponse({ type: UserRetrieveResponseDto })
+	@ApiOkResponse({ type: UserRetrieveResponseDto })
 	UserRetrieve(@Param() payload: UserRetrieveRequestDto): Promise<UserRetriveResponse> {
 		return this.#_service.userRetrieve(payload)
 	}

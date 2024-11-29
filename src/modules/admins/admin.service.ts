@@ -1,7 +1,15 @@
 import { Injectable, ForbiddenException, NotFoundException } from '@nestjs/common'
 import { PrismaService } from '@prisma'
 import * as bcrypt from 'bcrypt'
-import { AdminCreateRequest, AdminDeleteRequest, AdminRetriveAllRequest, AdminRetriveAllResponse, AdminRetriveRequest, AdminRetriveResponse, AdminUpdateRequest } from './interfaces'
+import {
+	AdminCreateRequest,
+	AdminDeleteRequest,
+	AdminRetriveAllRequest,
+	AdminRetriveAllResponse,
+	AdminRetriveRequest,
+	AdminRetriveResponse,
+	AdminUpdateRequest,
+} from './interfaces'
 
 @Injectable()
 export class AdminService {
@@ -72,12 +80,12 @@ export class AdminService {
 
 	async adminCreate(payload: AdminCreateRequest): Promise<null> {
 		const admin = await this.#_prisma.admins.findFirst({
-			where: {phone: payload.phone,}
+			where: { phone: payload.phone },
 		})
 
 		if (admin && admin.deletedAt === null) {
 			throw new ForbiddenException('This phone already exists')
-		} else if (admin && admin.createdAt !== null) { 
+		} else if (admin && admin.createdAt !== null) {
 			throw new ForbiddenException('This user deleted')
 		}
 
@@ -96,7 +104,7 @@ export class AdminService {
 
 	async adminUpdate(payload: AdminUpdateRequest): Promise<null> {
 		const admin = await this.#_prisma.admins.findUnique({
-			where: {id: payload.id}
+			where: { id: payload.id },
 		})
 
 		if (!admin) throw new NotFoundException('admin not found')
@@ -114,7 +122,7 @@ export class AdminService {
 
 	async adminDelete(payload: AdminDeleteRequest): Promise<null> {
 		const admin = await this.#_prisma.admins.findUnique({
-			where: {id: payload.id}
+			where: { id: payload.id },
 		})
 
 		if (!admin) throw new NotFoundException('admin not found')

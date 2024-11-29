@@ -4,15 +4,15 @@ export declare interface AdminCreateRequest {
 	password: string
 }
 
-export declare interface AdminUpdateRequest { 
-	id: string 
+export declare interface AdminUpdateRequest {
+	id: string
 	name?: string
 	phone?: string
 	password?: string
 }
 
-export declare interface AdminDeleteRequest { 
-	id: string 
+export declare interface AdminDeleteRequest {
+	id: string
 }
 
 export declare interface AdminRetriveAllRequest {
