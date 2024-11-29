@@ -1,9 +1,15 @@
 import { IsBooleanString, IsInt, IsNotEmpty, IsNumber, IsOptional, IsPositive, IsString, IsUUID } from 'class-validator'
 import { Type } from 'class-transformer'
-import { ProductCreateRequest, ProductDeleteRequest, ProductRetriveAllRequest, ProductRetriveRequest, ProductUpdateRequest } from '../interfaces'
+import {
+	IncomingProductCreateRequest,
+	IncomingProductDeleteRequest,
+	IncomingProductRetriveAllRequest,
+	IncomingProductRetriveRequest,
+	IncomingProductUpdateRequest,
+} from '../interfaces'
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
 
-export class ProductRetrieveAllRequestDto implements ProductRetriveAllRequest {
+export class IncomingProductRetrieveAllRequestDto implements IncomingProductRetriveAllRequest {
 	@ApiPropertyOptional({ type: Number })
 	@IsPositive()
 	@IsInt()
@@ -39,61 +45,36 @@ export class ProductRetrieveAllRequestDto implements ProductRetriveAllRequest {
 	endDate?: string
 }
 
-export class ProductRetrieveRequestDto implements ProductRetriveRequest {
+export class IncomingProductRetrieveRequestDto implements IncomingProductRetriveRequest {
 	@ApiProperty({ type: String })
 	@IsUUID('4')
 	@IsNotEmpty()
 	id: string
 }
 
-export class ProductCreateRequestDto implements ProductCreateRequest {
+export class IncomingProductCreateRequestDto implements IncomingProductCreateRequest {
 	@ApiProperty({ type: String })
-	@IsString()
+	@IsUUID('4')
 	@IsNotEmpty()
-	name: string
+	product_id: string
 
 	@ApiProperty({ type: Number })
 	@IsNumber()
 	@IsNotEmpty()
 	count: number
 
-	@ApiProperty({ type: String })
-	@IsString()
-	@IsNotEmpty()
-	unit: string
-
-	@ApiProperty({ type: Number })
-	@IsNumber()
-	@IsNotEmpty()
-	min_amount: number
-
 	@ApiProperty({ type: Number })
 	@IsNumber()
 	@IsNotEmpty()
 	cost: number
 
-	@ApiProperty({ type: Number })
-	@IsNumber()
-	@IsNotEmpty()
-	selling_price: number
-
-	@ApiProperty({ type: Number })
-	@IsNumber()
-	@IsNotEmpty()
-	wholesale_price: number
-
-	@ApiPropertyOptional({ type: String })
-	@IsString()
+	@ApiPropertyOptional({ type: Boolean, example: false })
+	@IsBooleanString()
 	@IsOptional()
-	image?: string
-
-	@ApiPropertyOptional({ type: String })
-	@IsString()
-	@IsOptional()
-	category?: string
+	accepted?: boolean
 }
 
-export class ProductUpdateRequestDto implements ProductUpdateRequest {
+export class IncomingProductUpdateRequestDto implements IncomingProductUpdateRequest {
 	@ApiProperty({ type: String })
 	@IsUUID('4')
 	@IsNotEmpty()
@@ -145,7 +126,7 @@ export class ProductUpdateRequestDto implements ProductUpdateRequest {
 	category?: string
 }
 
-export class ProductDeleteRequestDto implements ProductDeleteRequest {
+export class IncomingProductDeleteRequestDto implements IncomingProductDeleteRequest {
 	@ApiProperty({ type: String })
 	@IsUUID('4')
 	@IsNotEmpty()
