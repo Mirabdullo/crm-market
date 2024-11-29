@@ -86,6 +86,8 @@ export class ProductService {
 				selling_price: true,
 				unit: true,
 				wholesale_price: true,
+				image: true,
+				category: true,
 			},
 		})
 		if (!product) {
@@ -116,6 +118,8 @@ export class ProductService {
 				unit: payload.unit,
 				wholesale_price: payload.wholesale_price,
 				avarage_cost: payload.cost,
+				image: payload.image || null,
+				category: payload.category || null,
 			},
 		})
 
