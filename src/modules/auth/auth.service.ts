@@ -2,7 +2,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common'
 import * as bcrypt from 'bcrypt'
 import { AdminSignInRequest, AdminSignInResponse } from './interfaces'
 import { JwtService } from '@nestjs/jwt'
-import { PrismaService } from '../../prisma'
+import { PrismaService } from '@prisma'
 import { AdminRetriveResponse } from '../admins'
 import { JwtConfig } from '../../configs'
 
