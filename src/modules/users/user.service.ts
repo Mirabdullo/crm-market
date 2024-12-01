@@ -40,6 +40,7 @@ export class UserService {
 		const totalCount = await this.#_prisma.users.count({
 			where: {
 				deletedAt: null,
+				type: payload.type as UserTypeEnum,
 				name: { contains: payload.search, mode: 'insensitive' },
 				phone: { contains: payload.search, mode: 'insensitive' },
 			},
@@ -86,6 +87,7 @@ export class UserService {
 				name: payload.name,
 				phone: payload.phone,
 				type: 'supplier',
+				debt: 0,
 			},
 		})
 
@@ -108,6 +110,7 @@ export class UserService {
 				name: payload.name,
 				phone: payload.phone,
 				type: 'client',
+				debt: 0,
 			},
 		})
 
