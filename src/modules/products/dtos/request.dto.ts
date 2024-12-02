@@ -57,15 +57,15 @@ export class ProductCreateRequestDto implements ProductCreateRequest {
 	@IsNotEmpty()
 	count: number
 
-	@ApiProperty({ type: String })
+	@ApiPropertyOptional({ type: String })
 	@IsString()
-	@IsNotEmpty()
-	unit: string
+	@IsOptional()
+	unit?: string
 
-	@ApiProperty({ type: Number })
+	@ApiPropertyOptional({ type: Number })
 	@IsNumber()
-	@IsNotEmpty()
-	min_amount: number
+	@IsOptional()
+	min_amount?: number
 
 	@ApiProperty({ type: Number })
 	@IsNumber()
@@ -77,10 +77,10 @@ export class ProductCreateRequestDto implements ProductCreateRequest {
 	@IsNotEmpty()
 	selling_price: number
 
-	@ApiProperty({ type: Number })
+	@ApiPropertyOptional({ type: Number })
 	@IsNumber()
-	@IsNotEmpty()
-	wholesale_price: number
+	@IsOptional()
+	wholesale_price?: number
 
 	@ApiPropertyOptional({ type: String })
 	@IsString()
@@ -106,42 +106,42 @@ export class ProductUpdateRequestDto implements ProductUpdateRequest {
 
 	@ApiPropertyOptional({ type: Number })
 	@IsNumber()
-	@IsNotEmpty()
+	@IsOptional()
 	count?: number
 
 	@ApiPropertyOptional({ type: String })
 	@IsString()
-	@IsNotEmpty()
+	@IsOptional()
 	unit?: string
 
 	@ApiPropertyOptional({ type: Number })
 	@IsNumber()
-	@IsNotEmpty()
+	@IsOptional()
 	min_amount?: number
 
 	@ApiPropertyOptional({ type: Number })
 	@IsNumber()
-	@IsNotEmpty()
+	@IsOptional()
 	cost?: number
 
 	@ApiPropertyOptional({ type: Number })
 	@IsNumber()
-	@IsNotEmpty()
+	@IsOptional()
 	selling_price?: number
 
 	@ApiPropertyOptional({ type: Number })
 	@IsNumber()
-	@IsNotEmpty()
+	@IsOptional()
 	wholesale_price?: number
 
 	@ApiPropertyOptional({ type: String })
 	@IsString()
-	@IsNotEmpty()
+	@IsOptional()
 	image?: string
 
 	@ApiPropertyOptional({ type: String })
 	@IsString()
-	@IsNotEmpty()
+	@IsOptional()
 	category?: string
 }
 

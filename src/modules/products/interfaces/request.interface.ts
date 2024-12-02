@@ -1,11 +1,11 @@
 export interface ProductCreateRequest {
 	name: string
 	count: number
-	unit: string
-	min_amount: number
+	unit?: string
+	min_amount?: number
 	cost: number
 	selling_price: number
-	wholesale_price: number
+	wholesale_price?: number
 	image?: string
 	category?: string
 }
