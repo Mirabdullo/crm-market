@@ -62,7 +62,7 @@ export class UserController {
 	@Post('client')
 	@ApiNoContentResponse()
 	ClientCreate(@Body() payload: UserCreateRequestDto): Promise<null> {
-		return this.#_service.supplierCreate(payload)
+		return this.#_service.clientCreate(payload)
 	}
 
 	@Patch(':id')
