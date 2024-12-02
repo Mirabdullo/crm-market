@@ -30,6 +30,7 @@ export class ProductService {
 
 		const productList = await this.#_prisma.products.findMany({
 			where: {
+				deletedAt: null,
 				name: { contains: payload.search, mode: 'insensitive' },
 			},
 			select: {
