@@ -56,6 +56,11 @@ export class IncomingProductCreateRequestDto implements IncomingProductCreateReq
 	@ApiProperty({ type: String })
 	@IsUUID('4')
 	@IsNotEmpty()
+	incomingOrderId: string
+
+	@ApiProperty({ type: String })
+	@IsUUID('4')
+	@IsNotEmpty()
 	product_id: string
 
 	@ApiProperty({ type: Number })
@@ -68,10 +73,15 @@ export class IncomingProductCreateRequestDto implements IncomingProductCreateReq
 	@IsNotEmpty()
 	cost: number
 
-	@ApiPropertyOptional({ type: Boolean, example: false })
-	@IsBooleanString()
+	@ApiPropertyOptional({ type: Number })
+	@IsNumber()
 	@IsOptional()
-	accepted?: boolean
+	selling_price?: number
+
+	@ApiPropertyOptional({ type: Number })
+	@IsNumber()
+	@IsOptional()
+	wholesale_price?: number
 }
 
 export class IncomingProductUpdateRequestDto implements IncomingProductUpdateRequest {
@@ -80,50 +90,25 @@ export class IncomingProductUpdateRequestDto implements IncomingProductUpdateReq
 	@IsNotEmpty()
 	id: string
 
-	@ApiPropertyOptional({ type: String })
-	@IsString()
-	@IsOptional()
-	name?: string
-
 	@ApiPropertyOptional({ type: Number })
 	@IsNumber()
-	@IsNotEmpty()
+	@IsOptional()
 	count?: number
 
-	@ApiPropertyOptional({ type: String })
-	@IsString()
-	@IsNotEmpty()
-	unit?: string
-
 	@ApiPropertyOptional({ type: Number })
 	@IsNumber()
-	@IsNotEmpty()
-	min_amount?: number
-
-	@ApiPropertyOptional({ type: Number })
-	@IsNumber()
-	@IsNotEmpty()
+	@IsOptional()
 	cost?: number
 
 	@ApiPropertyOptional({ type: Number })
 	@IsNumber()
-	@IsNotEmpty()
+	@IsOptional()
 	selling_price?: number
 
 	@ApiPropertyOptional({ type: Number })
 	@IsNumber()
-	@IsNotEmpty()
+	@IsOptional()
 	wholesale_price?: number
-
-	@ApiPropertyOptional({ type: String })
-	@IsString()
-	@IsNotEmpty()
-	image?: string
-
-	@ApiPropertyOptional({ type: String })
-	@IsString()
-	@IsNotEmpty()
-	category?: string
 }
 
 export class IncomingProductDeleteRequestDto implements IncomingProductDeleteRequest {

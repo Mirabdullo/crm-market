@@ -1,15 +1,18 @@
 export interface IncomingProductCreateRequest {
+	incomingOrderId: string
 	product_id: string
-	count: number
 	cost: number
-	accepted?: boolean
+	count: number
+	selling_price?: number
+	wholesale_price?: number
 }
 
 export interface IncomingProductUpdateRequest {
 	id: string
-	count?: number
 	cost?: number
-	accepted?: boolean
+	count?: number
+	selling_price?: number
+	wholesale_price?: number
 }
 
 export interface IncomingProductDeleteRequest {

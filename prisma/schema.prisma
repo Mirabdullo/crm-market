@@ -65,7 +65,9 @@ model Users {
   deletedAt  DateTime?      @map("deleted_at")  @db.Timestamp
 
   orders     Order[]
+  incomingOrder IncomingOrder[]
   payments   Payment[]
+  incomingOrderPayment IncomingOrderPayment[]
 
   @@id([ id ])
   @@map("users")
@@ -87,22 +89,44 @@ model Products {
   updatedAt        DateTime       @map("updated_at")       @db.Timestamp  @updatedAt
   deletedAt        DateTime?      @map("deleted_at")       @db.Timestamp
 
-  incomingProducts IncomingProducts[]
-  orderProducts    OrderProducts[]
+  incomingProducts  IncomingProducts[]
+  orderProducts     OrderProducts[]
 
   @@id([ id ])
   @@map("products")
 }
 
-model IncomingProducts {
-  id               String         @map("id")               @db.Uuid       @default(dbgenerated("GEN_RANDOM_UUID()"))
-  productId        String         @map("product_id")       @db.Uuid() 
-  count            Int            @map("count")            @db.Integer()
-  cost             Decimal        @map("cost")             @db.Decimal(10,3)
-  createdAt        DateTime       @map("created_at")       @db.Timestamp  @default(now())
-  updatedAt        DateTime       @map("updated_at")       @db.Timestamp  @updatedAt
-  deletedAt        DateTime?      @map("deleted_at")       @db.Timestamp
+model IncomingOrder {
+  id          String     @map("id")            @db.Uuid       @default(dbgenerated("GEN_RANDOM_UUID()"))
+  supplierId  String     @map("supplier_id")   @db.Uuid() 
+  sum         Decimal    @map("sum")           @db.Decimal(10,3)
+  debt        Decimal    @map("debt")          @db.Decimal(10,3)  @default(0)
+  accepted    Boolean    @map("accepted")      @db.Boolean    @default(false)
+  createdAt   DateTime   @map("created_at")    @db.Timestamp  @default(now())
+  updatedAt   DateTime   @map("updated_at")    @db.Timestamp  @updatedAt
+  deletedAt   DateTime?  @map("deleted_at")    @db.Timestamp
 
+  incomingProducts   IncomingProducts[]
+  payment    IncomingOrderPayment[]
+  supplier     Users @relation(fields: [supplierId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([ id ])
+  @@map("incoming_order")
+}
+
+model IncomingProducts {
+  id               String         @map("id")                 @db.Uuid       @default(dbgenerated("GEN_RANDOM_UUID()"))
+  incomingOrderId  String         @map("incoming_order_id")  @db.Uuid() 
+  productId        String         @map("product_id")         @db.Uuid() 
+  count            Int            @map("count")              @db.Integer()
+  cost             Decimal        @map("cost")               @db.Decimal(10,3)
+  selling_price    Decimal?       @map("selling_price")      @db.Decimal(10,3)
+  wholesale_price  Decimal?       @map("wholesale_price")    @db.Decimal(10,3)
+  createdAt        DateTime       @map("created_at")         @db.Timestamp  @default(now())
+  updatedAt        DateTime       @map("updated_at")         @db.Timestamp  @updatedAt
+  deletedAt        DateTime?      @map("deleted_at")         @db.Timestamp
+
+  incomingOrder IncomingOrder @relation(fields: [incomingOrderId], references: [id], onDelete: Cascade, onUpdate: NoAction)
   product  Products  @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   @@id([ id ])
@@ -163,4 +187,23 @@ model Payment {
 
   @@id([ id ])
   @@map("payment")
+}
+
+model IncomingOrderPayment {
+  id         String     @map("id")               @db.Uuid       @default(dbgenerated("GEN_RANDOM_UUID()"))
+  orderId    String     @map("order_id")         @db.Uuid() 
+  clientId   String     @map("client_id")        @db.Uuid() 
+  cash       Decimal?   @map("cost")             @db.Decimal(10,3)  @default(0)
+  transfer   Decimal?   @map("avarage_cost")     @db.Decimal(10,3)  @default(0)
+  card       Decimal?   @map("selling_price")    @db.Decimal(10,3)  @default(0)
+  other      Decimal?   @map("wholesale_price")  @db.Decimal(10,3)  @default(0)
+  createdAt  DateTime   @map("created_at")       @db.Timestamp  @default(now())
+  updatedAt  DateTime   @map("updated_at")       @db.Timestamp  @updatedAt
+  deletedAt  DateTime?  @map("deleted_at")       @db.Timestamp
+
+  order    IncomingOrder    @relation(fields: [orderId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  client   Users    @relation(fields: [clientId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([ id ])
+  @@map("incoming_order_payment")
 }

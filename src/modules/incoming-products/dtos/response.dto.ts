@@ -1,19 +1,38 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { IncomingProductRetriveAllResponse, IncomingProductRetriveResponse } from '../interfaces'
-import { ProductRetrieveResponseDto, ProductRetriveResponse } from '../../products'
+import { IncomingProductRetriveAllResponse, IncomingProductRetriveResponse, ProductForIncomingProduct } from '../interfaces'
+
+export class ProductForIncomingProductDto implements ProductForIncomingProduct {
+	@ApiProperty({ type: String })
+	id: string
+
+	@ApiProperty({ type: String })
+	name: string
+
+	@ApiProperty({ type: Number })
+	count: number
+}
 
 export class IncomingProductRetrieveResponseDto implements IncomingProductRetriveResponse {
 	@ApiProperty({ type: String })
 	id: string
 
 	@ApiProperty({ type: Number })
-	count: number
-
-	@ApiProperty({ type: Number })
 	cost: number
 
-	@ApiProperty({ type: ProductRetrieveResponseDto })
-	product: ProductRetriveResponse
+	@ApiProperty({ type: Number })
+	count: number
+
+	@ApiProperty({ type: String })
+	createdAt: Date
+
+	@ApiProperty({ type: Number })
+	selling_price: number
+
+	@ApiProperty({ type: Number })
+	wholesale_price: number
+
+	@ApiProperty({ type: ProductForIncomingProductDto })
+	product: ProductForIncomingProduct
 }
 
 export class IncomingProductRetrieveAllResponseDto implements IncomingProductRetriveAllResponse {

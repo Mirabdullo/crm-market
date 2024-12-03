@@ -3,7 +3,7 @@ import { ConfigModule } from '@nestjs/config'
 import { PrismaModule } from './prisma'
 import { databaseConfig } from './configs'
 import { JwtModule } from '@nestjs/jwt'
-import { AdminModule, AuthModule, IncomingProductModule, PaymentModule, PermissionModule, ProductModule, RoleModule, UserModule } from './modules'
+import { AdminModule, AuthModule, IncomingOrderModule, IncomingProductModule, PaymentModule, PermissionModule, ProductModule, RoleModule, UserModule } from './modules'
 
 @Module({
 	imports: [
@@ -16,6 +16,7 @@ import { AdminModule, AuthModule, IncomingProductModule, PaymentModule, Permissi
 		RoleModule,
 		PermissionModule,
 		ProductModule,
+		IncomingOrderModule,
 		IncomingProductModule,
 		PaymentModule,
 	],

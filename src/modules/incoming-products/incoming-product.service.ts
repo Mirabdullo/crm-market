@@ -36,20 +36,15 @@ export class IncomingProductService {
 				id: true,
 				cost: true,
 				count: true,
+				createdAt: true,
+				selling_price: true,
+				wholesale_price: true,
 				product: {
 					select: {
 						id: true,
 						name: true,
-						avarage_cost: true,
-						category: true,
-						cost: true,
 						count: true,
 						createdAt: true,
-						image: true,
-						min_amount: true,
-						selling_price: true,
-						unit: true,
-						wholesale_price: true,
 					},
 				},
 			},
@@ -59,12 +54,10 @@ export class IncomingProductService {
 		const transformedIncomingProductList = incomingProductList.map((incomingProduct) => ({
 			...incomingProduct,
 			cost: (incomingProduct.cost as Decimal).toNumber(),
+			selling_price: (incomingProduct.selling_price as Decimal).toNumber(),
+			wholesale_price: (incomingProduct.wholesale_price as Decimal).toNumber(),
 			product: {
 				...incomingProduct.product,
-				cost: (incomingProduct.cost as Decimal).toNumber(),
-				avarage_cost: incomingProduct.product.avarage_cost ? (incomingProduct.product.avarage_cost as Decimal).toNumber() : undefined,
-				selling_price: (incomingProduct.product.selling_price as Decimal).toNumber(),
-				wholesale_price: (incomingProduct.product.wholesale_price as Decimal).toNumber(),
 			},
 		}))
 
@@ -90,20 +83,15 @@ export class IncomingProductService {
 				id: true,
 				cost: true,
 				count: true,
+				createdAt: true,
+				selling_price: true,
+				wholesale_price: true,
 				product: {
 					select: {
 						id: true,
 						name: true,
-						avarage_cost: true,
-						category: true,
-						cost: true,
 						count: true,
 						createdAt: true,
-						image: true,
-						min_amount: true,
-						selling_price: true,
-						unit: true,
-						wholesale_price: true,
 					},
 				},
 			},
@@ -114,12 +102,13 @@ export class IncomingProductService {
 		return {
 			...incomingProduct,
 			cost: (incomingProduct.cost as Decimal).toNumber(),
+			selling_price: (incomingProduct.selling_price as Decimal).toNumber(),
+			wholesale_price: (incomingProduct.wholesale_price as Decimal).toNumber(),
 			product: {
 				...incomingProduct.product,
-				cost: (incomingProduct.cost as Decimal).toNumber(),
-				avarage_cost: incomingProduct.product.avarage_cost ? (incomingProduct.product.avarage_cost as Decimal).toNumber() : undefined,
-				selling_price: (incomingProduct.product.selling_price as Decimal).toNumber(),
-				wholesale_price: (incomingProduct.product.wholesale_price as Decimal).toNumber(),
+				id: incomingProduct.product.id,
+				name: incomingProduct.product.name,
+				count: incomingProduct.product.count,
 			},
 		}
 	}
@@ -132,6 +121,9 @@ export class IncomingProductService {
 
 		await this.#_prisma.incomingProducts.create({
 			data: {
+				incomingOrderId: payload.incomingOrderId,
+				selling_price: payload.selling_price,
+				wholesale_price: payload.wholesale_price,
 				productId: payload.product_id,
 				cost: payload.cost,
 				count: payload.count,
