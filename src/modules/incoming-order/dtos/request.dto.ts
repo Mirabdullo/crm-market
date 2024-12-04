@@ -1,4 +1,4 @@
-import { IsArray, IsBooleanString, IsInt, IsNotEmpty, IsNumber, IsOptional, IsPositive, IsString, IsUUID } from 'class-validator'
+import { IsArray, IsBoolean, IsBooleanString, IsInt, IsNotEmpty, IsNumber, IsOptional, IsPositive, IsString, IsUUID } from 'class-validator'
 import { Type } from 'class-transformer'
 import { IncomingOrderCreateRequest, IncomingOrderDeleteRequest, IncomingOrderRetriveAllRequest, IncomingOrderRetriveRequest, IncomingOrderUpdateRequest } from '../interfaces'
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
@@ -69,7 +69,7 @@ export class IncomingOrderCreateRequestDto implements IncomingOrderCreateRequest
 	products: IncomingProductCreateRequest[]
 
 	@ApiPropertyOptional({ type: Boolean, example: false })
-	@IsBooleanString()
+	@IsBoolean()
 	@IsOptional()
 	accepted?: boolean
 }
