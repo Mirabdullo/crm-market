@@ -23,10 +23,7 @@ export class AdminService {
 		let searchOption = {}
 		if (payload.search) {
 			searchOption = {
-				OR: [
-					{ name: { contains: payload.search, mode: 'insensitive' } },
-					{ phone: { contains: payload.search, mode: 'insensitive' } }
-				],
+				OR: [{ name: { contains: payload.search, mode: 'insensitive' } }, { phone: { contains: payload.search, mode: 'insensitive' } }],
 			}
 		}
 

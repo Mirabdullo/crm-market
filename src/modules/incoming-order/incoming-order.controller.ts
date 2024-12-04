@@ -44,7 +44,10 @@ export class IncomingOrderController {
 	@HttpCode(HttpStatus.NO_CONTENT)
 	@ApiNoContentResponse()
 	IncomingOrderCreate(@Body() payload: IncomingOrderCreateRequestDto): Promise<null> {
-		return this.#_service.incomingOrderCreate(payload)
+		return this.#_service.incomingOrderCreate({
+			...payload,
+			accepted: [true, 'true'].includes(payload.accepted) ? true : false,
+		})
 	}
 
 	@Patch(':id')
