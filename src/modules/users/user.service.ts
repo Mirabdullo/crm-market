@@ -19,13 +19,23 @@ export class UserService {
 				skip: (payload.pageNumber - 1) * payload.pageSize,
 			}
 		}
+		
 		console.log(payload.type)
+		let searchOption = {}
+		if (payload.search) {
+			searchOption = {
+				OR: [
+					{ name: { contains: payload.search, mode: 'insensitive' } },
+					{ phone: { contains: payload.search, mode: 'insensitive' } }
+				],
+			}
+		}
+
 		const userList = await this.#_prisma.users.findMany({
 			where: {
 				deletedAt: null,
-				name: { contains: payload.search, mode: 'insensitive' },
-				phone: { contains: payload.search, mode: 'insensitive' },
 				type: payload.type as UserTypeEnum,
+				...searchOption,
 			},
 			...paginationOptions,
 			select: {
@@ -41,8 +51,7 @@ export class UserService {
 			where: {
 				deletedAt: null,
 				type: payload.type as UserTypeEnum,
-				name: { contains: payload.search, mode: 'insensitive' },
-				phone: { contains: payload.search, mode: 'insensitive' },
+				...searchOption,
 			},
 		})
 

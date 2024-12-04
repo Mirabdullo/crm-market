@@ -20,11 +20,20 @@ export class AdminService {
 	}
 
 	async adminRetrieveAll(payload: AdminRetriveAllRequest): Promise<AdminRetriveAllResponse> {
+		let searchOption = {}
+		if (payload.search) {
+			searchOption = {
+				OR: [
+					{ name: { contains: payload.search, mode: 'insensitive' } },
+					{ phone: { contains: payload.search, mode: 'insensitive' } }
+				],
+			}
+		}
+
 		const adminList = await this.#_prisma.admins.findMany({
 			where: {
 				deletedAt: null,
-				name: { contains: payload.search, mode: 'insensitive' },
-				phone: { contains: payload.search, mode: 'insensitive' },
+				...searchOption,
 			},
 			take: payload.pageSize,
 			skip: (payload.pageNumber - 1) * payload.pageSize,
@@ -41,8 +50,7 @@ export class AdminService {
 		const totalCount = await this.#_prisma.admins.count({
 			where: {
 				deletedAt: null,
-				name: { contains: payload.search, mode: 'insensitive' },
-				phone: { contains: payload.search, mode: 'insensitive' },
+				...searchOption,
 			},
 		})
 
