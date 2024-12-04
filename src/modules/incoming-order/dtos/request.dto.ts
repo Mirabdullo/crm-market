@@ -71,6 +71,7 @@ export class IncomingOrderCreateRequestDto implements IncomingOrderCreateRequest
 	@ApiPropertyOptional({ type: Boolean, example: false })
 	@IsBooleanString()
 	@IsOptional()
+	@Type(() => Boolean)
 	accepted?: boolean
 }
 
