@@ -6,6 +6,7 @@ export interface IncomingOrderCreateRequest {
 	createdAt: string
 	accepted?: boolean
 	products: IncomingProductCreateRequest[]
+	userId: string
 }
 
 export interface IncomingOrderUpdateRequest {

@@ -49,6 +49,26 @@ export class PaymentRetrieveResponseDto implements PaymentRetriveResponse {
 	client: PaymentClient
 }
 
+export class PaymentResponseDto implements PaymentRetriveResponse {
+	@ApiProperty({ type: String })
+	id: string
+
+	@ApiProperty({ type: Number })
+	cash: number
+
+	@ApiProperty({ type: Number })
+	card: number
+
+	@ApiProperty({ type: Number })
+	transfer: number
+
+	@ApiProperty({ type: Number })
+	other: number
+
+	@ApiProperty({ type: Date })
+	createdAt: Date
+}
+
 export class PaymentRetrieveAllResponseDto implements PaymentRetriveAllResponse {
 	@ApiProperty({ type: Number })
 	pageSize: number

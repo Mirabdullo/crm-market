@@ -15,6 +15,15 @@ export declare interface PaymentRetriveResponse {
 	createdAt: Date
 }
 
+export declare interface PaymentResponse {
+	id: string
+	cash: number
+	transfer: number
+	card: number
+	other: number
+	createdAt: Date
+}
+
 export declare interface PaymentOrder {
 	id: string
 	sum: number

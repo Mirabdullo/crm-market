@@ -1,4 +1,6 @@
+import { AdminResponse } from '../../admins'
 import { IncomingProductRetriveResponse } from '../../incoming-products'
+import { PaymentResponse } from '../../payment'
 import { UserRetriveResponse } from '../../users'
 
 export declare interface IncomingOrderRetriveAllResponse {
@@ -15,5 +17,7 @@ export declare interface IncomingOrderRetriveResponse {
 	accepted: boolean
 	createdAt: Date
 	supplier: UserRetriveResponse
+	admin: AdminResponse
+	payment: PaymentResponse
 	incomingProducts: IncomingProductRetriveResponse[]
 }

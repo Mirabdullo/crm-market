@@ -15,6 +15,12 @@ export declare interface AdminRetriveResponse {
 	permissions?: AdminPermissions[]
 }
 
+export declare interface AdminResponse {
+	id: string
+	name: string
+	phone: string
+}
+
 export declare interface AdminPermissions {
 	id: string
 	name: string

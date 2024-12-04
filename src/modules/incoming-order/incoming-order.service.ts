@@ -45,6 +45,23 @@ export class IncomingOrderService {
 						createdAt: true,
 					},
 				},
+				admin: {
+					select: {
+						id: true,
+						name: true,
+						phone: true,
+					},
+				},
+				payment: {
+					select: {
+						id: true,
+						card: true,
+						cash: true,
+						transfer: true,
+						other: true,
+						createdAt: true,
+					},
+				},
 				incomingProducts: {
 					select: {
 						id: true,
@@ -71,12 +88,15 @@ export class IncomingOrderService {
 			sum: order.sum.toNumber(),
 			accepted: order.accepted,
 			createdAt: order.createdAt,
-			supplier: {
-				id: order.supplier.id,
-				name: order.supplier.name,
-				phone: order.supplier.phone,
-				createdAt: order.supplier.createdAt,
-			},
+			payment: order.payment.map((pay) => {
+				return {
+					...pay,
+					cash: (pay.cash as Decimal).toNumber(),
+					card: (pay.card as Decimal).toNumber(),
+					transfer: (pay.transfer as Decimal).toNumber(),
+					other: (pay.other as Decimal).toNumber(),
+				}
+			})[0],
 			incomingProducts: order.incomingProducts.map((incomingProduct) => ({
 				id: incomingProduct.id,
 				cost: incomingProduct.cost.toNumber(),
@@ -123,6 +143,23 @@ export class IncomingOrderService {
 						createdAt: true,
 					},
 				},
+				admin: {
+					select: {
+						id: true,
+						name: true,
+						phone: true,
+					},
+				},
+				payment: {
+					select: {
+						id: true,
+						card: true,
+						cash: true,
+						transfer: true,
+						other: true,
+						createdAt: true,
+					},
+				},
 				incomingProducts: {
 					select: {
 						id: true,
@@ -152,12 +189,15 @@ export class IncomingOrderService {
 			sum: incomingOrder.sum.toNumber(),
 			accepted: incomingOrder.accepted,
 			createdAt: incomingOrder.createdAt,
-			supplier: {
-				id: incomingOrder.supplier.id,
-				name: incomingOrder.supplier.name,
-				phone: incomingOrder.supplier.phone,
-				createdAt: incomingOrder.supplier.createdAt,
-			},
+			payment: incomingOrder.payment.map((payment) => {
+				return {
+					...payment,
+					cash: (payment.cash as Decimal).toNumber(),
+					card: (payment.card as Decimal).toNumber(),
+					transfer: (payment.transfer as Decimal).toNumber(),
+					other: (payment.other as Decimal).toNumber(),
+				}
+			})[0],
 			incomingProducts: incomingOrder.incomingProducts.map((incomingProduct) => ({
 				id: incomingProduct.id,
 				cost: incomingProduct.cost.toNumber(),
@@ -183,6 +223,7 @@ export class IncomingOrderService {
 		const order = await this.#_prisma.incomingOrder.create({
 			data: {
 				supplierId: payload.supplierId,
+				adminId: payload.userId,
 				sum: payload.sum,
 				accepted: payload.accepted,
 			},
