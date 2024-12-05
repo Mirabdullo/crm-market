@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post, Query } from '@nestjs/common'
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post, Query, UseInterceptors } from '@nestjs/common'
 import { PaymentService } from './payment.service'
 import { PAGE_NUMBER, PAGE_SIZE } from './constants'
 import {
@@ -12,8 +12,10 @@ import {
 } from './dtos'
 import { ApiBearerAuth, ApiNoContentResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger'
 import { PaymentRetriveAllResponse, PaymentRetriveResponse } from './interfaces'
+import { PassUserIdInterceptor } from '../../interceptors'
 
 @ApiTags('Payment')
+@UseInterceptors(PassUserIdInterceptor)
 @ApiBearerAuth()
 @Controller('payment')
 export class PaymentController {
