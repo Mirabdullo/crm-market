@@ -9,6 +9,10 @@ export class PassUserIdInterceptor implements NestInterceptor {
 	async intercept(context: ExecutionContext, next: CallHandler): Promise<Observable<any>> {
 		const request = context.switchToHttp().getRequest<Request>()
 
+		if (request.url === 'admin/sign-in') {
+			return next.handle()
+		}
+
 		const accessToken = request.headers.authorization?.replace(/^(bearer)\s/i, '')
 
 		if (!accessToken || !isJWT(accessToken)) {
