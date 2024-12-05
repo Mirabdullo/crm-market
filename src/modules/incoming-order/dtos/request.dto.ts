@@ -2,7 +2,7 @@ import { IsArray, IsBoolean, IsBooleanString, IsInt, IsNotEmpty, IsNumber, IsOpt
 import { Type } from 'class-transformer'
 import { IncomingOrderCreateRequest, IncomingOrderDeleteRequest, IncomingOrderRetriveAllRequest, IncomingOrderRetriveRequest, IncomingOrderUpdateRequest } from '../interfaces'
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
-import { IncomingProductCreateRequest, IncomingProductCreateRequestDto, IncomingProductRetrieveResponseDto } from '../../incoming-products'
+import { IncomingProductCreateRequest, IncomingProductCreateRequestDto } from '../../incoming-products'
 
 export class IncomingOrderRetrieveAllRequestDto implements IncomingOrderRetriveAllRequest {
 	@ApiPropertyOptional({ type: Number })
