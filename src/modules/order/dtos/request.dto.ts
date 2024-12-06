@@ -3,6 +3,7 @@ import { Type } from 'class-transformer'
 import { OrderCreateRequest, OrderDeleteRequest, OrderRetriveAllRequest, OrderRetriveRequest, OrderUpdateRequest } from '../interfaces'
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
 import { OrderProductCreateRequest, OrderProductRetrieveRequestDto } from '../../order-products'
+import { PaymentCreateRequest, PaymentCreateRequestDto } from '../../payment'
 
 export class OrderRetrieveAllRequestDto implements OrderRetriveAllRequest {
 	@ApiPropertyOptional({ type: Number })
@@ -72,6 +73,11 @@ export class OrderCreateRequestDto implements OrderCreateRequest {
 	@IsArray()
 	@IsNotEmpty()
 	products: OrderProductCreateRequest[]
+
+	@ApiPropertyOptional({ type: PaymentCreateRequestDto })
+	@IsArray()
+	@IsOptional()
+	payment?: PaymentCreateRequest
 
 	@ApiPropertyOptional({ type: Boolean, example: false })
 	@IsBoolean()

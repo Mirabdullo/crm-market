@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common'
+import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common'
 import { PrismaService } from '@prisma'
 import {
 	OrderCreateRequest,
@@ -204,36 +204,77 @@ export class OrderService {
 	}
 
 	async OrderCreate(payload: OrderCreateRequest): Promise<null> {
-		const user = await this.#_prisma.users.findFirst({
-			where: { id: payload.clientId, deletedAt: null },
-		})
-		if (!user) throw new NotFoundException('Yetkazib beruvchi topilmadi')
+		try {
+			const { clientId, userId, products, accepted, payment } = payload
 
-		const order = await this.#_prisma.order.create({
-			data: {
-				clientId: payload.clientId,
-				adminId: payload.userId,
-				sum: payload.sum,
-				accepted: payload.accepted,
-			},
-		})
+			// Mijozni tekshirish
+			const user = await this.#_prisma.users.findFirst({
+				where: { id: clientId, deletedAt: null },
+			})
+			if (!user) throw new NotFoundException('Mijoz topilmadi')
 
-		const products = payload.products.map((product) => {
-			return {
+			// Buyurtma yaratish
+			const totalSum = products.reduce((sum, product) => sum + product.price, 0)
+			const order = await this.#_prisma.order.create({
+				data: {
+					clientId,
+					adminId: userId,
+					sum: totalSum,
+					accepted,
+				},
+			})
+
+			// OrderProductlar yaratish uchun
+			const orderProductsData = products.map((product) => ({
 				orderId: order.id,
 				productId: product.product_id,
 				cost: product.cost,
 				count: product.count,
 				price: product.price,
 				avarage_cost: product.avarage_cost,
+			}))
+
+			const promises = [this.#_prisma.orderProducts.createMany({ data: orderProductsData })]
+
+			// Mahsulot zaxirasini yangilash
+			if (accepted) {
+				const productUpdates = products.map((product) =>
+					this.#_prisma.products.update({
+						where: { id: product.product_id },
+						data: { count: { decrement: product.count } },
+					}),
+				)
+				promises.push(...productUpdates)
 			}
-		})
 
-		await this.#_prisma.orderProducts.createMany({
-			data: products,
-		})
+			await Promise.all(promises)
 
-		return null
+			// To'lovni boshqarish
+			const debt = totalSum - (payment?.card || 0) - (payment?.cash || 0) - (payment?.transfer || 0) - (payment?.other || 0)
+
+			if (payment) {
+				this.#_prisma.payment.create({
+					data: {
+						orderId: order.id,
+						clientId,
+						card: payment.card,
+						cash: payment.cash,
+						transfer: payment.transfer,
+						other: payment.other,
+					},
+				})
+			}
+
+			await this.#_prisma.users.update({
+				where: { id: clientId },
+				data: { debt: { increment: debt } },
+			})
+
+			return null
+		} catch (error) {
+			console.log(error)
+			throw new InternalServerErrorException('Kutilmagan xatolik!')
+		}
 	}
 
 	async OrderUpdate(payload: OrderUpdateRequest): Promise<null> {

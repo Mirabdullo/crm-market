@@ -1,4 +1,5 @@
 import { OrderProductCreateRequest } from '../../order-products'
+import { PaymentCreateRequest } from '../../payment'
 
 export interface OrderCreateRequest {
 	clientId: string
@@ -6,6 +7,7 @@ export interface OrderCreateRequest {
 	createdAt: string
 	accepted?: boolean
 	products: OrderProductCreateRequest[]
+	payment?: PaymentCreateRequest
 	userId: string
 }
 
