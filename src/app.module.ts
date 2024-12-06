@@ -9,6 +9,8 @@ import {
 	IncomingOrderModule,
 	IncomingOrderPaymentModule,
 	IncomingProductModule,
+	OrderModule,
+	OrderProductModule,
 	PaymentModule,
 	PermissionModule,
 	ProductModule,
@@ -29,8 +31,10 @@ import {
 		ProductModule,
 		IncomingOrderModule,
 		IncomingProductModule,
-		PaymentModule,
 		IncomingOrderPaymentModule,
+		OrderModule,
+		OrderProductModule,
+		PaymentModule,
 	],
 })
 export class AppModule {}
