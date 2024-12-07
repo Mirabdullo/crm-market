@@ -1,5 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { IncomingOrderPaymentClient, IncomingOrderPaymentOrder, IncomingOrderPaymentRetriveAllResponse, IncomingOrderPaymentRetriveResponse } from '../interfaces'
+import {
+	IncomingOrderPaymentClient,
+	IncomingOrderPaymentOrder,
+	IncomingOrderPaymentResponse,
+	IncomingOrderPaymentRetriveAllResponse,
+	IncomingOrderPaymentRetriveResponse,
+} from '../interfaces'
 
 export class IncomingOrderPaymentOrderDto implements IncomingOrderPaymentOrder {
 	@ApiProperty({ type: String })
@@ -39,17 +45,20 @@ export class IncomingOrderPaymentRetrieveResponseDto implements IncomingOrderPay
 	@ApiProperty({ type: Number })
 	other: number
 
+	@ApiProperty({ type: Number })
+	humo: number
+
 	@ApiProperty({ type: Date })
 	createdAt: Date
 
-	@ApiProperty({ type: IncomingOrderPaymentOrderDto })
-	order: IncomingOrderPaymentOrder
+	// @ApiProperty({ type: IncomingOrderPaymentOrderDto })
+	// order: IncomingOrderPaymentOrder
 
-	@ApiProperty({ type: IncomingOrderPaymentClientDto })
-	client: IncomingOrderPaymentClient
+	// @ApiProperty({ type: IncomingOrderPaymentClientDto })
+	// client: IncomingOrderPaymentClient
 }
 
-export class IncomingOrderPaymentResponseDto implements IncomingOrderPaymentRetriveResponse {
+export class IncomingOrderPaymentResponseDto implements IncomingOrderPaymentResponse {
 	@ApiProperty({ type: String })
 	id: string
 
@@ -64,6 +73,9 @@ export class IncomingOrderPaymentResponseDto implements IncomingOrderPaymentRetr
 
 	@ApiProperty({ type: Number })
 	other: number
+
+	@ApiProperty({ type: Number })
+	humo: number
 
 	@ApiProperty({ type: Date })
 	createdAt: Date

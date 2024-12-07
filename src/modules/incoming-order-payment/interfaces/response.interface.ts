@@ -12,7 +12,10 @@ export declare interface IncomingOrderPaymentRetriveResponse {
 	transfer: number
 	card: number
 	other: number
+	humo: number
 	createdAt: Date
+	// order: IncomingOrderPaymentOrder
+	// client: IncomingOrderPaymentClient
 }
 
 export declare interface IncomingOrderPaymentResponse {
@@ -21,6 +24,7 @@ export declare interface IncomingOrderPaymentResponse {
 	transfer: number
 	card: number
 	other: number
+	humo: number
 	createdAt: Date
 }
 

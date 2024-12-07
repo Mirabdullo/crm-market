@@ -1,3 +1,4 @@
+import { IncomingOrderPaymentRequest } from '../../incoming-order-payment'
 import { IncomingProductCreateRequest } from '../../incoming-products'
 
 export interface IncomingOrderCreateRequest {
@@ -6,6 +7,7 @@ export interface IncomingOrderCreateRequest {
 	createdAt: string
 	accepted?: boolean
 	products: IncomingProductCreateRequest[]
+	payment?: IncomingOrderPaymentRequest
 	userId: string
 }
 

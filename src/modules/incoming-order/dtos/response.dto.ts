@@ -12,6 +12,9 @@ export class IncomingOrderRetrieveResponseDto implements IncomingOrderRetriveRes
 	@ApiProperty({ type: Number })
 	sum: number
 
+	@ApiProperty({ type: Number })
+	debt: number
+
 	@ApiProperty({ type: Boolean })
 	accepted: boolean
 

@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common'
+import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common'
 import { PrismaService } from '@prisma'
 import {
 	IncomingOrderCreateRequest,
@@ -35,6 +35,7 @@ export class IncomingOrderService {
 			select: {
 				id: true,
 				sum: true,
+				debt: true,
 				accepted: true,
 				createdAt: true,
 				supplier: {
@@ -86,8 +87,7 @@ export class IncomingOrderService {
 		const formattedData = incomingOrderList.map((order) => ({
 			...order,
 			sum: order.sum.toNumber(),
-			accepted: order.accepted,
-			createdAt: order.createdAt,
+			debt: order.debt.toNumber(),
 			payment: order.payment.map((pay) => {
 				return {
 					...pay,
@@ -98,17 +98,10 @@ export class IncomingOrderService {
 				}
 			})[0],
 			incomingProducts: order.incomingProducts.map((incomingProduct) => ({
-				id: incomingProduct.id,
+				...incomingProduct,
 				cost: incomingProduct.cost.toNumber(),
-				count: incomingProduct.count,
-				createdAt: incomingProduct.createdAt,
 				selling_price: incomingProduct.selling_price.toNumber(),
 				wholesale_price: incomingProduct.wholesale_price.toNumber(),
-				product: {
-					id: incomingProduct.product.id,
-					name: incomingProduct.product.name,
-					count: incomingProduct.product.count,
-				},
 			})),
 		}))
 
@@ -133,6 +126,7 @@ export class IncomingOrderService {
 			select: {
 				id: true,
 				sum: true,
+				debt: true,
 				accepted: true,
 				createdAt: true,
 				supplier: {
@@ -187,8 +181,7 @@ export class IncomingOrderService {
 		return {
 			...incomingOrder,
 			sum: incomingOrder.sum.toNumber(),
-			accepted: incomingOrder.accepted,
-			createdAt: incomingOrder.createdAt,
+			debt: incomingOrder.debt.toNumber(),
 			payment: incomingOrder.payment.map((payment) => {
 				return {
 					...payment,
@@ -199,52 +192,87 @@ export class IncomingOrderService {
 				}
 			})[0],
 			incomingProducts: incomingOrder.incomingProducts.map((incomingProduct) => ({
-				id: incomingProduct.id,
+				...incomingProduct,
 				cost: incomingProduct.cost.toNumber(),
-				count: incomingProduct.count,
-				createdAt: incomingProduct.createdAt,
 				selling_price: incomingProduct.selling_price.toNumber(),
 				wholesale_price: incomingProduct.wholesale_price.toNumber(),
-				product: {
-					id: incomingProduct.product.id,
-					name: incomingProduct.product.name,
-					count: incomingProduct.product.count,
-				},
 			})),
 		}
 	}
 
 	async incomingOrderCreate(payload: IncomingOrderCreateRequest): Promise<null> {
-		const user = await this.#_prisma.users.findFirst({
-			where: { id: payload.supplierId, deletedAt: null },
-		})
-		if (!user) throw new NotFoundException('Yetkazib beruvchi topilmadi')
+		try {
+			const { supplierId, userId, accepted, createdAt, products, payment } = payload
+			const user = await this.#_prisma.users.findFirst({
+				where: { id: payload.supplierId, deletedAt: null },
+			})
+			if (!user) throw new NotFoundException('Yetkazib beruvchi topilmadi')
 
-		const order = await this.#_prisma.incomingOrder.create({
-			data: {
-				supplierId: payload.supplierId,
-				adminId: payload.userId,
-				sum: payload.sum,
-				accepted: payload.accepted,
-			},
-		})
+			const paymentSum = (payment?.card || 0) + (payment?.cash || 0) + (payment?.transfer || 0) + (payment?.other || 0) + (payment?.humo || 0)
+			const totalSum = products.reduce((sum, product) => sum + product.cost, 0)
+			const debt = totalSum - paymentSum
 
-		const products = payload.products.map((product) => {
-			return {
-				incomingOrderId: order.id,
-				productId: product.product_id,
-				cost: product.cost,
-				count: product.count,
-				selling_price: product.selling_price,
-				wholesale_price: product.wholesale_price,
+			const order = await this.#_prisma.incomingOrder.create({
+				data: {
+					supplierId: supplierId,
+					adminId: userId,
+					sum: totalSum,
+					debt,
+					accepted: accepted,
+					createdAt,
+				},
+			})
+
+			const mappedProducts = products.map((product) => {
+				return {
+					incomingOrderId: order.id,
+					productId: product.product_id,
+					cost: product.cost,
+					count: product.count,
+					selling_price: product.selling_price,
+					wholesale_price: product.wholesale_price,
+				}
+			})
+
+			await this.#_prisma.incomingProducts.createMany({
+				data: mappedProducts,
+			})
+
+			if (payment) {
+				await this.#_prisma.incomingOrderPayment.create({
+					data: {
+						orderId: order.id,
+						clientId: supplierId,
+						card: payment.card,
+						cash: payment.cash,
+						transfer: payment.transfer,
+						other: payment.other,
+						humo: payment.humo,
+					},
+				})
 			}
-		})
 
-		await this.#_prisma.incomingProducts.createMany({
-			data: products,
-		})
+			if (accepted) {
+				const productUpdates = products.map((product) =>
+					this.#_prisma.products.update({
+						where: { id: product.product_id },
+						data: {
+							cost: product.cost,
+							count: { increment: product.count },
+							selling_price: product.selling_price,
+							wholesale_price: product.wholesale_price,
+						},
+					}),
+				)
 
-		return null
+				await Promise.all(productUpdates)
+			}
+
+			return null
+		} catch (error) {
+			console.log(error)
+			throw new InternalServerErrorException('Kutilmagan xatolik')
+		}
 	}
 
 	async incomingOrderUpdate(payload: IncomingOrderUpdateRequest): Promise<null> {

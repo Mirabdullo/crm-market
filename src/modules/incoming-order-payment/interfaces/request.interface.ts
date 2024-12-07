@@ -5,6 +5,15 @@ export interface IncomingOrderPaymentCreateRequest {
 	transfer?: number
 	card?: number
 	other?: number
+	humo?: number
+}
+
+export interface IncomingOrderPaymentRequest {
+	cash?: number
+	transfer?: number
+	card?: number
+	other?: number
+	humo?: number
 }
 
 export interface IncomingOrderPaymentUpdateRequest {
@@ -13,6 +22,7 @@ export interface IncomingOrderPaymentUpdateRequest {
 	transfer?: number
 	card?: number
 	other?: number
+	humo?: number
 }
 
 export interface IncomingOrderPaymentDeleteRequest {

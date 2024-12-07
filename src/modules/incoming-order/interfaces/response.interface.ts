@@ -14,6 +14,7 @@ export declare interface IncomingOrderRetriveAllResponse {
 export declare interface IncomingOrderRetriveResponse {
 	id: string
 	sum: number
+	debt: number
 	accepted: boolean
 	createdAt: Date
 	supplier: UserRetriveResponse

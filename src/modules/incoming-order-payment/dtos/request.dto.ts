@@ -3,6 +3,7 @@ import { Type } from 'class-transformer'
 import {
 	IncomingOrderPaymentCreateRequest,
 	IncomingOrderPaymentDeleteRequest,
+	IncomingOrderPaymentRequest,
 	IncomingOrderPaymentRetriveAllRequest,
 	IncomingOrderPaymentRetriveRequest,
 	IncomingOrderPaymentUpdateRequest,
@@ -82,6 +83,33 @@ export class IncomingOrderPaymentCreateRequestDto implements IncomingOrderPaymen
 	@IsNumber()
 	@IsOptional()
 	other?: number
+}
+
+export class IncomingOrderPaymentRequestDto implements IncomingOrderPaymentRequest {
+	@ApiPropertyOptional({ type: Number })
+	@IsNumber()
+	@IsOptional()
+	cash?: number
+
+	@ApiPropertyOptional({ type: Number })
+	@IsNumber()
+	@IsOptional()
+	card?: number
+
+	@ApiPropertyOptional({ type: Number })
+	@IsNumber()
+	@IsOptional()
+	transfer?: number
+
+	@ApiPropertyOptional({ type: Number })
+	@IsNumber()
+	@IsOptional()
+	other?: number
+
+	@ApiPropertyOptional({ type: Number })
+	@IsNumber()
+	@IsOptional()
+	humo?: number
 }
 
 export class IncomingOrderPaymentUpdateRequestDto implements IncomingOrderPaymentUpdateRequest {

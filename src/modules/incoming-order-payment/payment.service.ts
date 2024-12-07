@@ -36,6 +36,7 @@ export class IncomingOrderPaymentService {
 				cash: true,
 				transfer: true,
 				other: true,
+				humo: true,
 				createdAt: true,
 				order: {
 					select: {
@@ -61,6 +62,7 @@ export class IncomingOrderPaymentService {
 			card: incomingOrderPayment.card ? (incomingOrderPayment.card as Decimal).toNumber() : undefined,
 			transfer: (incomingOrderPayment.transfer as Decimal).toNumber(),
 			other: (incomingOrderPayment.other as Decimal).toNumber(),
+			humo: (incomingOrderPayment.humo as Decimal).toNumber(),
 		}))
 
 		const totalCount = await this.#_prisma.incomingOrderPayment.count({
@@ -85,6 +87,7 @@ export class IncomingOrderPaymentService {
 				cash: true,
 				transfer: true,
 				other: true,
+				humo: true,
 				createdAt: true,
 				order: {
 					select: {
@@ -111,6 +114,7 @@ export class IncomingOrderPaymentService {
 			card: incomingOrderPayment.card ? (incomingOrderPayment.card as Decimal).toNumber() : undefined,
 			transfer: (incomingOrderPayment.transfer as Decimal).toNumber(),
 			other: (incomingOrderPayment.other as Decimal).toNumber(),
+			humo: (incomingOrderPayment.humo as Decimal).toNumber(),
 		}
 	}
 
@@ -128,6 +132,7 @@ export class IncomingOrderPaymentService {
 				transfer: payload.transfer,
 				card: payload.card,
 				other: payload.other,
+				humo: payload.humo,
 			},
 		})
 

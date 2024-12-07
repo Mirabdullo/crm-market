@@ -7,6 +7,13 @@ export interface PaymentCreateRequest {
 	other?: number
 }
 
+export interface PaymentRequest {
+	cash?: number
+	transfer?: number
+	card?: number
+	other?: number
+}
+
 export interface PaymentUpdateRequest {
 	id: string
 	cash?: number

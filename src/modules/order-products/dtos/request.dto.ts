@@ -1,6 +1,13 @@
 import { IsBooleanString, IsInt, IsNotEmpty, IsNumber, IsOptional, IsPositive, IsString, IsUUID } from 'class-validator'
 import { Type } from 'class-transformer'
-import { OrderProductCreateRequest, OrderProductDeleteRequest, OrderProductRetriveAllRequest, OrderProductRetriveRequest, OrderProductUpdateRequest } from '../interfaces'
+import {
+	OrderProductCreateRequest,
+	OrderProductDeleteRequest,
+	OrderProductRequest,
+	OrderProductRetriveAllRequest,
+	OrderProductRetriveRequest,
+	OrderProductUpdateRequest,
+} from '../interfaces'
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
 
 export class OrderProductRetrieveAllRequestDto implements OrderProductRetriveAllRequest {
@@ -52,6 +59,33 @@ export class OrderProductCreateRequestDto implements OrderProductCreateRequest {
 	@IsNotEmpty()
 	order_id: string
 
+	@ApiProperty({ type: String })
+	@IsUUID('4')
+	@IsNotEmpty()
+	product_id: string
+
+	@ApiProperty({ type: Number })
+	@IsNumber()
+	@IsNotEmpty()
+	count: number
+
+	@ApiProperty({ type: Number })
+	@IsNumber()
+	@IsNotEmpty()
+	cost: number
+
+	@ApiPropertyOptional({ type: Number })
+	@IsNumber()
+	@IsNotEmpty()
+	price: number
+
+	@ApiPropertyOptional({ type: Number })
+	@IsNumber()
+	@IsNotEmpty()
+	avarage_cost: number
+}
+
+export class OrderProductRequestDto implements OrderProductRequest {
 	@ApiProperty({ type: String })
 	@IsUUID('4')
 	@IsNotEmpty()

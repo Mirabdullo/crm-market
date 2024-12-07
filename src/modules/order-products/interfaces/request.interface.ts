@@ -7,6 +7,14 @@ export interface OrderProductCreateRequest {
 	avarage_cost: number
 }
 
+export interface OrderProductRequest {
+	product_id: string
+	price: number
+	cost: number
+	count: number
+	avarage_cost: number
+}
+
 export interface OrderProductUpdateRequest {
 	id: string
 	cost?: number
