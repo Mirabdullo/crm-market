@@ -97,7 +97,7 @@ export class OrderService {
 					other: (pay.other as Decimal).toNumber(),
 				}
 			})[0],
-			orderProducts: order.products.map((prod) => ({
+			products: order.products.map((prod) => ({
 				...prod,
 				id: prod.id,
 				cost: (prod.cost as Decimal).toNumber(),
