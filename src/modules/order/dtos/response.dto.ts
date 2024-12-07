@@ -22,13 +22,13 @@ export class OrderRetrieveResponseDto implements OrderRetriveResponse {
 	client: UserRetriveResponse
 
 	@ApiProperty({ type: UserRetrieveResponseDto })
-	admin: AdminResponse
+	seller: AdminResponse
 
 	@ApiProperty({ type: PaymentResponseDto })
 	payment: PaymentResponse
 
 	@ApiProperty({ type: [OrderProductRetrieveResponseDto] })
-	orderProducts: OrderProductRetriveResponse[]
+	products: OrderProductRetriveResponse[]
 }
 
 export class OrderRetrieveAllResponseDto implements OrderRetriveAllResponse {

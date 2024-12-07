@@ -17,7 +17,7 @@ export declare interface OrderRetriveResponse {
 	accepted: boolean
 	createdAt: Date
 	client: UserRetriveResponse
-	admin: AdminResponse
+	seller: AdminResponse
 	payment: PaymentResponse
-	orderProducts: OrderProductRetriveResponse[]
+	products: OrderProductRetriveResponse[]
 }

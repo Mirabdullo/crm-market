@@ -84,10 +84,12 @@ export class OrderService {
 		})
 
 		const formattedData = OrderList.map((order) => ({
-			...order,
+			id: order.id,
+			client: order.client,
 			sum: order.sum.toNumber(),
 			accepted: order.accepted,
 			createdAt: order.createdAt,
+			seller: order.admin,
 			payment: order.payment.map((pay) => {
 				return {
 					...pay,
@@ -180,7 +182,9 @@ export class OrderService {
 		}
 
 		return {
-			...Order,
+			id: Order.id,
+			seller: Order.admin,
+			client: Order.client,
 			sum: Order.sum.toNumber(),
 			accepted: Order.accepted,
 			createdAt: Order.createdAt,
@@ -193,7 +197,7 @@ export class OrderService {
 					other: (payment.other as Decimal).toNumber(),
 				}
 			})[0],
-			orderProducts: Order.products.map((prod) => ({
+			products: Order.products.map((prod) => ({
 				...prod,
 				cost: (prod.cost as Decimal).toNumber(),
 				price: (prod.price as Decimal).toNumber(),
