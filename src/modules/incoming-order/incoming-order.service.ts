@@ -209,7 +209,7 @@ export class IncomingOrderService {
 			if (!user) throw new NotFoundException('Yetkazib beruvchi topilmadi')
 
 			const paymentSum = (payment?.card || 0) + (payment?.cash || 0) + (payment?.transfer || 0) + (payment?.other || 0) + (payment?.humo || 0)
-			const totalSum = products.reduce((sum, product) => sum + product.cost, 0)
+			const totalSum = products.reduce((sum, product) => sum + product.cost * product.count, 0)
 			const debt = totalSum - paymentSum
 
 			const order = await this.#_prisma.incomingOrder.create({

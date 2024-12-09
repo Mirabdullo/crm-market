@@ -222,7 +222,7 @@ export class OrderService {
 			if (!user) throw new NotFoundException('Mijoz topilmadi')
 
 			// Buyurtma yaratish
-			const totalSum = products.reduce((sum, product) => sum + product.price, 0)
+			const totalSum = products.reduce((sum, product) => sum + product.price * product.count, 0)
 			const debt = totalSum - (payment?.card || 0) - (payment?.cash || 0) - (payment?.transfer || 0) - (payment?.other || 0)
 
 			const order = await this.#_prisma.order.create({
@@ -287,12 +287,11 @@ export class OrderService {
 	}
 
 	async OrderUpdate(payload: OrderUpdateRequest): Promise<null> {
-		const {id, sum, addProducts, updateProducts, removeProducts, payment, accepted} = payload
+		const { id, sum, addProducts, updateProducts, removeProducts, payment, accepted } = payload
 		const order = await this.#_prisma.order.findUnique({
 			where: { id: id },
 		})
 		if (!order) throw new NotFoundException("Ma'lumot topilmadi")
-
 
 		await this.#_prisma.order.update({
 			where: { id: payload.id },
@@ -303,7 +302,6 @@ export class OrderService {
 		})
 
 		if (addProducts.length) {
-			
 		}
 
 		return null
