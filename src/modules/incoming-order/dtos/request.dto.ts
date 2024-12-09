@@ -80,7 +80,6 @@ export class IncomingOrderCreateRequestDto implements IncomingOrderCreateRequest
 	accepted?: boolean
 
 	@ApiPropertyOptional({ type: IncomingOrderPaymentRequestDto })
-	@IsArray()
 	@IsOptional()
 	payment?: IncomingOrderPaymentRequest
 }
