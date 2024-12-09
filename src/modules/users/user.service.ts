@@ -39,7 +39,22 @@ export class UserService {
 				id: true,
 				name: true,
 				phone: true,
+				debt: true,
 				createdAt: true,
+				orders: {
+					take: 1,
+					orderBy: { createdAt: 'desc' },
+					select: {
+						createdAt: true,
+					},
+				},
+				incomingOrder: {
+					take: 1,
+					orderBy: { createdAt: 'desc' },
+					select: {
+						createdAt: true,
+					},
+				},
 			},
 			orderBy: [{ createdAt: 'desc' }],
 		})
@@ -52,12 +67,38 @@ export class UserService {
 			},
 		})
 
-		return {
-			totalCount: totalCount,
-			pageNumber: payload.pageNumber,
-			pageSize: payload.pageSize,
-			pageCount: Math.ceil(totalCount / payload.pageSize),
-			data: userList,
+		if (payload.type === 'client') {
+			const formattedData = userList.map((user) => {
+				return {
+					...user,
+					debt: user.debt ? user.debt.toNumber() : 0,
+					lastSale: user.orders[0]?.createdAt || null,
+				}
+			})
+
+			return {
+				totalCount: totalCount,
+				pageNumber: payload.pageNumber,
+				pageSize: payload.pageSize,
+				pageCount: Math.ceil(totalCount / payload.pageSize),
+				data: formattedData,
+			}
+		} else {
+			const formattedData = userList.map((user) => {
+				return {
+					...user,
+					debt: user.debt ? user.debt.toNumber() : 0,
+					lastSale: user.incomingOrder[0]?.createdAt || null,
+				}
+			})
+
+			return {
+				totalCount: totalCount,
+				pageNumber: payload.pageNumber,
+				pageSize: payload.pageSize,
+				pageCount: Math.ceil(totalCount / payload.pageSize),
+				data: formattedData,
+			}
 		}
 	}
 
@@ -69,12 +110,31 @@ export class UserService {
 				name: true,
 				phone: true,
 				createdAt: true,
+				debt: true,
+				orders: {
+					take: 1,
+					orderBy: { createdAt: 'desc' },
+					select: {
+						createdAt: true,
+					},
+				},
+				incomingOrder: {
+					take: 1,
+					orderBy: { createdAt: 'desc' },
+					select: {
+						createdAt: true,
+					},
+				},
 			},
 		})
 		if (!user) {
 			throw new NotFoundException('User not found')
 		}
-		return user
+		return {
+			...user,
+			debt: user.debt.toNumber() || 0,
+			lastSale: user.orders[0]?.createdAt || user.incomingOrder[0]?.createdAt,
+		}
 	}
 
 	async supplierCreate(payload: UserCreateRequest): Promise<null> {

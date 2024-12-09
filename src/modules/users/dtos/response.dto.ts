@@ -11,6 +11,12 @@ export class UserRetrieveResponseDto implements UserRetriveResponse {
 	@ApiProperty({ type: String })
 	phone: string
 
+	@ApiProperty({ type: Number })
+	debt: number
+
+	@ApiProperty({ type: Date })
+	lastSale?: Date
+
 	@ApiProperty({ type: Date })
 	createdAt: Date
 }

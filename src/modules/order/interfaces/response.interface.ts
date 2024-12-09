@@ -1,7 +1,7 @@
 import { AdminResponse } from '../../admins'
 import { OrderProductRetriveResponse } from '../../order-products'
 import { PaymentResponse } from '../../payment'
-import { UserRetriveResponse } from '../../users'
+import { UserResponse, UserRetriveResponse } from '../../users'
 
 export declare interface OrderRetriveAllResponse {
 	pageSize: number
@@ -13,10 +13,11 @@ export declare interface OrderRetriveAllResponse {
 
 export declare interface OrderRetriveResponse {
 	id: string
+	articl: number
 	sum: number
 	accepted: boolean
 	createdAt: Date
-	client: UserRetriveResponse
+	client: UserResponse
 	seller: AdminResponse
 	payment: PaymentResponse
 	products: OrderProductRetriveResponse[]

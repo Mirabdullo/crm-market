@@ -34,6 +34,7 @@ export class OrderService {
 			},
 			select: {
 				id: true,
+				articl: true,
 				sum: true,
 				accepted: true,
 				createdAt: true,
@@ -85,6 +86,7 @@ export class OrderService {
 
 		const formattedData = OrderList.map((order) => ({
 			id: order.id,
+			articl: order.articl,
 			client: order.client,
 			sum: order.sum.toNumber(),
 			accepted: order.accepted,
@@ -130,6 +132,7 @@ export class OrderService {
 			select: {
 				id: true,
 				sum: true,
+				articl: true,
 				accepted: true,
 				createdAt: true,
 				client: {
@@ -183,6 +186,7 @@ export class OrderService {
 
 		return {
 			id: Order.id,
+			articl: Order.articl,
 			seller: Order.admin,
 			client: Order.client,
 			sum: Order.sum.toNumber(),
@@ -219,11 +223,14 @@ export class OrderService {
 
 			// Buyurtma yaratish
 			const totalSum = products.reduce((sum, product) => sum + product.price, 0)
+			const debt = totalSum - (payment?.card || 0) - (payment?.cash || 0) - (payment?.transfer || 0) - (payment?.other || 0)
+
 			const order = await this.#_prisma.order.create({
 				data: {
 					clientId,
 					adminId: userId,
 					sum: totalSum,
+					debt,
 					accepted,
 				},
 			})
@@ -239,23 +246,9 @@ export class OrderService {
 			}))
 
 			const promises = [this.#_prisma.orderProducts.createMany({ data: orderProductsData })]
-
-			// Mahsulot zaxirasini yangilash
-			if (accepted) {
-				const productUpdates = products.map((product) =>
-					this.#_prisma.products.update({
-						where: { id: product.product_id },
-						data: { count: { decrement: product.count } },
-					}),
-				)
-				promises.push(...productUpdates)
-			}
-
 			await Promise.all(promises)
 
 			// To'lovni boshqarish
-			const debt = totalSum - (payment?.card || 0) - (payment?.cash || 0) - (payment?.transfer || 0) - (payment?.other || 0)
-
 			if (payment) {
 				this.#_prisma.payment.create({
 					data: {
@@ -269,10 +262,22 @@ export class OrderService {
 				})
 			}
 
-			await this.#_prisma.users.update({
-				where: { id: clientId },
-				data: { debt: { increment: debt } },
-			})
+			if (accepted) {
+				const productUpdates = products.map((product) =>
+					this.#_prisma.products.update({
+						where: { id: product.product_id },
+						data: { count: { decrement: product.count } },
+					}),
+				)
+
+				await Promise.all([
+					...productUpdates,
+					await this.#_prisma.users.update({
+						where: { id: clientId },
+						data: { debt: { increment: debt } },
+					}),
+				])
+			}
 
 			return null
 		} catch (error) {

@@ -139,6 +139,7 @@ model IncomingProducts {
 
 model Order {
   id         String       @map("id")            @db.Uuid       @default(dbgenerated("GEN_RANDOM_UUID()"))
+  articl     Int          @map("articl")        @db.Integer    @default(autoincrement())
   clientId   String       @map("client_id")     @db.Uuid() 
   sum        Decimal      @map("sum")           @db.Decimal(10,3)
   debt       Decimal      @map("debt")          @db.Decimal(10,3)  @default(0)
@@ -180,6 +181,8 @@ model Payment {
   id         String     @map("id")          @db.Uuid       @default(dbgenerated("GEN_RANDOM_UUID()"))
   orderId    String     @map("order_id")    @db.Uuid() 
   clientId   String     @map("client_id")   @db.Uuid() 
+  totalPay   Decimal?   @map("total_pay")   @db.Decimal(10,3)  @default(0)
+  debt       Decimal?   @map("debt")        @db.Decimal(10,3)  @default(0)
   cash       Decimal?   @map("cash")        @db.Decimal(10,3)  @default(0)
   transfer   Decimal?   @map("transfer")    @db.Decimal(10,3)  @default(0)
   card       Decimal?   @map("card")        @db.Decimal(10,3)  @default(0)
@@ -199,6 +202,8 @@ model IncomingOrderPayment {
   id         String     @map("id")           @db.Uuid       @default(dbgenerated("GEN_RANDOM_UUID()"))
   orderId    String     @map("order_id")     @db.Uuid() 
   clientId   String     @map("client_id")    @db.Uuid() 
+  totalPay   Decimal?   @map("total_pay")    @db.Decimal(10,3)  @default(0)
+  debt       Decimal?   @map("debt")         @db.Decimal(10,3)  @default(0)
   cash       Decimal?   @map("cash")         @db.Decimal(10,3)  @default(0)
   transfer   Decimal?   @map("transfer")     @db.Decimal(10,3)  @default(0)
   card       Decimal?   @map("card")         @db.Decimal(10,3)  @default(0)

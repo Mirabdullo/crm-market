@@ -10,6 +10,9 @@ export class OrderRetrieveResponseDto implements OrderRetriveResponse {
 	id: string
 
 	@ApiProperty({ type: Number })
+	articl: number
+
+	@ApiProperty({ type: Number })
 	sum: number
 
 	@ApiProperty({ type: Boolean })

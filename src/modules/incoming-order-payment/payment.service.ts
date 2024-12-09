@@ -119,20 +119,24 @@ export class IncomingOrderPaymentService {
 	}
 
 	async incomingOrderPaymentCreate(payload: IncomingOrderPaymentCreateRequest): Promise<null> {
+		const { orderId, clientId, cash, transfer, card, other } = payload
 		const order = await this.#_prisma.order.findFirst({
 			where: { id: payload.orderId },
 		})
 		if (!order) throw new ForbiddenException('This incomingOrderPayment already exists')
 
+		const sum = cash + card + transfer + other
+		const orderSum: number = order.sum.toNumber()
 		await this.#_prisma.incomingOrderPayment.create({
 			data: {
-				orderId: payload.orderId,
-				clientId: payload.clientId,
-				cash: payload.cash,
-				transfer: payload.transfer,
-				card: payload.card,
-				other: payload.other,
-				humo: payload.humo,
+				orderId: orderId,
+				clientId: clientId,
+				totalPay: cash + card + transfer + other,
+				debt: orderSum - sum,
+				cash: cash,
+				transfer: transfer,
+				card: card,
+				other: other,
 			},
 		})
 
