@@ -1,5 +1,5 @@
-import { OrderProductRequest } from '../../order-products'
-import { PaymentRequest } from '../../payment'
+import { OrderProductRequest, OrderProductUpdateRequest } from '../../order-products'
+import { PaymentRequest, PaymentUpdateRequest } from '../../payment'
 
 export interface OrderCreateRequest {
 	clientId: string
@@ -14,6 +14,10 @@ export interface OrderCreateRequest {
 export interface OrderUpdateRequest {
 	id: string
 	sum?: number
+	addProducts: OrderProductUpdateRequest[]
+	updateProducts: OrderProductUpdateRequest[]
+	removeProducts: string[]
+	payment?: PaymentUpdateRequest
 	accepted?: boolean
 }
 

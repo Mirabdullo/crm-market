@@ -287,17 +287,24 @@ export class OrderService {
 	}
 
 	async OrderUpdate(payload: OrderUpdateRequest): Promise<null> {
+		const {id, sum, addProducts, updateProducts, removeProducts, payment, accepted} = payload
 		const order = await this.#_prisma.order.findUnique({
-			where: { id: payload.id },
+			where: { id: id },
 		})
 		if (!order) throw new NotFoundException("Ma'lumot topilmadi")
+
 
 		await this.#_prisma.order.update({
 			where: { id: payload.id },
 			data: {
+				sum: sum,
 				accepted: payload.accepted,
 			},
 		})
+
+		if (addProducts.length) {
+			
+		}
 
 		return null
 	}

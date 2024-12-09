@@ -2,8 +2,8 @@ import { IsArray, IsBoolean, IsBooleanString, IsInt, IsNotEmpty, IsNumber, IsOpt
 import { Type } from 'class-transformer'
 import { OrderCreateRequest, OrderDeleteRequest, OrderRetriveAllRequest, OrderRetriveRequest, OrderUpdateRequest } from '../interfaces'
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
-import { OrderProductRequest, OrderProductRequestDto } from '../../order-products'
-import { PaymentRequest, PaymentRequestDto } from '../../payment'
+import { OrderProductRequest, OrderProductRequestDto, OrderProductUpdateRequest } from '../../order-products'
+import { PaymentRequest, PaymentRequestDto, PaymentUpdateRequest } from '../../payment'
 
 export class OrderRetrieveAllRequestDto implements OrderRetriveAllRequest {
 	@ApiPropertyOptional({ type: Number })
@@ -89,6 +89,30 @@ export class OrderUpdateRequestDto implements OrderUpdateRequest {
 	@IsUUID('4')
 	@IsNotEmpty()
 	id: string
+
+	@ApiProperty({ type: Number })
+	@IsNumber()
+	@IsOptional()
+	sum?: number
+
+	@ApiPropertyOptional({ type: [OrderProductRequestDto] })
+	@IsArray()
+	@IsOptional()
+	addProducts: OrderProductUpdateRequest[]
+
+	@ApiPropertyOptional({ type: [OrderProductRequestDto] })
+	@IsArray()
+	@IsOptional()
+	updateProducts: OrderProductUpdateRequest[]
+
+	@ApiPropertyOptional({ type: [String] })
+	@IsArray()
+	@IsOptional()
+	removeProducts: string[]
+
+	@ApiPropertyOptional({ type: PaymentRequestDto })
+	@IsOptional()
+	payment?: PaymentUpdateRequest
 
 	@ApiPropertyOptional({ type: Boolean, example: false })
 	@IsBoolean()
