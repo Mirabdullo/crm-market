@@ -75,7 +75,6 @@ export class OrderCreateRequestDto implements OrderCreateRequest {
 	products: OrderProductRequest[]
 
 	@ApiPropertyOptional({ type: PaymentRequestDto })
-	@IsArray()
 	@IsOptional()
 	payment?: PaymentRequest
 
