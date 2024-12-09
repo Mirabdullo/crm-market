@@ -86,22 +86,22 @@ export class IncomingOrderService {
 
 		const formattedData = incomingOrderList.map((order) => ({
 			...order,
-			sum: order.sum.toNumber(),
-			debt: order.debt.toNumber(),
+			sum: order.sum?.toNumber(),
+			debt: order.debt?.toNumber(),
 			payment: order.payment.map((pay) => {
 				return {
 					...pay,
-					cash: (pay.cash as Decimal).toNumber(),
-					card: (pay.card as Decimal).toNumber(),
-					transfer: (pay.transfer as Decimal).toNumber(),
-					other: (pay.other as Decimal).toNumber(),
+					cash: (pay.cash as Decimal)?.toNumber(),
+					card: (pay.card as Decimal)?.toNumber(),
+					transfer: (pay.transfer as Decimal)?.toNumber(),
+					other: (pay.other as Decimal)?.toNumber(),
 				}
 			})[0],
 			incomingProducts: order.incomingProducts.map((incomingProduct) => ({
 				...incomingProduct,
-				cost: incomingProduct.cost.toNumber(),
-				selling_price: incomingProduct.selling_price.toNumber(),
-				wholesale_price: incomingProduct.wholesale_price.toNumber(),
+				cost: incomingProduct.cost?.toNumber(),
+				selling_price: incomingProduct.selling_price?.toNumber(),
+				wholesale_price: incomingProduct.wholesale_price?.toNumber(),
 			})),
 		}))
 
@@ -180,22 +180,22 @@ export class IncomingOrderService {
 
 		return {
 			...incomingOrder,
-			sum: incomingOrder.sum.toNumber(),
-			debt: incomingOrder.debt.toNumber(),
+			sum: incomingOrder.sum?.toNumber(),
+			debt: incomingOrder.debt?.toNumber(),
 			payment: incomingOrder.payment.map((payment) => {
 				return {
 					...payment,
-					cash: (payment.cash as Decimal).toNumber(),
-					card: (payment.card as Decimal).toNumber(),
-					transfer: (payment.transfer as Decimal).toNumber(),
-					other: (payment.other as Decimal).toNumber(),
+					cash: (payment.cash as Decimal)?.toNumber(),
+					card: (payment.card as Decimal)?.toNumber(),
+					transfer: (payment.transfer as Decimal)?.toNumber(),
+					other: (payment.other as Decimal)?.toNumber(),
 				}
 			})[0],
 			incomingProducts: incomingOrder.incomingProducts.map((incomingProduct) => ({
 				...incomingProduct,
-				cost: incomingProduct.cost.toNumber(),
-				selling_price: incomingProduct.selling_price.toNumber(),
-				wholesale_price: incomingProduct.wholesale_price.toNumber(),
+				cost: incomingProduct.cost?.toNumber(),
+				selling_price: incomingProduct.selling_price?.toNumber(),
+				wholesale_price: incomingProduct.wholesale_price?.toNumber(),
 			})),
 		}
 	}
