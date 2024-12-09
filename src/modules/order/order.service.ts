@@ -36,6 +36,7 @@ export class OrderService {
 				id: true,
 				articl: true,
 				sum: true,
+				debt: true,
 				accepted: true,
 				createdAt: true,
 				client: {
@@ -89,6 +90,7 @@ export class OrderService {
 			articl: order.articl,
 			client: order.client,
 			sum: order.sum.toNumber(),
+			debt: order.debt.toNumber(),
 			accepted: order.accepted,
 			createdAt: order.createdAt,
 			seller: order.admin,
@@ -135,6 +137,7 @@ export class OrderService {
 				articl: true,
 				accepted: true,
 				createdAt: true,
+				debt: true,
 				client: {
 					select: {
 						id: true,
@@ -190,6 +193,7 @@ export class OrderService {
 			seller: Order.admin,
 			client: Order.client,
 			sum: Order.sum.toNumber(),
+			debt: Order.debt.toNumber(),
 			accepted: Order.accepted,
 			createdAt: Order.createdAt,
 			payment: Order.payment.map((payment) => {

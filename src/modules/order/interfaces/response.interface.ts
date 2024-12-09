@@ -15,6 +15,7 @@ export declare interface OrderRetriveResponse {
 	id: string
 	articl: number
 	sum: number
+	debt: number
 	accepted: boolean
 	createdAt: Date
 	client: UserResponse

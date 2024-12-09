@@ -15,6 +15,9 @@ export class OrderRetrieveResponseDto implements OrderRetriveResponse {
 	@ApiProperty({ type: Number })
 	sum: number
 
+	@ApiProperty({ type: Number })
+	debt: number
+
 	@ApiProperty({ type: Boolean })
 	accepted: boolean
 
