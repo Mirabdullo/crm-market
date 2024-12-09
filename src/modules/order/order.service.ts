@@ -95,10 +95,10 @@ export class OrderService {
 			payment: order.payment.map((pay) => {
 				return {
 					...pay,
-					cash: (pay.cash as Decimal).toNumber(),
-					card: (pay.card as Decimal).toNumber(),
-					transfer: (pay.transfer as Decimal).toNumber(),
-					other: (pay.other as Decimal).toNumber(),
+					cash: (pay.cash as Decimal).toNumber() || 0,
+					card: (pay.card as Decimal).toNumber() || 0,
+					transfer: (pay.transfer as Decimal).toNumber() || 0,
+					other: (pay.other as Decimal).toNumber() || 0,
 				}
 			})[0],
 			products: order.products.map((prod) => ({
@@ -195,10 +195,10 @@ export class OrderService {
 			payment: Order.payment.map((payment) => {
 				return {
 					...payment,
-					cash: (payment.cash as Decimal).toNumber(),
-					card: (payment.card as Decimal).toNumber(),
-					transfer: (payment.transfer as Decimal).toNumber(),
-					other: (payment.other as Decimal).toNumber(),
+					cash: (payment.cash as Decimal).toNumber() || 0,
+					card: (payment.card as Decimal).toNumber() || 0,
+					transfer: (payment.transfer as Decimal).toNumber() || 0,
+					other: (payment.other as Decimal).toNumber() || 0,
 				}
 			})[0],
 			products: Order.products.map((prod) => ({
@@ -227,7 +227,7 @@ export class OrderService {
 
 			const order = await this.#_prisma.order.create({
 				data: {
-					clientId,
+					clientId: clientId,
 					adminId: userId,
 					sum: totalSum,
 					debt,
