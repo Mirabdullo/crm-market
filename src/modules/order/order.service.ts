@@ -250,7 +250,7 @@ export class OrderService {
 
 			// To'lovni boshqarish
 			if (payment) {
-				this.#_prisma.payment.create({
+				await this.#_prisma.payment.create({
 					data: {
 						orderId: order.id,
 						clientId,

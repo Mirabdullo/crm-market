@@ -1,4 +1,4 @@
-import { IsArray, IsBoolean, IsBooleanString, IsInt, IsNotEmpty, IsNumber, IsOptional, IsPositive, IsString, IsUUID } from 'class-validator'
+import { IsArray, IsBoolean, IsBooleanString, IsInt, IsNotEmpty, IsNumber, IsObject, IsOptional, IsPositive, IsString, IsUUID } from 'class-validator'
 import { Type } from 'class-transformer'
 import { OrderCreateRequest, OrderDeleteRequest, OrderRetriveAllRequest, OrderRetriveRequest, OrderUpdateRequest } from '../interfaces'
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
@@ -112,6 +112,7 @@ export class OrderUpdateRequestDto implements OrderUpdateRequest {
 
 	@ApiPropertyOptional({ type: PaymentRequestDto })
 	@IsOptional()
+	@IsObject()
 	payment?: PaymentUpdateRequest
 
 	@ApiPropertyOptional({ type: Boolean, example: false })
