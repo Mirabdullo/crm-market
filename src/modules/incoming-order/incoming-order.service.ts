@@ -28,9 +28,42 @@ export class IncomingOrderService {
 			}
 		}
 
+		let sellerOption = {}
+		if (payload.sellerId) {
+			sellerOption = {
+				admin: { id: payload.sellerId },
+			}
+		}
+
+		let searchOption = {}
+		if (payload.search) {
+			searchOption = {
+				OR: [
+					{
+						supplier: {
+							OR: [{ name: { contains: payload.search, mode: 'insensitive' } }, { phone: { contains: payload.search, mode: 'insensitive' } }],
+						},
+					},
+				],
+			}
+		}
+
+		let dateOption = {}
+		if (payload.startDate || payload.endDate) {
+			dateOption = {
+				createdAt: {
+					...(payload.startDate ? { gte: payload.startDate } : {}),
+					...(payload.endDate ? { lt: payload.endDate } : {}),
+				},
+			}
+		}
+
 		const incomingOrderList = await this.#_prisma.incomingOrder.findMany({
 			where: {
 				deletedAt: null,
+				...sellerOption,
+				...searchOption,
+				...dateOption,
 			},
 			select: {
 				id: true,
@@ -56,6 +89,8 @@ export class IncomingOrderService {
 				payment: {
 					select: {
 						id: true,
+						totalPay: true,
+						debt: true,
 						card: true,
 						cash: true,
 						transfer: true,
@@ -81,6 +116,7 @@ export class IncomingOrderService {
 					},
 				},
 			},
+			orderBy: { createdAt: 'desc' },
 			...paginationOptions,
 		})
 
@@ -91,6 +127,8 @@ export class IncomingOrderService {
 			payment: order.payment.map((pay) => {
 				return {
 					...pay,
+					totalPay: (pay.totalPay as Decimal).toNumber() || 0,
+					debt: (pay.debt as Decimal).toNumber() || 0,
 					cash: (pay.cash as Decimal)?.toNumber(),
 					card: (pay.card as Decimal)?.toNumber(),
 					transfer: (pay.transfer as Decimal)?.toNumber(),
@@ -108,6 +146,9 @@ export class IncomingOrderService {
 		const totalCount = await this.#_prisma.incomingOrder.count({
 			where: {
 				deletedAt: null,
+				...sellerOption,
+				...searchOption,
+				...dateOption,
 			},
 		})
 
@@ -147,6 +188,8 @@ export class IncomingOrderService {
 				payment: {
 					select: {
 						id: true,
+						totalPay: true,
+						debt: true,
 						card: true,
 						cash: true,
 						transfer: true,
@@ -185,6 +228,8 @@ export class IncomingOrderService {
 			payment: incomingOrder.payment.map((payment) => {
 				return {
 					...payment,
+					totalPay: (payment.totalPay as Decimal).toNumber() || 0,
+					debt: (payment.debt as Decimal).toNumber() || 0,
 					cash: (payment.cash as Decimal)?.toNumber(),
 					card: (payment.card as Decimal)?.toNumber(),
 					transfer: (payment.transfer as Decimal)?.toNumber(),
@@ -243,6 +288,8 @@ export class IncomingOrderService {
 					data: {
 						orderId: order.id,
 						clientId: supplierId,
+						totalPay: paymentSum,
+						debt,
 						card: payment.card,
 						cash: payment.cash,
 						transfer: payment.transfer,

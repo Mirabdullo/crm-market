@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { PaymentClient, PaymentOrder, PaymentRetriveAllResponse, PaymentRetriveResponse } from '../interfaces'
+import { PaymentClient, PaymentOrder, PaymentResponse, PaymentRetriveAllResponse, PaymentRetriveResponse } from '../interfaces'
 
 export class PaymentOrderDto implements PaymentOrder {
 	@ApiProperty({ type: String })
@@ -49,9 +49,15 @@ export class PaymentRetrieveResponseDto implements PaymentRetriveResponse {
 	client: PaymentClient
 }
 
-export class PaymentResponseDto implements PaymentRetriveResponse {
+export class PaymentResponseDto implements PaymentResponse {
 	@ApiProperty({ type: String })
 	id: string
+
+	@ApiProperty({ type: Number })
+	totalPay: number
+
+	@ApiProperty({ type: Number })
+	debt: number
 
 	@ApiProperty({ type: Number })
 	cash: number

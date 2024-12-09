@@ -25,6 +25,11 @@ export class OrderRetrieveAllRequestDto implements OrderRetriveAllRequest {
 	@IsOptional()
 	search?: string
 
+	@ApiPropertyOptional({ type: String })
+	@IsUUID('4')
+	@IsOptional()
+	sellerId?: string
+
 	@ApiPropertyOptional({ type: Boolean, example: false })
 	@IsBooleanString()
 	@IsOptional()

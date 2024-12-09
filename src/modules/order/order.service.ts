@@ -28,9 +28,42 @@ export class OrderService {
 			}
 		}
 
+		let sellerOption = {}
+		if (payload.sellerId) {
+			sellerOption = {
+				admin: { id: payload.sellerId },
+			}
+		}
+
+		let searchOption = {}
+		if (payload.search) {
+			searchOption = {
+				OR: [
+					{
+						supplier: {
+							OR: [{ name: { contains: payload.search, mode: 'insensitive' } }, { phone: { contains: payload.search, mode: 'insensitive' } }],
+						},
+					},
+				],
+			}
+		}
+
+		let dateOption = {}
+		if (payload.startDate || payload.endDate) {
+			dateOption = {
+				createdAt: {
+					...(payload.startDate ? { gte: payload.startDate } : {}),
+					...(payload.endDate ? { lt: payload.endDate } : {}),
+				},
+			}
+		}
+
 		const OrderList = await this.#_prisma.order.findMany({
 			where: {
 				deletedAt: null,
+				...sellerOption,
+				...searchOption,
+				...dateOption,
 			},
 			select: {
 				id: true,
@@ -57,6 +90,8 @@ export class OrderService {
 				payment: {
 					select: {
 						id: true,
+						totalPay: true,
+						debt: true,
 						card: true,
 						cash: true,
 						transfer: true,
@@ -82,6 +117,7 @@ export class OrderService {
 					},
 				},
 			},
+			orderBy: { createdAt: 'desc' },
 			...paginationOptions,
 		})
 
@@ -97,6 +133,8 @@ export class OrderService {
 			payment: order.payment.map((pay) => {
 				return {
 					...pay,
+					totalPay: (pay.totalPay as Decimal).toNumber() || 0,
+					debt: (pay.debt as Decimal).toNumber() || 0,
 					cash: (pay.cash as Decimal).toNumber() || 0,
 					card: (pay.card as Decimal).toNumber() || 0,
 					transfer: (pay.transfer as Decimal).toNumber() || 0,
@@ -116,6 +154,9 @@ export class OrderService {
 		const totalCount = await this.#_prisma.order.count({
 			where: {
 				deletedAt: null,
+				...sellerOption,
+				...searchOption,
+				...dateOption,
 			},
 		})
 
@@ -156,6 +197,8 @@ export class OrderService {
 				payment: {
 					select: {
 						id: true,
+						totalPay: true,
+						debt: true,
 						card: true,
 						cash: true,
 						transfer: true,
@@ -199,6 +242,8 @@ export class OrderService {
 			payment: Order.payment.map((payment) => {
 				return {
 					...payment,
+					totalPay: (payment.totalPay as Decimal).toNumber() || 0,
+					debt: (payment.debt as Decimal).toNumber() || 0,
 					cash: (payment.cash as Decimal).toNumber() || 0,
 					card: (payment.card as Decimal).toNumber() || 0,
 					transfer: (payment.transfer as Decimal).toNumber() || 0,
@@ -227,7 +272,8 @@ export class OrderService {
 
 			// Buyurtma yaratish
 			const totalSum = products.reduce((sum, product) => sum + product.price * product.count, 0)
-			const debt = totalSum - (payment?.card || 0) - (payment?.cash || 0) - (payment?.transfer || 0) - (payment?.other || 0)
+			const paymentSum = (payment?.card || 0) - (payment?.cash || 0) - (payment?.transfer || 0) - (payment?.other || 0)
+			const debt = totalSum - paymentSum
 
 			const order = await this.#_prisma.order.create({
 				data: {
@@ -258,6 +304,8 @@ export class OrderService {
 					data: {
 						orderId: order.id,
 						clientId,
+						totalPay: paymentSum,
+						debt,
 						card: payment.card,
 						cash: payment.cash,
 						transfer: payment.transfer,

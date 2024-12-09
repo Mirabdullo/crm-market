@@ -29,6 +29,7 @@ export interface OrderRetriveAllRequest {
 	pageSize?: number
 	pageNumber?: number
 	search?: string
+	sellerId?: string
 	pagination?: boolean
 	startDate?: string
 	endDate?: string
