@@ -10,7 +10,7 @@ import {
 	OrderRetrieveAllRequestDto,
 	OrderRetrieveAllResponseDto,
 } from './dtos'
-import { ApiBearerAuth, ApiNoContentResponse, ApiOkResponse, ApiQuery, ApiTags } from '@nestjs/swagger'
+import { ApiBearerAuth, ApiNoContentResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger'
 import { OrderRetriveAllResponse, OrderRetriveResponse } from './interfaces'
 import { PassUserIdInterceptor } from '../../interceptors'
 

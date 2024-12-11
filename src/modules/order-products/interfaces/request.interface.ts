@@ -22,6 +22,13 @@ export interface OrderProductUpdateRequest {
 	price?: number
 }
 
+export interface RemoveOrderProductsRequest {
+	id: string
+	product_id: string
+	count: number
+	price: number
+}
+
 export interface OrderProductDeleteRequest {
 	id: string
 }

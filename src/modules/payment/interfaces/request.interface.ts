@@ -8,6 +8,8 @@ export interface PaymentCreateRequest {
 }
 
 export interface PaymentRequest {
+	totalPay?: number
+	debt?: number
 	cash?: number
 	transfer?: number
 	card?: number
@@ -16,6 +18,8 @@ export interface PaymentRequest {
 
 export interface PaymentUpdateRequest {
 	id: string
+	totalPay?: number
+	debt?: number
 	cash?: number
 	transfer?: number
 	card?: number

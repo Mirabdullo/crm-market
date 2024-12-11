@@ -60,6 +60,16 @@ export class PaymentCreateRequestDto implements PaymentCreateRequest {
 	@ApiPropertyOptional({ type: Number })
 	@IsNumber()
 	@IsOptional()
+	totalPay?: number
+
+	@ApiPropertyOptional({ type: Number })
+	@IsNumber()
+	@IsOptional()
+	debt?: number
+
+	@ApiPropertyOptional({ type: Number })
+	@IsNumber()
+	@IsOptional()
 	cash?: number
 
 	@ApiPropertyOptional({ type: Number })
@@ -79,6 +89,16 @@ export class PaymentCreateRequestDto implements PaymentCreateRequest {
 }
 
 export class PaymentRequestDto implements PaymentRequest {
+	@ApiPropertyOptional({ type: Number })
+	@IsNumber()
+	@IsOptional()
+	totalPay?: number
+
+	@ApiPropertyOptional({ type: Number })
+	@IsNumber()
+	@IsOptional()
+	debt?: number
+
 	@ApiPropertyOptional({ type: Number })
 	@IsNumber()
 	@IsOptional()
@@ -105,6 +125,16 @@ export class PaymentUpdateRequestDto implements PaymentUpdateRequest {
 	@IsUUID('4')
 	@IsNotEmpty()
 	id: string
+
+	@ApiPropertyOptional({ type: Number })
+	@IsNumber()
+	@IsOptional()
+	totalPay?: number
+
+	@ApiPropertyOptional({ type: Number })
+	@IsNumber()
+	@IsOptional()
+	debt?: number
 
 	@ApiPropertyOptional({ type: Number })
 	@IsNumber()

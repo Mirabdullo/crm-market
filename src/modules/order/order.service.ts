@@ -38,13 +38,9 @@ export class OrderService {
 		let searchOption = {}
 		if (payload.search) {
 			searchOption = {
-				OR: [
-					{
-						supplier: {
-							OR: [{ name: { contains: payload.search, mode: 'insensitive' } }, { phone: { contains: payload.search, mode: 'insensitive' } }],
-						},
-					},
-				],
+				client: {
+					OR: [{ name: { contains: payload.search, mode: 'insensitive' } }, { phone: { contains: payload.search, mode: 'insensitive' } }],
+				},
 			}
 		}
 
@@ -52,8 +48,8 @@ export class OrderService {
 		if (payload.startDate || payload.endDate) {
 			dateOption = {
 				createdAt: {
-					...(payload.startDate ? { gte: payload.startDate } : {}),
-					...(payload.endDate ? { lt: payload.endDate } : {}),
+					...(payload.startDate ? { gte: new Date(payload.startDate).toISOString().split('T')[0] } : {}),
+					...(payload.endDate ? { lt: new Date(payload.endDate).toISOString().split('T')[0] } : {}),
 				},
 			}
 		}
@@ -272,7 +268,7 @@ export class OrderService {
 
 			// Buyurtma yaratish
 			const totalSum = products.reduce((sum, product) => sum + product.price * product.count, 0)
-			const paymentSum = (payment?.card || 0) - (payment?.cash || 0) - (payment?.transfer || 0) - (payment?.other || 0)
+			const paymentSum = (payment?.card || 0) + (payment?.cash || 0) + (payment?.transfer || 0) + (payment?.other || 0)
 			const debt = totalSum - paymentSum
 
 			const order = await this.#_prisma.order.create({
@@ -306,10 +302,10 @@ export class OrderService {
 						clientId,
 						totalPay: paymentSum,
 						debt,
-						card: payment.card,
-						cash: payment.cash,
-						transfer: payment.transfer,
-						other: payment.other,
+						card: payment?.card || 0,
+						cash: payment?.cash || 0,
+						transfer: payment?.transfer || 0,
+						other: payment?.other || 0,
 					},
 				})
 			}
@@ -339,24 +335,135 @@ export class OrderService {
 	}
 
 	async OrderUpdate(payload: OrderUpdateRequest): Promise<null> {
-		const { id, sum, addProducts, updateProducts, removeProducts, payment, accepted } = payload
-		const order = await this.#_prisma.order.findUnique({
-			where: { id: id },
-		})
-		if (!order) throw new NotFoundException("Ma'lumot topilmadi")
+		try {
+			const { id, addProducts, removeProducts, payment, accepted } = payload
 
-		await this.#_prisma.order.update({
-			where: { id: payload.id },
-			data: {
-				sum: sum,
-				accepted: payload.accepted,
-			},
-		})
+			const order = await this.#_prisma.order.findUnique({
+				where: { id },
+				include: { payment: true, products: true },
+			})
+			if (!order) throw new NotFoundException("Ma'lumot topilmadi")
 
-		if (addProducts.length) {
+			const promises: any[] = []
+
+			// Handle added products
+			if (addProducts.length && order.accepted) {
+				const totalSum = addProducts.reduce((acc, p) => acc + p.price * p.count, 0)
+
+				const mappedAddProducts = addProducts.map((product) => ({
+					orderId: order.id,
+					productId: product.product_id,
+					cost: product.cost,
+					count: product.count,
+					price: product.price,
+					avarage_cost: product.avarage_cost,
+				}))
+
+				const updatedProducts = addProducts.map((product) =>
+					this.#_prisma.products.update({
+						where: { id: product.product_id },
+						data: { count: { decrement: product.count } },
+					}),
+				)
+
+				promises.push(
+					this.#_prisma.orderProducts.createMany({ data: mappedAddProducts }),
+					...updatedProducts,
+					this.#_prisma.order.update({
+						where: { id: order.id },
+						data: { sum: { increment: totalSum } },
+					}),
+					this.#_prisma.users.update({
+						where: { id: order.clientId },
+						data: { debt: { increment: totalSum } },
+					}),
+				)
+			}
+
+			// Handle removed products
+			if (removeProducts.length) {
+				const totalSum = removeProducts.reduce((acc, p) => acc + p.price * p.count, 0)
+				const productIds = removeProducts.map((p) => p.id)
+
+				const updatedProducts = removeProducts.map((product) =>
+					this.#_prisma.products.update({
+						where: { id: product.product_id },
+						data: { count: { increment: product.count } },
+					}),
+				)
+
+				promises.push(
+					...updatedProducts,
+					this.#_prisma.orderProducts.updateMany({
+						where: { id: { in: productIds } },
+						data: { deletedAt: new Date() },
+					}),
+					this.#_prisma.order.update({
+						where: { id: payload.id },
+						data: { sum: { decrement: totalSum } },
+					}),
+					this.#_prisma.users.update({
+						where: { id: order.clientId },
+						data: { debt: { decrement: totalSum } },
+					}),
+				)
+			}
+
+			// Handle payment updates
+			if (payment && Object.keys(payment).length) {
+				const paymentSum = (payment.card || 0) + (payment.cash || 0) + (payment.transfer || 0) + (payment.other || 0)
+
+				promises.push(
+					this.#_prisma.payment.update({
+						where: { id: order.payment[0]?.id },
+						data: {
+							totalPay: { increment: paymentSum },
+							debt: { decrement: paymentSum },
+							card: { increment: payment.card || 0 },
+							cash: { increment: payment.cash || 0 },
+							transfer: { increment: payment.transfer || 0 },
+							other: { increment: payment.other || 0 },
+						},
+					}),
+					this.#_prisma.order.update({
+						where: { id: order.id },
+						data: { debt: { decrement: paymentSum } },
+					}),
+					this.#_prisma.users.update({
+						where: { id: order.clientId },
+						data: { debt: { decrement: paymentSum } },
+					}),
+				)
+			}
+
+			// Handle order acceptance
+			if (!order.accepted && accepted) {
+				const totalSum = order.products.reduce((acc, product) => acc + product.price.toNumber() * product.count, 0)
+
+				const orderProductsUpdates = order.products.map((product) =>
+					this.#_prisma.products.update({
+						where: { id: product.productId },
+						data: { count: { decrement: product.count } },
+					}),
+				)
+
+				promises.push(
+					...orderProductsUpdates,
+					this.#_prisma.users.update({
+						where: { id: order.clientId },
+						data: { debt: { increment: totalSum } },
+					}),
+				)
+			}
+
+			// Execute all promises concurrently
+			await Promise.all(promises)
+
+			return null
+		} catch (error) {
+			console.log(error)
+			throw new InternalServerErrorException("Kutilmagan xatolik! Qaytadan urinib ko'ring")
 		}
-
-		return null
 	}
 
 	async OrderDelete(payload: OrderDeleteRequest): Promise<null> {

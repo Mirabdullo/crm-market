@@ -52,8 +52,8 @@ export class IncomingOrderService {
 		if (payload.startDate || payload.endDate) {
 			dateOption = {
 				createdAt: {
-					...(payload.startDate ? { gte: payload.startDate } : {}),
-					...(payload.endDate ? { lt: payload.endDate } : {}),
+					...(payload.startDate ? { gte: new Date(payload.startDate).toISOString().split('T')[0] } : {}),
+					...(payload.endDate ? { lt: new Date(payload.endDate).toISOString().split('T')[0] } : {}),
 				},
 			}
 		}
@@ -299,7 +299,7 @@ export class IncomingOrderService {
 				})
 			}
 
-			if (accepted) {
+			if (new Date(createdAt).getTime() < new Date().getTime()) {
 				const productUpdates = products.map((product) =>
 					this.#_prisma.products.update({
 						where: { id: product.product_id },
@@ -313,6 +313,11 @@ export class IncomingOrderService {
 				)
 
 				await Promise.all(productUpdates)
+
+				await this.#_prisma.users.update({
+					where: { id: supplierId },
+					data: { debt },
+				})
 			}
 
 			return null

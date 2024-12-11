@@ -7,6 +7,7 @@ import {
 	OrderProductRetriveAllRequest,
 	OrderProductRetriveRequest,
 	OrderProductUpdateRequest,
+	RemoveOrderProductsRequest,
 } from '../interfaces'
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
 
@@ -110,6 +111,28 @@ export class OrderProductRequestDto implements OrderProductRequest {
 	@IsNumber()
 	@IsNotEmpty()
 	avarage_cost: number
+}
+
+export class RemoveOrderProductsRequestDto implements RemoveOrderProductsRequest {
+	@ApiProperty({ type: String })
+	@IsUUID('4')
+	@IsNotEmpty()
+	id: string
+
+	@ApiProperty({ type: String })
+	@IsUUID('4')
+	@IsNotEmpty()
+	product_id: string
+
+	@ApiProperty({ type: Number })
+	@IsNumber()
+	@IsNotEmpty()
+	count: number
+
+	@ApiPropertyOptional({ type: Number })
+	@IsNumber()
+	@IsNotEmpty()
+	price: number
 }
 
 export class OrderProductUpdateRequestDto implements OrderProductUpdateRequest {

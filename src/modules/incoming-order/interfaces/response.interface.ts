@@ -1,7 +1,7 @@
 import { AdminResponse } from '../../admins'
 import { IncomingProductRetriveResponse } from '../../incoming-products'
 import { PaymentResponse } from '../../payment'
-import { UserResponse, UserRetriveResponse } from '../../users'
+import { UserResponse } from '../../users'
 
 export declare interface IncomingOrderRetriveAllResponse {
 	pageSize: number
