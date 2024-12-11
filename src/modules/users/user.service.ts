@@ -20,7 +20,6 @@ export class UserService {
 			}
 		}
 
-		console.log(payload.type)
 		let searchOption = {}
 		if (payload.search) {
 			searchOption = {
