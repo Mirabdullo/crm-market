@@ -380,9 +380,10 @@ export class OrderService {
 					}),
 				)
 			}
-
+			console.log(payload)
 			// Handle removed products
 			if (removeProducts.length) {
+				console.log(removeProducts, removeProducts.length)
 				const totalSum = removeProducts.reduce((acc, p) => acc + p.price * p.count, 0)
 				const productIds = removeProducts.map((p) => p.id)
 

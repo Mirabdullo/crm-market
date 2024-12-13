@@ -107,7 +107,6 @@ export class OrderUpdateRequestDto implements OrderUpdateRequest {
 
 	@ApiPropertyOptional({ type: [RemoveOrderProductsRequestDto] })
 	@IsArray()
-	@ValidateNested({ each: true })
 	@IsOptional()
 	removeProducts?: RemoveOrderProductsRequest[]
 
