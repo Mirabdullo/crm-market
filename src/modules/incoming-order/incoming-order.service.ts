@@ -10,6 +10,7 @@ import {
 	IncomingOrderUpdateRequest,
 } from './interfaces'
 import { Decimal } from '../../types'
+import { endOfDay, startOfDay } from 'date-fns'
 
 @Injectable()
 export class IncomingOrderService {
@@ -52,8 +53,8 @@ export class IncomingOrderService {
 		if (payload.startDate || payload.endDate) {
 			dateOption = {
 				createdAt: {
-					...(payload.startDate ? { gte: new Date(payload.startDate).toISOString().split('T')[0] } : {}),
-					...(payload.endDate ? { lt: new Date(payload.endDate).toISOString().split('T')[0] } : {}),
+					...(payload.startDate ? { gte: startOfDay(new Date(payload.startDate)) } : {}),
+					...(payload.endDate ? { lte: endOfDay(new Date(payload.endDate)) } : {}),
 				},
 			}
 		}

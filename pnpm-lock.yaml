@@ -56,6 +56,9 @@ dependencies:
   cron:
     specifier: ^3.1.7
     version: 3.2.1
+  date-fns:
+    specifier: ^4.1.0
+    version: 4.1.0
   dotenv:
     specifier: ^16.4.5
     version: 16.4.5
@@ -2668,6 +2671,10 @@ packages:
   /css-what@6.1.0:
     resolution: {integrity: sha512-HTUrgRJ7r4dsZKU6GjmpfRK1O76h97Z8MfS1G0FozR+oF2kG6Vfe8JE6zwrkbxigziPHinCJ+gCPjA9EaBDtRw==}
     engines: {node: '>= 6'}
+    dev: false
+
+  /date-fns@4.1.0:
+    resolution: {integrity: sha512-Ukq0owbQXxa/U3EGtsdVBkR1w7KOQ5gIBqdH2hkvknzZPYvBxb/aa6E8L7tmjFtkwZBu3UXBbjIgPo/Ez4xaNg==}
     dev: false
 
   /debug@2.6.9:

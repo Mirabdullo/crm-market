@@ -12,7 +12,7 @@ import {
 import { ApiBearerAuth, ApiNoContentResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger'
 import { IncomingOrderPaymentRetriveAllResponse, IncomingOrderPaymentRetriveResponse } from './interfaces'
 import { PassUserIdInterceptor } from '../../interceptors'
-import { IncomingOrderPaymentService } from './payment.service'
+import { IncomingOrderPaymentService } from './incoming-order-payment.service'
 
 @ApiTags('IncomingOrderPayment')
 @UseInterceptors(PassUserIdInterceptor)
