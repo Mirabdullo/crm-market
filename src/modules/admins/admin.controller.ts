@@ -35,11 +35,11 @@ export class AdminController {
 			pageSize: payload.pageSize ?? PAGE_SIZE,
 		})
 	}
-	
+
 	@UseInterceptors(PassUserIdInterceptor)
 	@Get('profile')
 	@ApiOkResponse({ type: AdminRetrieveResponseDto })
-	GetProfile(payload: {id: string}): Promise<AdminRetriveResponse> {
+	GetProfile(@Body() payload: { id: string }): Promise<AdminRetriveResponse> {
 		return this.#_service.getProfile(payload)
 	}
 
