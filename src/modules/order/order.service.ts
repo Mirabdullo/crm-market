@@ -11,6 +11,8 @@ import {
 } from './interfaces'
 import { Decimal } from '../../types'
 import { endOfDay, startOfDay } from 'date-fns'
+import * as ExcelJS from 'exceljs'
+import { Response } from 'express'
 
 @Injectable()
 export class OrderService {
@@ -256,6 +258,129 @@ export class OrderService {
 				avarage_cost: (prod.avarage_cost as Decimal).toNumber(),
 			})),
 		}
+	}
+
+	async orderUpload(payload: { res: Response; id: string }): Promise<any> {
+		const { res, id } = payload
+		const order = await this.#_prisma.order.findUnique({
+			where: { id },
+			select: {
+				id: true,
+				sum: true,
+				articl: true,
+				accepted: true,
+				createdAt: true,
+				debt: true,
+				client: {
+					select: {
+						id: true,
+						name: true,
+						phone: true,
+						createdAt: true,
+					},
+				},
+				admin: {
+					select: {
+						id: true,
+						name: true,
+						phone: true,
+					},
+				},
+				payment: {
+					select: {
+						id: true,
+						totalPay: true,
+						debt: true,
+						card: true,
+						cash: true,
+						transfer: true,
+						other: true,
+						createdAt: true,
+					},
+				},
+				products: {
+					select: {
+						id: true,
+						cost: true,
+						count: true,
+						price: true,
+						avarage_cost: true,
+						createdAt: true,
+						product: {
+							select: {
+								id: true,
+								name: true,
+								count: true,
+							},
+						},
+					},
+				},
+			},
+		})
+
+		if (!order) {
+			throw new NotFoundException('Order not found')
+		}
+
+		// 1. Excel Workbook yaratish
+		const workbook = new ExcelJS.Workbook()
+		const worksheet = workbook.addWorksheet('Order List')
+
+		// 2. Sarlavhalar qo'shish
+		worksheet.columns = [
+			{ header: '№', key: 'number', width: 5 },
+			{ header: 'Махсулот номи', key: 'productName', width: 30 },
+			{ header: 'Сони', key: 'quantity', width: 10 },
+			{ header: 'Нархи', key: 'price', width: 10 },
+			{ header: 'Суммаси', key: 'total', width: 15 },
+		]
+
+		// 3. Order ma'lumotlari (bazadan olingan yoki qattiq kodlangan ma'lumotlar)
+		// const orders = [
+		// 	{ number: 1, productName: 'IDEAL fumlenta qizil 10m-500sht', quantity: 500, price: 0.06, total: 30 },
+		//   ];
+
+		const totalSum = order.products.reduce((sum, product) => sum + product.price.toNumber() * product.count, 0)
+		const summary = {
+			totalAmount: totalSum,
+			payment: order.payment[0].totalPay,
+		}
+
+		// 4. Ma'lumotlarni Excelga qo'shish
+		const count = 1
+		order.products.forEach((product, index) => {
+			worksheet.addRow({
+				number: count + index,
+				name: product.product.name,
+				quantity: product.count,
+				price: product.price,
+				total: product.price.toNumber() * product.count,
+			})
+		})
+
+		// Jadvalning oxiriga umumiy summa va to'lov ma'lumotlarini qo'shish
+		worksheet.addRow({})
+		worksheet.addRow(['', '', '', 'Жами сумма:', summary.totalAmount])
+		worksheet.addRow(['', '', '', 'Тулов килинди:', summary.payment])
+
+		// 5. Style qo'shish
+		worksheet.getRow(1).font = { bold: true } // Sarlavhalarni qalin qilish
+		worksheet.eachRow((row) => {
+			row.alignment = { vertical: 'middle', horizontal: 'center' }
+			row.border = {
+				top: { style: 'thin' },
+				left: { style: 'thin' },
+				bottom: { style: 'thin' },
+				right: { style: 'thin' },
+			}
+		})
+
+		// 6. Foydalanuvchiga yuklash
+		res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+		res.setHeader('Content-Disposition', 'attachment; filename=order.xlsx')
+
+		await workbook.xlsx.write(res)
+		res.end()
 	}
 
 	async OrderCreate(payload: OrderCreateRequest): Promise<null> {

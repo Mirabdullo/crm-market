@@ -34,6 +34,7 @@
     "cron": "^3.1.7",
     "date-fns": "^4.1.0",
     "dotenv": "^16.4.5",
+    "exceljs": "^4.4.0",
     "express": "^4.19.2",
     "multer": "1.4.5-lts.1",
     "reflect-metadata": "^0.1.13",

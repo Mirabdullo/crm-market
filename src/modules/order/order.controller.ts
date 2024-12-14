@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post, Query, UseInterceptors } from '@nestjs/common'
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post, Query, Res, UseInterceptors } from '@nestjs/common'
 import { OrderService } from './order.service'
 import { PAGE_NUMBER, PAGE_SIZE } from './constants'
 import {
@@ -15,6 +15,7 @@ import { OrderRetriveAllResponse, OrderRetriveResponse } from './interfaces'
 import { PassUserIdInterceptor } from '../../interceptors'
 import { Permission } from '@decorators'
 import { Permissions } from '@enums'
+import { Response } from 'express'
 
 @ApiTags('Order')
 @UseInterceptors(PassUserIdInterceptor)
@@ -42,6 +43,12 @@ export class OrderController {
 	@ApiOkResponse({ type: OrderRetrieveResponseDto })
 	OrderRetrieve(@Param() payload: OrderRetrieveRequestDto): Promise<OrderRetriveResponse> {
 		return this.#_service.OrderRetrieve(payload)
+	}
+
+	@Get('upload/:id')
+	@ApiOkResponse({ type: OrderRetrieveResponseDto })
+	OrderUpload(@Param() payload: OrderRetrieveRequestDto, @Res() res: Response): Promise<any> {
+		return this.#_service.orderUpload({ ...payload, res })
 	}
 
 	@Permission(Permissions.ORDER_CREATE)
