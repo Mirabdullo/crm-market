@@ -74,6 +74,18 @@ export class AdminUpdateRequestDto implements AdminUpdateRequest {
 	@IsString()
 	@IsOptional()
 	password?: string
+
+	@ApiPropertyOptional({ type: [String] })
+	@IsArray()
+	@IsUUID('4', { each: true })
+	@IsOptional()
+	connectPermissions: string[]
+
+	@ApiPropertyOptional({ type: [String] })
+	@IsArray()
+	@IsUUID('4', { each: true })
+	@IsOptional()
+	disconnectPermissions: string[]
 }
 
 export class AdminDeleteRequestDto implements AdminDeleteRequest {

@@ -9,6 +9,8 @@ export declare interface AdminUpdateRequest {
 	name?: string
 	phone?: string
 	password?: string
+	connectPermissions?: string[]
+	disconnectPermissions?: string[]
 }
 
 export declare interface AdminDeleteRequest {
