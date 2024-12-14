@@ -39,7 +39,7 @@ export class AdminController {
 	@UseInterceptors(PassUserIdInterceptor)
 	@Get('profile')
 	@ApiOkResponse({ type: AdminRetrieveResponseDto })
-	GetProfile(@Param() payload: AdminRetrieveRequestDto): Promise<AdminRetriveResponse> {
+	GetProfile(payload: {id: string}): Promise<AdminRetriveResponse> {
 		return this.#_service.getProfile(payload)
 	}
 
