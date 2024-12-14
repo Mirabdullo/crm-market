@@ -13,6 +13,8 @@ import {
 import { ApiBearerAuth, ApiNoContentResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger'
 import { PaymentRetriveAllResponse, PaymentRetriveResponse } from './interfaces'
 import { PassUserIdInterceptor } from '../../interceptors'
+import { Permissions } from '@enums'
+import { Permission } from '@decorators'
 
 @ApiTags('Payment')
 @UseInterceptors(PassUserIdInterceptor)
@@ -42,6 +44,7 @@ export class PaymentController {
 		return this.#_service.paymentRetrieve(payload)
 	}
 
+	@Permission(Permissions.PAYMENT_CREATE)
 	@Post()
 	@HttpCode(HttpStatus.NO_CONTENT)
 	@ApiNoContentResponse()
@@ -49,6 +52,7 @@ export class PaymentController {
 		return this.#_service.paymentCreate(payload)
 	}
 
+	@Permission(Permissions.PAYMENT_UPDATE)
 	@Patch(':id')
 	@HttpCode(HttpStatus.NO_CONTENT)
 	@ApiNoContentResponse()
@@ -56,6 +60,7 @@ export class PaymentController {
 		return this.#_service.paymentUpdate({ id, ...payload })
 	}
 
+	@Permission(Permissions.PAYMENT_DELETE)
 	@Delete(':id')
 	@HttpCode(HttpStatus.NO_CONTENT)
 	@ApiNoContentResponse()

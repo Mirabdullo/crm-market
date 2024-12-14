@@ -13,6 +13,8 @@ import {
 import { ApiBearerAuth, ApiNoContentResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger'
 import { IncomingOrderRetriveAllResponse, IncomingOrderRetriveResponse } from './interfaces'
 import { PassUserIdInterceptor } from '../../interceptors'
+import { Permission } from '@decorators'
+import { Permissions } from '@enums'
 
 @ApiTags('IncomingOrder')
 @UseInterceptors(PassUserIdInterceptor)
@@ -42,6 +44,7 @@ export class IncomingOrderController {
 		return this.#_service.incomingOrderRetrieve(payload)
 	}
 
+	@Permission(Permissions.INCOMING_ORDER_CREATE)
 	@Post()
 	@HttpCode(HttpStatus.NO_CONTENT)
 	@ApiNoContentResponse()
@@ -52,6 +55,7 @@ export class IncomingOrderController {
 		})
 	}
 
+	@Permission(Permissions.INCOMING_ORDER_UPDATE)
 	@Patch(':id')
 	@HttpCode(HttpStatus.NO_CONTENT)
 	@ApiNoContentResponse()
@@ -59,6 +63,7 @@ export class IncomingOrderController {
 		return this.#_service.incomingOrderUpdate({ id, ...payload })
 	}
 
+	@Permission(Permissions.INCOMING_ORDER_DELETE)
 	@Delete(':id')
 	@HttpCode(HttpStatus.NO_CONTENT)
 	@ApiNoContentResponse()

@@ -28,6 +28,7 @@ export class AuthService {
 				permissions: {
 					select: {
 						id: true,
+						key: true,
 						name: true,
 					},
 				},
@@ -52,7 +53,8 @@ export class AuthService {
 				id: payload.id,
 				name: payload.name,
 				phone: payload.phone,
-				permissions: payload.permissions.map((p: any) => p.name),
+				role: payload.role,
+				permissions: payload.permissions.map((p: any) => p.key),
 			},
 			{
 				secret: JwtConfig.accessToken.key,

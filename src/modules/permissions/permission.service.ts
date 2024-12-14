@@ -34,6 +34,7 @@ export class PermissionService {
 			select: {
 				id: true,
 				name: true,
+				key: true,
 			},
 			...paginationOptions,
 		})
@@ -59,6 +60,7 @@ export class PermissionService {
 			select: {
 				id: true,
 				name: true,
+				key: true,
 			},
 		})
 
@@ -71,6 +73,7 @@ export class PermissionService {
 			select: {
 				id: true,
 				name: true,
+				key: true,
 			},
 		})
 		if (!permission) {
@@ -94,6 +97,7 @@ export class PermissionService {
 			data: {
 				role_id: payload.role_id,
 				name: payload.name,
+				key: payload.key,
 			},
 		})
 

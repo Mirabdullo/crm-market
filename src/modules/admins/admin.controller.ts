@@ -12,6 +12,8 @@ import {
 } from './dtos'
 import { ApiBearerAuth, ApiNoContentResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger'
 import { AdminRetriveAllResponse, AdminRetriveResponse } from './interfaces'
+import { Permission } from '@decorators'
+import { Permissions } from '@enums'
 
 @ApiTags('Admin')
 @ApiBearerAuth()
@@ -39,17 +41,20 @@ export class AdminController {
 		return this.#_service.adminRetrieve(payload)
 	}
 
+	@Permission(Permissions.ADMIN_CREATE)
 	@Post()
 	@ApiNoContentResponse()
 	AdminCreate(@Body() payload: AdminCreateRequestDto): Promise<null> {
 		return this.#_service.adminCreate(payload)
 	}
 
+	@Permission(Permissions.ADMIN_UPDATE)
 	@Patch(':id')
 	AdminUpdate(@Param() id: AdminUpdateRequestDto, @Body() payload: AdminUpdateRequestDto): Promise<null> {
 		return this.#_service.adminUpdate({ id, ...payload })
 	}
 
+	@Permission(Permissions.ADMIN_DELETE)
 	@Delete(':id')
 	AdminDelete(@Param() payload: AdminDeleteRequestDto): Promise<null> {
 		return this.#_service.adminDelete(payload)

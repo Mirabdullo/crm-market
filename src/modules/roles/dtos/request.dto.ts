@@ -45,7 +45,7 @@ export class RoleCreateRequestDto implements RoleCreateRequest {
 	@ApiProperty({ type: String })
 	@IsString()
 	@IsNotEmpty()
-	phone: string
+	key: string
 }
 
 export class RoleUpdateRequestDto implements RoleUpdateRequest {
@@ -62,7 +62,7 @@ export class RoleUpdateRequestDto implements RoleUpdateRequest {
 	@ApiPropertyOptional({ type: String })
 	@IsString()
 	@IsOptional()
-	phone?: string
+	key?: string
 }
 
 export class RoleDeleteRequestDto implements RoleDeleteRequest {

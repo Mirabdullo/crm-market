@@ -1,4 +1,5 @@
 import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post, Query } from '@nestjs/common'
+import { ApiBearerAuth, ApiNoContentResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger'
 import { ProductService } from './product.service'
 import { PAGE_NUMBER, PAGE_SIZE } from './constants'
 import {
@@ -10,8 +11,9 @@ import {
 	ProductRetrieveAllRequestDto,
 	ProductRetrieveAllResponseDto,
 } from './dtos'
-import { ApiBearerAuth, ApiNoContentResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger'
 import { ProductRetriveAllResponse, ProductRetriveResponse } from './interfaces'
+import { Permission } from '@decorators'
+import { Permissions } from '@enums'
 
 @ApiTags('Product')
 @ApiBearerAuth()
@@ -40,6 +42,7 @@ export class ProductController {
 		return this.#_service.productRetrieve(payload)
 	}
 
+	@Permission(Permissions.PRODUCT_CREATE)
 	@Post()
 	@HttpCode(HttpStatus.NO_CONTENT)
 	@ApiNoContentResponse()
@@ -47,6 +50,7 @@ export class ProductController {
 		return this.#_service.productCreate(payload)
 	}
 
+	@Permission(Permissions.PRODUCT_UPDATE)
 	@Patch(':id')
 	@HttpCode(HttpStatus.NO_CONTENT)
 	@ApiNoContentResponse()
@@ -54,6 +58,7 @@ export class ProductController {
 		return this.#_service.productUpdate({ id, ...payload })
 	}
 
+	@Permission(Permissions.PRODUCT_DELETE)
 	@Delete(':id')
 	@HttpCode(HttpStatus.NO_CONTENT)
 	@ApiNoContentResponse()

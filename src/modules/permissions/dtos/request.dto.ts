@@ -43,6 +43,11 @@ export class PermissionCreateRequestDto implements PermissionCreateRequest {
 	name: string
 
 	@ApiProperty({ type: String })
+	@IsString()
+	@IsNotEmpty()
+	key: string
+
+	@ApiProperty({ type: String })
 	@IsUUID('4')
 	@IsNotEmpty()
 	role_id: string

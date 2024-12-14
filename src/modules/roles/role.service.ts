@@ -26,6 +26,7 @@ export class RoleService {
 			select: {
 				id: true,
 				name: true,
+				key: true,
 			},
 			...paginationOptions,
 		})
@@ -51,6 +52,7 @@ export class RoleService {
 			select: {
 				id: true,
 				name: true,
+				key: true,
 			},
 		})
 		if (!role) {
@@ -71,6 +73,7 @@ export class RoleService {
 		await this.#_prisma.roles.create({
 			data: {
 				name: payload.name,
+				key: payload.key,
 			},
 		})
 

@@ -8,6 +8,8 @@
     "paths": {
       "@config": ["./config"],
       "@prisma": ["./prisma"],
+      "@decorators": ["./decorators"],
+      "@enums": ["./enums"],
     },
     "allowJs": true,
     "declaration": true,

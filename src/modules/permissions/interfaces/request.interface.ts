@@ -1,5 +1,6 @@
 export declare interface PermissionCreateRequest {
 	name: string
+	key: string
 	role_id: string
 }
 

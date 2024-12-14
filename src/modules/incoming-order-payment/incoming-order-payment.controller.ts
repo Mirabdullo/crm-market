@@ -13,6 +13,8 @@ import { ApiBearerAuth, ApiNoContentResponse, ApiOkResponse, ApiTags } from '@ne
 import { IncomingOrderPaymentRetriveAllResponse, IncomingOrderPaymentRetriveResponse } from './interfaces'
 import { PassUserIdInterceptor } from '../../interceptors'
 import { IncomingOrderPaymentService } from './incoming-order-payment.service'
+import { Permission } from '@decorators'
+import { Permissions } from '@enums'
 
 @ApiTags('IncomingOrderPayment')
 @UseInterceptors(PassUserIdInterceptor)
@@ -42,6 +44,7 @@ export class IncomingOrderPaymentController {
 		return this.#_service.incomingOrderPaymentRetrieve(payload)
 	}
 
+	@Permission(Permissions.INCOMING_PAYMENT_CREATE)
 	@Post()
 	@HttpCode(HttpStatus.NO_CONTENT)
 	@ApiNoContentResponse()
@@ -49,6 +52,7 @@ export class IncomingOrderPaymentController {
 		return this.#_service.incomingOrderPaymentCreate(payload)
 	}
 
+	@Permission(Permissions.INCOMING_PAYMENT_UPDATE)
 	@Patch(':id')
 	@HttpCode(HttpStatus.NO_CONTENT)
 	@ApiNoContentResponse()
@@ -56,6 +60,7 @@ export class IncomingOrderPaymentController {
 		return this.#_service.incomingOrderPaymentUpdate({ id, ...payload })
 	}
 
+	@Permission(Permissions.INCOMING_PAYMENT_DELETE)
 	@Delete(':id')
 	@HttpCode(HttpStatus.NO_CONTENT)
 	@ApiNoContentResponse()

@@ -13,6 +13,8 @@ import {
 import { ApiBearerAuth, ApiNoContentResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger'
 import { IncomingProductRetriveAllResponse, IncomingProductRetriveResponse } from './interfaces'
 import { PassUserIdInterceptor } from '../../interceptors'
+import { Permission } from '@decorators'
+import { Permissions } from '@enums'
 
 @ApiTags('IncomingProduct')
 @UseInterceptors(PassUserIdInterceptor)
@@ -42,6 +44,7 @@ export class IncomingProductController {
 		return this.#_service.incomingProductRetrieve(payload)
 	}
 
+	@Permission(Permissions.INCOMING_PRODUCT_CREATE)
 	@Post()
 	@HttpCode(HttpStatus.NO_CONTENT)
 	@ApiNoContentResponse()
@@ -49,6 +52,7 @@ export class IncomingProductController {
 		return this.#_service.incomingProductCreate(payload)
 	}
 
+	@Permission(Permissions.INCOMING_PRODUCT_UPDATE)
 	@Patch(':id')
 	@HttpCode(HttpStatus.NO_CONTENT)
 	@ApiNoContentResponse()
@@ -56,6 +60,7 @@ export class IncomingProductController {
 		return this.#_service.incomingProductUpdate({ id, ...payload })
 	}
 
+	@Permission(Permissions.INCOMING_PRODUCT_DELETE)
 	@Delete(':id')
 	@HttpCode(HttpStatus.NO_CONTENT)
 	@ApiNoContentResponse()

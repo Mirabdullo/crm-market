@@ -1,9 +1,11 @@
 export declare interface RoleCreateRequest {
 	name: string
+	key: string
 }
 
 export declare interface RoleUpdateRequest {
 	id: string
+	key?: string
 	name?: string
 }
 

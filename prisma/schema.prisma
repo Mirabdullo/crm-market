@@ -38,6 +38,7 @@ model Admins {
 model Roles {
   id         String         @map("id")          @db.Uuid       @default(dbgenerated("GEN_RANDOM_UUID()"))
   name       String         @map("name")        @db.VarChar() 
+  key        String         @map("key")         @db.VarChar()  @default("")
 
   permissions Permissions[]
   @@id([ id ])
@@ -47,6 +48,7 @@ model Roles {
 model Permissions {
   id         String         @map("id")          @db.Uuid       @default(dbgenerated("GEN_RANDOM_UUID()"))
   name       String         @map("name")        @db.VarChar() 
+  key        String         @map("key")         @db.VarChar()  @default("")
   role_id    String         @map("role_id")     @db.Uuid() 
 
   admins Admins[]

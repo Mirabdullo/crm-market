@@ -12,6 +12,8 @@ import {
 } from './dtos'
 import { ApiBearerAuth, ApiNoContentResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger'
 import { UserRetriveAllResponse, UserRetriveResponse } from './interfaces'
+import { Permissions } from '@enums'
+import { Permission } from '@decorators'
 
 @ApiTags('User')
 @ApiBearerAuth()
@@ -53,23 +55,27 @@ export class UserController {
 		return this.#_service.userRetrieve(payload)
 	}
 
+	@Permission(Permissions.SUPPLIER_CREATE)
 	@Post('supplier')
 	@ApiNoContentResponse()
 	SupplierCreate(@Body() payload: UserCreateRequestDto): Promise<null> {
 		return this.#_service.supplierCreate(payload)
 	}
 
+	@Permission(Permissions.CLIENT_CREATE)
 	@Post('client')
 	@ApiNoContentResponse()
 	ClientCreate(@Body() payload: UserCreateRequestDto): Promise<null> {
 		return this.#_service.clientCreate(payload)
 	}
 
+	@Permission(Permissions.SUPPLIER_UPDATE)
 	@Patch(':id')
 	UserUpdate(@Param() id: UserUpdateRequestDto, @Body() payload: UserUpdateRequestDto): Promise<null> {
 		return this.#_service.userUpdate({ id, ...payload })
 	}
 
+	@Permission(Permissions.SUPPLIER_DELETE)
 	@Delete(':id')
 	UserDelete(@Param() payload: UserDeleteRequestDto): Promise<null> {
 		return this.#_service.userDelete(payload)

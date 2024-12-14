@@ -1,9 +1,10 @@
 import type { Request } from 'express'
 import type { CanActivate, ExecutionContext } from '@nestjs/common'
-import { Injectable, UnauthorizedException } from '@nestjs/common'
+import { ForbiddenException, Injectable, UnauthorizedException } from '@nestjs/common'
 import { Reflector } from '@nestjs/core'
 import { isJWT } from 'class-validator'
 import { JwtService } from '@nestjs/jwt'
+import { PERMISSION } from '../constants'
 
 @Injectable()
 export class CheckPermissionGuard implements CanActivate {
@@ -16,17 +17,14 @@ export class CheckPermissionGuard implements CanActivate {
 	}
 
 	async canActivate(context: ExecutionContext): Promise<boolean> {
-		// const permission = this.#_reflector.get<string>(
-		// 	PERMISSION,
-		// 	context.getHandler(),
-		// )
+		const permission = this.#_reflector.get<string>(PERMISSION, context.getHandler())
 
 		const request = context.switchToHttp().getRequest<Request>()
 
 		const accessToken = request.headers.authorization?.replace(/^(bearer)\s/i, '')
 
 		if (!accessToken || !isJWT(accessToken)) {
-			throw new UnauthorizedException('Unauthorized')
+			throw new UnauthorizedException('Ruxsat etilmagan')
 		}
 
 		const user = await this.#_jwt.verify(accessToken, {
@@ -34,13 +32,13 @@ export class CheckPermissionGuard implements CanActivate {
 		})
 
 		if (!user) {
-			throw new UnauthorizedException('Unauthorized')
+			throw new UnauthorizedException('Ruxsat etilmagan')
 		}
 
-		if (!user.roles.includes('super-admin')) {
-			// if (!user.permissions.includes(permission)) {
-			// 	throw new ForbiddenException('Permission denied')
-			// }
+		if (user.role !== 'super-admin') {
+			if (!user.permissions.includes(permission)) {
+				throw new ForbiddenException('Ruxsat etilmagan')
+			}
 		}
 
 		return true
