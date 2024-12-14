@@ -7,6 +7,23 @@ export interface IncomingProductCreateRequest {
 	wholesale_price?: number
 }
 
+export interface IncomingProductRequest {
+	product_id: string
+	cost: number
+	count: number
+	selling_price?: number
+	wholesale_price?: number
+}
+
+export interface IncomingProductRemoveRequest {
+	id: string
+	product_id: string
+	cost: number
+	count: number
+	selling_price?: number
+	wholesale_price?: number
+}
+
 export interface IncomingProductUpdateRequest {
 	id: string
 	cost?: number

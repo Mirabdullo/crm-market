@@ -3,6 +3,8 @@ import { Type } from 'class-transformer'
 import {
 	IncomingProductCreateRequest,
 	IncomingProductDeleteRequest,
+	IncomingProductRemoveRequest,
+	IncomingProductRequest,
 	IncomingProductRetriveAllRequest,
 	IncomingProductRetriveRequest,
 	IncomingProductUpdateRequest,
@@ -57,6 +59,65 @@ export class IncomingProductCreateRequestDto implements IncomingProductCreateReq
 	@IsUUID('4')
 	@IsNotEmpty()
 	incomingOrderId: string
+
+	@ApiProperty({ type: String })
+	@IsUUID('4')
+	@IsNotEmpty()
+	product_id: string
+
+	@ApiProperty({ type: Number })
+	@IsNumber()
+	@IsNotEmpty()
+	count: number
+
+	@ApiProperty({ type: Number })
+	@IsNumber()
+	@IsNotEmpty()
+	cost: number
+
+	@ApiPropertyOptional({ type: Number })
+	@IsNumber()
+	@IsOptional()
+	selling_price?: number
+
+	@ApiPropertyOptional({ type: Number })
+	@IsNumber()
+	@IsOptional()
+	wholesale_price?: number
+}
+
+export class IncomingProductRequestDto implements IncomingProductRequest {
+	@ApiProperty({ type: String })
+	@IsUUID('4')
+	@IsNotEmpty()
+	product_id: string
+
+	@ApiProperty({ type: Number })
+	@IsNumber()
+	@IsNotEmpty()
+	count: number
+
+	@ApiProperty({ type: Number })
+	@IsNumber()
+	@IsNotEmpty()
+	cost: number
+
+	@ApiPropertyOptional({ type: Number })
+	@IsNumber()
+	@IsOptional()
+	selling_price?: number
+
+	@ApiPropertyOptional({ type: Number })
+	@IsNumber()
+	@IsOptional()
+	wholesale_price?: number
+}
+
+export class IncomingProductRemoveRequestDto implements IncomingProductRemoveRequest {
+	@ApiProperty({ type: String })
+	@IsUUID('4')
+	@IsNotEmpty()
+	id: string
 
 	@ApiProperty({ type: String })
 	@IsUUID('4')

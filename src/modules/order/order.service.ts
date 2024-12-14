@@ -97,7 +97,7 @@ export class OrderService {
 					},
 				},
 				products: {
-					where: {deletedAt: null},
+					where: { deletedAt: null },
 					select: {
 						id: true,
 						cost: true,
@@ -384,7 +384,6 @@ export class OrderService {
 
 			// Handle removed products
 			if (removeProducts.length) {
-
 				const totalSum = removeProducts.reduce((acc, p) => acc + p.price * p.count, 0)
 				const productIds = removeProducts.map((p) => p.id)
 

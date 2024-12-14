@@ -1,5 +1,5 @@
-import { IncomingOrderPaymentRequest } from '../../incoming-order-payment'
-import { IncomingProductCreateRequest } from '../../incoming-products'
+import { IncomingOrderPaymentRequest, IncomingOrderPaymentUpdateRequest } from '../../incoming-order-payment'
+import { IncomingProductCreateRequest, IncomingProductRemoveRequest, IncomingProductRequest } from '../../incoming-products'
 
 export interface IncomingOrderCreateRequest {
 	supplierId: string
@@ -13,9 +13,9 @@ export interface IncomingOrderCreateRequest {
 
 export interface IncomingOrderUpdateRequest {
 	id: string
-	count?: number
-	cost?: number
-	accepted?: boolean
+	addProducts?: IncomingProductRequest[]
+	removeProducts?: IncomingProductRemoveRequest[]
+	payment?: IncomingOrderPaymentUpdateRequest
 }
 
 export interface IncomingOrderDeleteRequest {
