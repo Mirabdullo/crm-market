@@ -18,7 +18,7 @@ export class PassUserIdInterceptor implements NestInterceptor {
 		const user = JSON.parse(Buffer.from(accessToken.split('.')[1], 'base64').toString())
 
 		Object.assign(request.body, {
-			userId: user.id,
+			id: user.id,
 		})
 
 		return next.handle()

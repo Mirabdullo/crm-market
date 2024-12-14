@@ -83,6 +83,30 @@ export class AdminService {
 		return admin
 	}
 
+	async getProfile(payload: AdminRetriveRequest): Promise<AdminRetriveResponse> {
+		const admin = await this.#_prisma.admins.findUnique({
+			where: { id: payload.id, deletedAt: null },
+			select: {
+				id: true,
+				name: true,
+				phone: true,
+				role: true,
+				createdAt: true,
+				permissions: {
+					select: {
+						id: true,
+						key: true,
+						name: true,
+					},
+				},
+			},
+		})
+		if (!admin) {
+			throw new NotFoundException('Admin not found')
+		}
+		return admin
+	}
+
 	async adminCreate(payload: AdminCreateRequest): Promise<null> {
 		const admin = await this.#_prisma.admins.findFirst({
 			where: { phone: payload.phone },

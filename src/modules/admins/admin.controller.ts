@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common'
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UseInterceptors } from '@nestjs/common'
 import { AdminService } from './admin.service'
 import { PAGE_NUMBER, PAGE_SIZE } from './constants'
 import {
@@ -14,6 +14,7 @@ import { ApiBearerAuth, ApiNoContentResponse, ApiOkResponse, ApiTags } from '@ne
 import { AdminRetriveAllResponse, AdminRetriveResponse } from './interfaces'
 import { Permission } from '@decorators'
 import { Permissions } from '@enums'
+import { PassUserIdInterceptor } from '../../interceptors'
 
 @ApiTags('Admin')
 @ApiBearerAuth()
@@ -33,6 +34,13 @@ export class AdminController {
 			pageNumber: payload.pageNumber ?? PAGE_NUMBER,
 			pageSize: payload.pageSize ?? PAGE_SIZE,
 		})
+	}
+	
+	@UseInterceptors(PassUserIdInterceptor)
+	@Get('profile')
+	@ApiOkResponse({ type: AdminRetrieveResponseDto })
+	GetProfile(@Param() payload: AdminRetrieveRequestDto): Promise<AdminRetriveResponse> {
+		return this.#_service.getProfile(payload)
 	}
 
 	@Get(':id')
