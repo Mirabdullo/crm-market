@@ -326,19 +326,21 @@ export class OrderService {
 		const workbook = new ExcelJS.Workbook()
 		const worksheet = workbook.addWorksheet('Order List')
 
+		const titleRow = worksheet.addRow([`Xaridor: ${order.client.name}`])
+		worksheet.mergeCells('A1:E1') // A1 dan E1 gacha kataklarni birlashtirish
+
+		titleRow.getCell(1).alignment = { horizontal: 'left', vertical: 'middle' } // Markazga joylashtirish
+		titleRow.font = { bold: true, size: 14 } // Font style: bold va kattaroq shrift
+		titleRow.height = 20 // Qator balandligini o'rnatish
+
 		// 2. Sarlavhalar qo'shish
 		worksheet.columns = [
 			{ header: '№', key: 'number', width: 5 },
-			{ header: 'Махсулот номи', key: 'productName', width: 30 },
+			{ header: 'Махсулот номи', key: 'name', width: 30 },
 			{ header: 'Сони', key: 'quantity', width: 10 },
 			{ header: 'Нархи', key: 'price', width: 10 },
 			{ header: 'Суммаси', key: 'total', width: 15 },
 		]
-
-		// 3. Order ma'lumotlari (bazadan olingan yoki qattiq kodlangan ma'lumotlar)
-		// const orders = [
-		// 	{ number: 1, productName: 'IDEAL fumlenta qizil 10m-500sht', quantity: 500, price: 0.06, total: 30 },
-		//   ];
 
 		const totalSum = order.products.reduce((sum, product) => sum + product.price.toNumber() * product.count, 0)
 		const summary = {
@@ -539,17 +541,20 @@ export class OrderService {
 			// Handle payment updates
 			if (payment && Object.keys(payment).length) {
 				const paymentSum = (payment.card || 0) + (payment.cash || 0) + (payment.transfer || 0) + (payment.other || 0)
+				const removeProductSum = removeProducts.length ? removeProducts.reduce((acc, p) => acc + p.price * p.count, 0) : 0
+				const addProductSum = addProducts.length ? addProducts.reduce((acc, p) => acc + p.price * p.count, 0) : 0
+				const sum = order.sum.toNumber() + addProductSum - removeProductSum - paymentSum
 
 				promises.push(
 					this.#_prisma.payment.update({
 						where: { id: order.payment[0]?.id },
 						data: {
-							totalPay: { increment: paymentSum },
-							debt: { decrement: paymentSum },
-							card: { increment: payment.card || 0 },
-							cash: { increment: payment.cash || 0 },
-							transfer: { increment: payment.transfer || 0 },
-							other: { increment: payment.other || 0 },
+							totalPay: paymentSum,
+							debt: sum,
+							card: payment.card,
+							cash: payment.cash,
+							transfer: payment.transfer,
+							other: payment.other,
 						},
 					}),
 					this.#_prisma.order.update({
@@ -596,14 +601,59 @@ export class OrderService {
 	async OrderDelete(payload: OrderDeleteRequest): Promise<null> {
 		const order = await this.#_prisma.order.findUnique({
 			where: { id: payload.id, deletedAt: null },
+			include: { products: true, payment: true },
 		})
 
 		if (!order) throw new NotFoundException('maxsulot topilmadi')
 
-		await this.#_prisma.order.update({
-			where: { id: payload.id },
-			data: { deletedAt: new Date() },
-		})
+		const promises: any = []
+		if (order.accepted) {
+			const orderProductIds = order.products.map((product) => product.id)
+
+			const products = order.products.map((product) =>
+				this.#_prisma.products.update({
+					where: { id: product.productId },
+					data: { count: { increment: product.count } },
+				}),
+			)
+
+			promises.push(
+				this.#_prisma.orderProducts.updateMany({
+					where: { id: { in: orderProductIds } },
+					data: { deletedAt: new Date() },
+				}),
+				...products,
+				this.#_prisma.users.update({
+					where: { id: order.clientId },
+					data: { debt: { decrement: order.sum.toNumber() - order.debt.toNumber() } },
+				}),
+				this.#_prisma.payment.update({
+					where: { id: order.payment[0].id },
+					data: { deletedAt: new Date() },
+				}),
+			)
+		} else {
+			const orderProductIds = order.products.map((product) => product.id)
+
+			promises.push(
+				this.#_prisma.orderProducts.updateMany({
+					where: { id: { in: orderProductIds } },
+					data: { deletedAt: new Date() },
+				}),
+				this.#_prisma.payment.update({
+					where: { id: order.payment[0].id },
+					data: { deletedAt: new Date() },
+				}),
+			)
+		}
+
+		await Promise.all([
+			...promises,
+			this.#_prisma.order.update({
+				where: { id: payload.id },
+				data: { deletedAt: new Date() },
+			}),
+		])
 
 		return null
 	}
