@@ -27,6 +27,13 @@ export class RoleService {
 				id: true,
 				name: true,
 				key: true,
+				permissions: {
+					select: {
+						id: true,
+						name: true,
+						key: true,
+					}
+				}
 			},
 			...paginationOptions,
 		})
@@ -53,6 +60,13 @@ export class RoleService {
 				id: true,
 				name: true,
 				key: true,
+				permissions: {
+					select: {
+						id: true,
+						name: true,
+						key: true,
+					}
+				}
 			},
 		})
 		if (!role) {

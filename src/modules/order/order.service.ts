@@ -334,14 +334,19 @@ export class OrderService {
 		titleRow.font = { bold: true, size: 12 } // Bold va shrift o'lchami
 		titleRow.height = 20 // Qator balandligi
 
-		// Bo'sh joy
-		worksheet.addRow([])
-
 		// 2. Jadval sarlavhalarini qo'shish
 		const headerRow = worksheet.addRow(['№', 'Махсулот номи', '√', 'Сони', 'Нархи', 'Суммаси'])
 		headerRow.font = { bold: true }
 		headerRow.alignment = { horizontal: 'center', vertical: 'middle' }
 		headerRow.height = 18
+
+		// 2. Har bir ustunning kengligini belgilash
+		worksheet.getColumn(1).width = 5 // № ustuni
+		worksheet.getColumn(2).width = 30 // Махсулот номи
+		worksheet.getColumn(3).width = 5 // √ ustuni
+		worksheet.getColumn(4).width = 10 // Сони
+		worksheet.getColumn(5).width = 20 // Нархи
+		worksheet.getColumn(6).width = 15 // Суммаси
 
 		// Sarlavha ustunlarini style
 		headerRow.eachCell((cell) => {

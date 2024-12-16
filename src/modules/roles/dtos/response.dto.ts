@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger'
 import { RoleRetriveAllResponse, RoleRetriveResponse } from '../interfaces'
+import { PermissionRetrieveResponseDto, PermissionRetriveResponse } from '../../permissions'
 
 export class RoleRetrieveResponseDto implements RoleRetriveResponse {
 	@ApiProperty({ type: String })
@@ -9,10 +10,10 @@ export class RoleRetrieveResponseDto implements RoleRetriveResponse {
 	name: string
 
 	@ApiProperty({ type: String })
-	phone: string
+	key: string
 
-	@ApiProperty({ type: Date })
-	createdAt: Date
+	@ApiProperty({ type: [PermissionRetrieveResponseDto] })
+	permissions: PermissionRetriveResponse[]
 }
 
 export class RoleRetrieveAllResponseDto implements RoleRetriveAllResponse {

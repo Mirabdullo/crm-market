@@ -30,7 +30,7 @@ export class RoleController {
 			...payload,
 			pageNumber: payload.pageNumber ?? PAGE_NUMBER,
 			pageSize: payload.pageSize ?? PAGE_SIZE,
-			pagination: [true, 'true'].includes(payload.pagination) ? false : true,
+			pagination: [true, 'true'].includes(payload.pagination) ? true : false,
 		})
 	}
 

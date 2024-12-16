@@ -1,3 +1,5 @@
+import { PermissionRetriveResponse } from "../../permissions"
+
 export declare interface RoleRetriveAllResponse {
 	pageSize: number
 	pageNumber: number
@@ -9,4 +11,6 @@ export declare interface RoleRetriveAllResponse {
 export declare interface RoleRetriveResponse {
 	id: string
 	name: string
+	key: string
+	permissions: PermissionRetriveResponse[]
 }

@@ -9,4 +9,5 @@ export declare interface PermissionRetriveAllResponse {
 export declare interface PermissionRetriveResponse {
 	id: string
 	name: string
+	key: string
 }
