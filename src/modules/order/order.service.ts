@@ -328,7 +328,7 @@ export class OrderService {
 
 		// Xaridor nomi uchun titleRow
 		const titleRow = worksheet.addRow([`Xaridor: ${order.client.name}`])
-		worksheet.mergeCells('A1:E1') // A1 dan E1 gacha kataklarni birlashtirish
+		worksheet.mergeCells('A1:F1') // A1 dan E1 gacha kataklarni birlashtirish
 
 		titleRow.getCell(1).alignment = { horizontal: 'left', vertical: 'middle' } // Chapga joylashtirish
 		titleRow.font = { bold: true, size: 12 } // Bold va shrift o'lchami
@@ -343,7 +343,7 @@ export class OrderService {
 		// 2. Har bir ustunning kengligini belgilash
 		worksheet.getColumn(1).width = 5 // № ustuni
 		worksheet.getColumn(2).width = 30 // Махсулот номи
-		worksheet.getColumn(3).width = 5 // √ ustuni
+		worksheet.getColumn(3).width = 8 // √ ustuni
 		worksheet.getColumn(4).width = 10 // Сони
 		worksheet.getColumn(5).width = 20 // Нархи
 		worksheet.getColumn(6).width = 15 // Суммаси
@@ -366,7 +366,7 @@ export class OrderService {
 				product.product.name, // Махсулот номи
 				'', // √ ustuni bo'sh
 				product.count, // Сони
-				product.price, // Нархи
+				product.price.toNumber(), // Нархи
 				product.price.toNumber() * product.count, // Суммаси
 			])
 
@@ -385,7 +385,7 @@ export class OrderService {
 		// 4. Umumiy summa va to'lov ma'lumotlarini qo'shish
 		worksheet.addRow([])
 		const summaryRow1 = worksheet.addRow(['', '', '', '', 'Жами сумма:', totalSum])
-		const summaryRow2 = worksheet.addRow(['', '', '', '', 'Тулов килинди:', order.payment[0]?.totalPay || 0])
+		const summaryRow2 = worksheet.addRow(['', '', '', '', 'Тулов килинди:', order.payment[0]?.totalPay.toNumber() || 0])
 
 		summaryRow1.getCell(5).font = { bold: true }
 		summaryRow2.getCell(5).font = { bold: true }
