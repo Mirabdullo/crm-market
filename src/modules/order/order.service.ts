@@ -326,55 +326,75 @@ export class OrderService {
 		const workbook = new ExcelJS.Workbook()
 		const worksheet = workbook.addWorksheet('Order List')
 
+		// Xaridor nomi uchun titleRow
 		const titleRow = worksheet.addRow([`Xaridor: ${order.client.name}`])
 		worksheet.mergeCells('A1:E1') // A1 dan E1 gacha kataklarni birlashtirish
 
-		titleRow.getCell(1).alignment = { horizontal: 'left', vertical: 'middle' } // Markazga joylashtirish
-		titleRow.font = { bold: true, size: 14 } // Font style: bold va kattaroq shrift
-		titleRow.height = 20 // Qator balandligini o'rnatish
+		titleRow.getCell(1).alignment = { horizontal: 'left', vertical: 'middle' } // Chapga joylashtirish
+		titleRow.font = { bold: true, size: 12 } // Bold va shrift o'lchami
+		titleRow.height = 20 // Qator balandligi
 
-		// 2. Sarlavhalar qo'shish
-		worksheet.columns = [
-			{ header: '№', key: 'number', width: 5 },
-			{ header: 'Махсулот номи', key: 'name', width: 30 },
-			{ header: 'Сони', key: 'quantity', width: 10 },
-			{ header: 'Нархи', key: 'price', width: 10 },
-			{ header: 'Суммаси', key: 'total', width: 15 },
-		]
+		// Bo'sh joy
+		worksheet.addRow([])
 
-		const totalSum = order.products.reduce((sum, product) => sum + product.price.toNumber() * product.count, 0)
-		const summary = {
-			totalAmount: totalSum,
-			payment: order.payment[0].totalPay,
-		}
+		// 2. Jadval sarlavhalarini qo'shish
+		const headerRow = worksheet.addRow(['№', 'Махсулот номи', '√', 'Сони', 'Нархи', 'Суммаси'])
+		headerRow.font = { bold: true }
+		headerRow.alignment = { horizontal: 'center', vertical: 'middle' }
+		headerRow.height = 18
 
-		// 4. Ma'lumotlarni Excelga qo'shish
-		const count = 1
-		order.products.forEach((product, index) => {
-			worksheet.addRow({
-				number: count + index,
-				name: product.product.name,
-				quantity: product.count,
-				price: product.price,
-				total: product.price.toNumber() * product.count,
-			})
-		})
-
-		// Jadvalning oxiriga umumiy summa va to'lov ma'lumotlarini qo'shish
-		worksheet.addRow({})
-		worksheet.addRow(['', '', '', 'Жами сумма:', summary.totalAmount])
-		worksheet.addRow(['', '', '', 'Тулов килинди:', summary.payment])
-
-		// 5. Style qo'shish
-		worksheet.getRow(1).font = { bold: true } // Sarlavhalarni qalin qilish
-		worksheet.eachRow((row) => {
-			row.alignment = { vertical: 'middle', horizontal: 'center' }
-			row.border = {
+		// Sarlavha ustunlarini style
+		headerRow.eachCell((cell) => {
+			cell.border = {
 				top: { style: 'thin' },
 				left: { style: 'thin' },
 				bottom: { style: 'thin' },
 				right: { style: 'thin' },
 			}
+		})
+
+		// 3. Order ma'lumotlarini qo'shish
+		const totalSum = order.products.reduce((sum, product) => sum + product.price.toNumber() * product.count, 0)
+		order.products.forEach((product, index) => {
+			const row = worksheet.addRow([
+				index + 1, // №
+				product.product.name, // Махсулот номи
+				'', // √ ustuni bo'sh
+				product.count, // Сони
+				product.price, // Нархи
+				product.price.toNumber() * product.count, // Суммаси
+			])
+
+			// Qatorlarga chegara va markaziy formatlash
+			row.eachCell((cell) => {
+				cell.alignment = { vertical: 'middle', horizontal: 'center' }
+				cell.border = {
+					top: { style: 'thin' },
+					left: { style: 'thin' },
+					bottom: { style: 'thin' },
+					right: { style: 'thin' },
+				}
+			})
+		})
+
+		// 4. Umumiy summa va to'lov ma'lumotlarini qo'shish
+		worksheet.addRow([])
+		const summaryRow1 = worksheet.addRow(['', '', '', '', 'Жами сумма:', totalSum])
+		const summaryRow2 = worksheet.addRow(['', '', '', '', 'Тулов килинди:', order.payment[0]?.totalPay || 0])
+
+		summaryRow1.getCell(5).font = { bold: true }
+		summaryRow2.getCell(5).font = { bold: true }
+
+		// 5. Style qo'shish
+		worksheet.eachRow((row, rowNumber) => {
+			row.eachCell((cell) => {
+				cell.border = {
+					top: { style: 'thin' },
+					left: { style: 'thin' },
+					bottom: { style: 'thin' },
+					right: { style: 'thin' },
+				}
+			})
 		})
 
 		// 6. Foydalanuvchiga yuklash
