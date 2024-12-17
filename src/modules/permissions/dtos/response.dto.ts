@@ -10,8 +10,6 @@ export class PermissionRetrieveResponseDto implements PermissionRetriveResponse 
 
 	@ApiProperty({ type: String })
 	key: string
-
-	
 }
 
 export class PermissionRetrieveAllResponseDto implements PermissionRetriveAllResponse {

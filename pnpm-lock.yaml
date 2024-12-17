@@ -24,7 +24,7 @@ dependencies:
     specifier: ^10.4.12
     version: 10.4.12(@nestjs/common@9.4.3)(@nestjs/core@9.4.3)
   '@nestjs/schedule':
-    specifier: ^4.1.0
+    specifier: ^4.1.1
     version: 4.1.1(@nestjs/common@9.4.3)(@nestjs/core@9.4.3)
   '@nestjs/serve-static':
     specifier: ^4.0.2

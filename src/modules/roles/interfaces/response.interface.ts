@@ -1,4 +1,4 @@
-import { PermissionRetriveResponse } from "../../permissions"
+import { PermissionRetriveResponse } from '../../permissions'
 
 export declare interface RoleRetriveAllResponse {
 	pageSize: number

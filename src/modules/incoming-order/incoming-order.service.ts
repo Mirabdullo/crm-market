@@ -11,6 +11,7 @@ import {
 } from './interfaces'
 import { Decimal } from '../../types'
 import { endOfDay, startOfDay } from 'date-fns'
+import { Cron, CronExpression } from '@nestjs/schedule'
 
 @Injectable()
 export class IncomingOrderService {
@@ -258,7 +259,7 @@ export class IncomingOrderService {
 
 			const paymentSum = (payment?.card || 0) + (payment?.cash || 0) + (payment?.transfer || 0) + (payment?.other || 0) + (payment?.humo || 0)
 			const totalSum = products.reduce((sum, product) => sum + product.cost * product.count, 0)
-			const debt = totalSum - paymentSum
+			const debt = paymentSum - totalSum
 
 			const order = await this.#_prisma.incomingOrder.create({
 				data: {
@@ -302,99 +303,8 @@ export class IncomingOrderService {
 				})
 			}
 
-			if (new Date(createdAt).getTime() < new Date().getTime()) {
+			if (startOfDay(new Date(createdAt)) <= startOfDay(new Date())) {
 				const productUpdates = products.map((product) =>
-					this.#_prisma.products.update({
-						where: { id: product.product_id },
-						data: {
-							cost: product.cost,
-							count: { increment: product.count },
-							selling_price: product.selling_price,
-							wholesale_price: product.wholesale_price,
-						},
-					}),
-				)
-
-				await Promise.all(productUpdates)
-
-				await this.#_prisma.users.update({
-					where: { id: supplierId },
-					data: { debt },
-				})
-			}
-
-			return null
-		} catch (error) {
-			console.log(error)
-			throw new InternalServerErrorException('Kutilmagan xatolik')
-		}
-	}
-
-	async incomingOrderUpdate(payload: IncomingOrderUpdateRequest): Promise<null> {
-		const { id, addProducts, removeProducts, payment } = payload
-		const incomingOrder = await this.#_prisma.incomingOrder.findUnique({
-			where: { id: id },
-		})
-		if (!incomingOrder) throw new NotFoundException("Ma'lumot topilmadi")
-
-		const isPassed = startOfDay(new Date(incomingOrder.createdAt)) <= startOfDay(new Date())
-
-		if (addProducts.length) {
-			const totalSum = addProducts.reduce((sum, product) => sum + product.cost * product.count, 0)
-
-			const mappedProducts = addProducts.map((product) => {
-				return {
-					incomingOrderId: id,
-					productId: product.product_id,
-					cost: product.cost,
-					count: product.count,
-					selling_price: product.selling_price,
-					wholesale_price: product.wholesale_price,
-				}
-			})
-
-			await this.#_prisma.incomingProducts.createMany({
-				data: mappedProducts,
-			})
-
-			if (removeProducts.length) {
-				const productIds = removeProducts.map((p) => p.id)
-				const totalSum = removeProducts.reduce((sum, p) => sum + p.cost * p.count, 0)
-
-				const updatedProducts = removeProducts.map((product) =>
-					this.#_prisma.products.update({
-						where: { id: product.product_id },
-						data: { count: { decrement: product.count } },
-					}),
-				)
-
-				await Promise.all([
-					this.#_prisma.incomingProducts.updateMany({
-						where: { id: { in: productIds } },
-						data: { deletedAt: new Date() },
-					}),
-					this.#_prisma.incomingOrder.update({
-						where: { id: incomingOrder.id },
-						data: {
-							sum: { decrement: totalSum },
-							debt: { decrement: totalSum },
-						},
-					}),
-				])
-
-				if (isPassed) {
-					await Promise.all([
-						...updatedProducts,
-						this.#_prisma.users.update({
-							where: { id: incomingOrder.supplierId },
-							data: { debt: { decrement: totalSum } },
-						}),
-					])
-				}
-			}
-
-			if (isPassed) {
-				const productUpdates = addProducts.map((product) =>
 					this.#_prisma.products.update({
 						where: { id: product.product_id },
 						data: {
@@ -409,31 +319,328 @@ export class IncomingOrderService {
 				await Promise.all([
 					...productUpdates,
 					this.#_prisma.users.update({
-						where: { id: incomingOrder.supplierId },
-						data: { debt: { increment: totalSum } },
+						where: { id: supplierId },
+						data: { debt },
 					}),
 					this.#_prisma.incomingOrder.update({
-						where: { id: incomingOrder.id },
-						data: { debt: { increment: totalSum }, sum: { increment: totalSum } },
+						where: { id: order.id },
+						data: { accepted: true },
+					}),
+				])
+			}
+
+			return null
+		} catch (error) {
+			console.log(error)
+			throw new InternalServerErrorException('Kutilmagan xatolik')
+		}
+	}
+
+	async incomingOrderUpdate(payload: IncomingOrderUpdateRequest): Promise<null> {
+		const { id, addProducts, removeProducts, payment } = payload
+
+		// Find the incoming order with includes for payment and incoming products
+		const incomingOrder = await this.#_prisma.incomingOrder.findUnique({
+			where: { id },
+			include: { payment: true, incomingProducts: true },
+		})
+
+		if (!incomingOrder) {
+			throw new NotFoundException("Ma'lumot topilmadi") // Throw error for missing order
+		}
+
+		const isOrderPassed = startOfDay(new Date(incomingOrder.createdAt)) <= startOfDay(new Date())
+
+		// Update payment if provided
+		if (Object.keys(payment).length) {
+			const totalPay = (payment.card || 0) + (payment.cash || 0) + (payment.other || 0) + (payment.transfer || 0)
+			await this.#_prisma.incomingOrderPayment.update({
+				where: { id: incomingOrder.payment[0].id },
+				data: {
+					totalPay,
+					debt: totalPay - incomingOrder.sum.toNumber(),
+					...payment, // Spread payment details (card, cash, etc.)
+				},
+			})
+		}
+
+		// Handle adding products
+		if (addProducts.length) {
+			const addProductsSum = addProducts.reduce((sum, product) => sum + product.cost * product.count, 0)
+
+			const mappedProducts = addProducts.map((product) => ({
+				incomingOrderId: id,
+				productId: product.product_id,
+				cost: product.cost,
+				count: product.count,
+				selling_price: product.selling_price,
+				wholesale_price: product.wholesale_price,
+			}))
+
+			await this.#_prisma.incomingProducts.createMany({ data: mappedProducts })
+
+			// If order is accepted (passed), update product counts and user debt
+			if (isOrderPassed) {
+				const productUpdates = addProducts.map((product) =>
+					this.#_prisma.products.update({
+						where: { id: product.product_id },
+						data: { count: { increment: product.count } },
+					}),
+				)
+
+				await Promise.all([
+					...productUpdates,
+					this.#_prisma.users.update({
+						where: { id: incomingOrder.supplierId },
+						data: { debt: { increment: addProductsSum } },
+					}),
+				])
+			}
+
+			// Update incoming order sum and debt (always)
+			await this.#_prisma.incomingOrder.update({
+				where: { id },
+				data: { sum: { increment: addProductsSum }, debt: { increment: addProductsSum } },
+			})
+		}
+
+		// Handle removing products
+		if (removeProducts.length) {
+			const productIds = removeProducts.map((p) => p.id)
+			const totalSum = removeProducts.reduce((sum, p) => sum + p.cost * p.count, 0)
+
+			await Promise.all([
+				this.#_prisma.incomingProducts.updateMany({
+					where: { id: { in: productIds } },
+					data: { deletedAt: new Date() }, // Mark products as deleted
+				}),
+				this.#_prisma.incomingOrder.update({
+					where: { id },
+					data: { sum: { decrement: totalSum }, debt: { decrement: totalSum } },
+				}),
+				this.#_prisma.payment.update({
+					where: { id: incomingOrder.payment[0].id },
+					data: { debt: { decrement: totalSum } },
+				}),
+			])
+
+			// If order is accepted (passed), update product counts and user debt
+			if (isOrderPassed) {
+				const removedProductUpdates = removeProducts.map((product) =>
+					this.#_prisma.products.update({
+						where: { id: product.product_id },
+						data: { count: { decrement: product.count } },
+					}),
+				)
+
+				await Promise.all([
+					...removedProductUpdates,
+					this.#_prisma.users.update({
+						where: { id: incomingOrder.supplierId },
+						data: { debt: { decrement: totalSum } },
 					}),
 				])
 			}
 		}
 
-		return null
+		return null // No need to return anything specific
+	}
+
+	// async incomingOrderUpdate(payload: IncomingOrderUpdateRequest): Promise<null> {
+	// 	const { id, addProducts, removeProducts, payment } = payload
+	// 	const incomingOrder = await this.#_prisma.incomingOrder.findUnique({
+	// 		where: { id: id },
+	// 		include: { payment: true, incomingProducts: true },
+	// 	})
+	// 	if (!incomingOrder) throw new NotFoundException("Ma'lumot topilmadi")
+
+	// 	const isPassed = startOfDay(new Date(incomingOrder.createdAt)) <= startOfDay(new Date())
+
+	// 	if (Object.keys(payment).length) {
+	// 		const totalPay = (payment.card || 0) + (payment.cash || 0) + (payment.other || 0) + (payment.transfer || 0)
+	// 		await this.#_prisma.incomingOrderPayment.update({
+	// 			where: { id: incomingOrder.payment[0].id },
+	// 			data: {
+	// 				totalPay,
+	// 				debt: totalPay - incomingOrder.sum.toNumber(),
+	// 				card: payment.card,
+	// 				cash: payment.cash,
+	// 				transfer: payment.transfer,
+	// 				other: payment.other,
+	// 			},
+	// 		})
+	// 	}
+
+	// 	if (addProducts.length) {
+	// 		const addProudctsSum = addProducts.reduce((sum, product) => sum + product.cost * product.count, 0)
+
+	// 		const mappedProducts = addProducts.map((product) => {
+	// 			return {
+	// 				incomingOrderId: id,
+	// 				productId: product.product_id,
+	// 				cost: product.cost,
+	// 				count: product.count,
+	// 				selling_price: product.selling_price,
+	// 				wholesale_price: product.wholesale_price,
+	// 			}
+	// 		})
+
+	// 		await this.#_prisma.incomingProducts.createMany({
+	// 			data: mappedProducts,
+	// 		})
+
+	// 		if (removeProducts.length) {
+	// 			const productIds = removeProducts.map((p) => p.id)
+	// 			const totalSum = removeProducts.reduce((sum, p) => sum + p.cost * p.count, 0)
+
+	// 			const updatedProducts = removeProducts.map((product) =>
+	// 				this.#_prisma.products.update({
+	// 					where: { id: product.product_id },
+	// 					data: { count: { decrement: product.count } },
+	// 				}),
+	// 			)
+
+	// 			await Promise.all([
+	// 				this.#_prisma.incomingProducts.updateMany({
+	// 					where: { id: { in: productIds } },
+	// 					data: { deletedAt: new Date() },
+	// 				}),
+	// 				this.#_prisma.incomingOrder.update({
+	// 					where: { id: incomingOrder.id },
+	// 					data: {
+	// 						sum: { decrement: totalSum },
+	// 						debt: { decrement: totalSum },
+	// 					},
+	// 				}),
+	// 				this.#_prisma.payment.update({
+	// 					where: { id: incomingOrder.payment[0].id },
+	// 					data: {
+	// 						debt: { decrement: totalSum },
+	// 					},
+	// 				}),
+	// 			])
+
+	// 			if (isPassed) {
+	// 				await Promise.all([
+	// 					...updatedProducts,
+	// 					this.#_prisma.users.update({
+	// 						where: { id: incomingOrder.supplierId },
+	// 						data: { debt: { decrement: totalSum } },
+	// 					}),
+	// 				])
+	// 			}
+	// 		}
+
+	// 		if (isPassed) {
+	// 			const productUpdates = addProducts.map((product) =>
+	// 				this.#_prisma.products.update({
+	// 					where: { id: product.product_id },
+	// 					data: {
+	// 						cost: product.cost,
+	// 						count: { increment: product.count },
+	// 						selling_price: product.selling_price,
+	// 						wholesale_price: product.wholesale_price,
+	// 					},
+	// 				}),
+	// 			)
+
+	// 			await Promise.all([
+	// 				...productUpdates,
+	// 				this.#_prisma.users.update({
+	// 					where: { id: incomingOrder.supplierId },
+	// 					data: { debt: { increment: addProudctsSum } },
+	// 				}),
+	// 				this.#_prisma.incomingOrder.update({
+	// 					where: { id: incomingOrder.id },
+	// 					data: { debt: { increment: totalSum }, sum: { increment: totalSum } },
+	// 				}),
+	// 			])
+	// 		}
+	// 	}
+
+	// 	return null
+	// }
+
+	@Cron(CronExpression.EVERY_2_HOURS)
+	async acceptIncomingOrders() {
+		const incomingOrders = await this.#_prisma.incomingOrder.findMany({
+			where: { createdAt: { lte: endOfDay(new Date()) }, deletedAt: null, accepted: false },
+			include: { incomingProducts: true, supplier: true, payment: true },
+		})
+
+		if (incomingOrders.length) {
+			const promises: any = []
+			incomingOrders.map((order) => {
+				const products = order.incomingProducts.map((p) =>
+					this.#_prisma.products.update({
+						where: { id: p.productId },
+						data: {
+							cost: p.cost,
+							count: { increment: p.count },
+							selling_price: p.selling_price,
+							wholesale_price: p.wholesale_price,
+						},
+					}),
+				)
+
+				promises.push(
+					...products,
+					this.#_prisma.users.update({
+						where: { id: order.supplierId },
+						data: { debt: { increment: order.payment[0].totalPay.toNumber() - order.sum.toNumber() } },
+					}),
+				)
+			})
+
+			console.log('Cron job ishladi malumot bor', new Date())
+
+			await Promise.all([...promises])
+		}
+
+		console.log('cron job')
 	}
 
 	async incomingOrderDelete(payload: IncomingOrderDeleteRequest): Promise<null> {
 		const incomingOrder = await this.#_prisma.incomingOrder.findUnique({
 			where: { id: payload.id, deletedAt: null },
+			include: { payment: true, incomingProducts: true },
 		})
 
 		if (!incomingOrder) throw new NotFoundException('maxsulot topilmadi')
 
-		await this.#_prisma.incomingOrder.update({
-			where: { id: payload.id },
-			data: { deletedAt: new Date() },
-		})
+		const promises: any[] = []
+		const iProductIds = incomingOrder.incomingProducts.map((p) => p.id)
+		if (incomingOrder.accepted) {
+			const products = incomingOrder.incomingProducts.map((product) =>
+				this.#_prisma.products.update({
+					where: { id: product.productId },
+					data: { count: { decrement: product.count } },
+				}),
+			)
+
+			promises.push(
+				...products,
+				this.#_prisma.users.update({
+					where: { id: incomingOrder.supplierId },
+					data: { debt: { increment: incomingOrder.sum } },
+				}),
+			)
+		}
+
+		promises.push(
+			this.#_prisma.incomingProducts.updateMany({
+				where: { id: { in: iProductIds } },
+				data: { deletedAt: new Date() },
+			}),
+			this.#_prisma.incomingOrder.update({
+				where: { id: payload.id },
+				data: { deletedAt: new Date() },
+			}),
+			this.#_prisma.payment.update({
+				where: { id: incomingOrder.payment[0].id },
+				data: { deletedAt: new Date() },
+			}),
+		)
 
 		return null
 	}
