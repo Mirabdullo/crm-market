@@ -311,15 +311,15 @@ export class OrderService {
 		ORDER BY DATE_TRUNC('day', "created_at") ASC;
 	  `
 
-		console.log(today, endOfDay(today), startOfDay(week), startOfDay(month))
-
+		console.log(today, today.setHours(0, 0, 0, 0), endOfDay(today), startOfDay(week), startOfDay(month))
 		const dates = []
 		for (let i = 0; i < 7; i++) {
 			dates.push(format(addDays(week, i), 'yyyy-MM-dd'))
 		}
+		console.log(weeklyChart, dates)
 
 		const weeklyChartArray = dates.map((date) => {
-			const found = Array.isArray(weeklyChart) ? weeklyChart.find((item) => format(item.date, 'yyyy-MM-dd') === date) : null
+			const found = Array.isArray(weeklyChart) ? weeklyChart.find((item) => format(item.date, 'yyyy-MM-dd') === date) : 0
 			return {
 				date,
 				sum: found ? Number(found.totalSum) : 0,
