@@ -264,7 +264,7 @@ export class OrderService {
 
 	async orderStatistics(): Promise<OrderStatisticsResponse> {
 		const today = new Date(format(new Date(), 'yyyy-MM-dd'))
-		const endDate = endOfDay(today)
+		const endDate = endOfDay(format(today, 'yyyy-MM-dd'))
 
 		console.log(today, endDate);
 
