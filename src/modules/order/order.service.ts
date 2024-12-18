@@ -319,7 +319,12 @@ export class OrderService {
 		console.log(weeklyChart, dates)
 
 		const weeklyChartArray = dates.map((date) => {
-			const found = Array.isArray(weeklyChart) ? weeklyChart.find((item) => format(item.date, 'yyyy-MM-dd') === date) : 0
+			const found = Array.isArray(weeklyChart)
+				? weeklyChart.find((item) => {
+						console.log(date, item.date)
+						format(item.date, 'yyyy-MM-dd') === date
+				  })
+				: 0
 			return {
 				date,
 				sum: found ? Number(found.totalSum) : 0,
