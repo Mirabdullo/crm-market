@@ -330,7 +330,7 @@ export class OrderService {
 				weeklyChart && isArray(weeklyChart)
 					? weeklyChart.map((w) => ({
 							date: w.createdAt,
-							sum: w._sum.sum ? w._sum.sum.toNumber() : 0,
+							sum: w._sum?.sum ? w._sum?.sum.toNumber() : 0,
 					  }))
 					: [],
 		}
