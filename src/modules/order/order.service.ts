@@ -9,9 +9,10 @@ import {
 	OrderRetriveResponse,
 	OrderStatisticsResponse,
 	OrderUpdateRequest,
+	WeeklyChartResponse,
 } from './interfaces'
 import { Decimal } from '../../types'
-import { endOfDay, startOfDay } from 'date-fns'
+import { addDays, endOfDay, format, startOfDay, startOfMonth } from 'date-fns'
 import * as ExcelJS from 'exceljs'
 import { Response } from 'express'
 import { isArray } from 'class-validator'
@@ -263,10 +264,10 @@ export class OrderService {
 	}
 
 	async orderStatistics(): Promise<OrderStatisticsResponse> {
-		const today = new Date()
+		const today = startOfDay(new Date())
 		const todaySales = await this.#_prisma.order.aggregate({
 			_sum: { sum: true },
-			where: { createdAt: { gte: startOfDay(today), lte: endOfDay(today) } },
+			where: { createdAt: { gte: today, lte: endOfDay(today) } },
 		})
 
 		const week = new Date()
@@ -310,14 +311,19 @@ export class OrderService {
 		ORDER BY DATE_TRUNC('day', "created_at") ASC;
 	  `
 
-		console.log(today, week, month)
-		console.log({
-			todaySales: todaySales._sum.sum || 0,
-			weeklySales: weeklySales._sum.sum || 0,
-			monthlySales: monthlySales._sum.sum || 0,
-			ourDebt: ourDebt._sum.debt || 0,
-			fromDebt: fromDebt._sum.debt || 0,
-			weeklyChart: weeklyChart,
+		console.log(today, endOfDay(today), startOfDay(week), startOfDay(month))
+
+		const dates = []
+		for (let i = 0; i < 7; i++) {
+			dates.push(format(addDays(week, i), 'yyyy-MM-dd'))
+		}
+
+		const weeklyChartArray = dates.map((date) => {
+			const found = Array.isArray(weeklyChart) ? weeklyChart.find((item) => format(item.date, 'yyyy-MM-dd') === date) : null
+			return {
+				date,
+				sum: found ? Number(found.totalSum) : 0,
+			}
 		})
 
 		return {
@@ -326,13 +332,7 @@ export class OrderService {
 			monthlySales: monthlySales._sum.sum ? monthlySales._sum.sum.toNumber() : 0,
 			ourDebt: ourDebt._sum.debt ? ourDebt._sum.debt.toNumber() : 0,
 			fromDebt: fromDebt._sum.debt ? fromDebt._sum.debt.toNumber() : 0,
-			weeklyChart:
-				weeklyChart && isArray(weeklyChart)
-					? weeklyChart.map((w) => ({
-							date: w.createdAt,
-							sum: w._sum?.sum ? w._sum?.sum.toNumber() : 0,
-					  }))
-					: [],
+			weeklyChart: weeklyChartArray,
 		}
 	}
 

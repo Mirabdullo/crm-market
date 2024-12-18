@@ -55,8 +55,8 @@ export class OrderRetrieveAllResponseDto implements OrderRetriveAllResponse {
 }
 
 export class WeeklyChartResponseDto implements WeeklyChartResponse {
-	@ApiProperty({ type: Date })
-	date: Date
+	@ApiProperty({ type: String })
+	date: string
 
 	@ApiProperty({ type: Number })
 	sum: number

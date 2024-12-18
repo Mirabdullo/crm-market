@@ -12,7 +12,7 @@ export declare interface OrderRetriveAllResponse {
 }
 
 export declare interface WeeklyChartResponse {
-	date: Date
+	date: string
 	sum: number
 }
 export declare interface OrderStatisticsResponse {
