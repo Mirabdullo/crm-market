@@ -11,7 +11,7 @@ import {
 	OrderUpdateRequest,
 } from './interfaces'
 import { Decimal } from '../../types'
-import { addDays, endOfDay, format, startOfDay, subDays, subMonths } from 'date-fns'
+import { addDays, addHours, endOfDay, format, startOfDay, subDays, subMonths } from 'date-fns'
 import * as ExcelJS from 'exceljs'
 import { Response } from 'express'
 import { getEndDate, getStartDate } from '../../helpers'
@@ -264,7 +264,7 @@ export class OrderService {
 
 	async orderStatistics(): Promise<OrderStatisticsResponse> {
 		const today = new Date(format(new Date(), 'yyyy-MM-dd'))
-		const endDate = new Date(endOfDay(today).setHours(23, 59, 59, 59))
+		const endDate = addHours(new Date(endOfDay(today)), 3)
 
 		console.log(today, endDate)
 
