@@ -12,7 +12,7 @@ import {
 	WeeklyChartResponse,
 } from './interfaces'
 import { Decimal } from '../../types'
-import { addDays, endOfDay, format, startOfDay, startOfMonth } from 'date-fns'
+import { addDays, endOfDay, format, startOfDay, startOfMonth, subDays, subMonths } from 'date-fns'
 import * as ExcelJS from 'exceljs'
 import { Response } from 'express'
 import { isArray } from 'class-validator'
@@ -265,6 +265,27 @@ export class OrderService {
 
 	async orderStatistics(): Promise<OrderStatisticsResponse> {
 		const today = startOfDay(new Date())
+		const today1 = new Date()
+
+		// Local vaqtni hisoblash uchun yangi sanalar
+		const todayStart = startOfDay(today)
+		const todayEnd = endOfDay(today)
+
+		// Bir hafta oldingi vaqtni olish
+		const week1 = subDays(today1, 7)
+		const weekStart = startOfDay(week1)
+
+		// Bir oy oldingi vaqtni olish
+		const month1 = subMonths(today1, 1)
+		const monthStart = startOfDay(month1)
+
+		console.log({
+			today: today1.toISOString(),
+			todayStart: todayStart.toISOString(),
+			todayEnd: todayEnd.toISOString(),
+			weekStart: weekStart.toISOString(),
+			monthStart: monthStart.toISOString(),
+		})
 		const todaySales = await this.#_prisma.order.aggregate({
 			_sum: { sum: true },
 			where: { createdAt: { gte: today, lte: endOfDay(today) } },
@@ -311,23 +332,16 @@ export class OrderService {
 		ORDER BY DATE_TRUNC('day', "created_at") ASC;
 	  `
 
-		console.log(today, new Date(today.setHours(0, 0, 0, 0)), endOfDay(today), startOfDay(week), startOfDay(month))
 		const dates = []
 		for (let i = 0; i < 7; i++) {
 			dates.push(format(addDays(week, i), 'yyyy-MM-dd'))
 		}
-		console.log(weeklyChart, dates)
 
 		const weeklyChartArray = dates.map((date) => {
-			const found = Array.isArray(weeklyChart)
-				? weeklyChart.find((item) => {
-						console.log(date, item.date, format(item.date, 'yyyy-MM-dd'), format(item.date, 'yyyy-MM-dd') === date)
-						format(item.date, 'yyyy-MM-dd') === date
-				  })
-				: 0
+			const found = Array.isArray(weeklyChart) ? weeklyChart.find((item) => format(item.date, 'yyyy-MM-dd') === date) : 0
 			return {
 				date,
-				sum: found ? Number(found.totalSum) : 0,
+				sum: found ? found.totalSum : 0,
 			}
 		})
 
