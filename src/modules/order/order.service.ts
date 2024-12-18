@@ -12,10 +12,10 @@ import {
 	WeeklyChartResponse,
 } from './interfaces'
 import { Decimal } from '../../types'
-import { addDays, endOfDay, format, startOfDay, startOfMonth, subDays, subMonths } from 'date-fns'
+import { addDays, endOfDay, format, startOfDay, subDays, subMonths } from 'date-fns'
 import * as ExcelJS from 'exceljs'
 import { Response } from 'express'
-import { toZonedTime } from 'date-fns-tz'
+import { getEndDate, getStartDate } from '../../helpers'
 
 @Injectable()
 export class OrderService {
@@ -264,51 +264,24 @@ export class OrderService {
 	}
 
 	async orderStatistics(): Promise<OrderStatisticsResponse> {
-		const today = startOfDay(new Date())
-		const timeZone = 'UTC'
-
-		// Bugungi sana
-		const today1 = new Date()
-		const todayUtc = toZonedTime(today1, timeZone)
-
-		// Kunning boshi va oxiri (UTC)
-		const todayStart = startOfDay(todayUtc)
-		const todayEnd = endOfDay(todayUtc)
-
-		// Bir hafta oldingi vaqtni olish (UTC)
-		const week1 = subDays(todayUtc, 7)
-		const weekStart = startOfDay(week1)
-
-		// Bir oy oldingi vaqtni olish (UTC)
-		const month1 = subMonths(todayUtc, 1)
-		const monthStart = startOfDay(month1)
-
-		// Chiqadigan vaqtlarni formatlash
-		console.log({
-			today: format(todayUtc, "yyyy-MM-dd'T'HH:mm:ss.SSSX"),
-			todayStart: format(todayStart, "yyyy-MM-dd'T'HH:mm:ss.SSSX"),
-			todayEnd: format(todayEnd, "yyyy-MM-dd'T'HH:mm:ss.SSSX"),
-			weekStart: format(weekStart, "yyyy-MM-dd'T'HH:mm:ss.SSSX"),
-			monthStart: format(monthStart, "yyyy-MM-dd'T'HH:mm:ss.SSSX"),
-		})
+		const today = getStartDate(new Date())
+		const endDate = getEndDate(today)
 
 		const todaySales = await this.#_prisma.order.aggregate({
 			_sum: { sum: true },
-			where: { createdAt: { gte: today, lte: endOfDay(today) } },
+			where: { createdAt: { gte: today, lte: endDate } },
 		})
 
-		const week = new Date()
-		week.setDate(week.getDate() - 7)
+		const week = subDays(today, 7)
 		const weeklySales = await this.#_prisma.order.aggregate({
 			_sum: { sum: true },
-			where: { createdAt: { gte: startOfDay(week), lte: endOfDay(today) } },
+			where: { createdAt: { gte: startOfDay(week), lte: endDate } },
 		})
 
-		const month = new Date()
-		month.setMonth(month.getMonth() - 1)
+		const month = subMonths(today, 1)
 		const monthlySales = await this.#_prisma.order.aggregate({
 			_sum: { sum: true },
-			where: { createdAt: { gte: month, lte: endOfDay(today) } },
+			where: { createdAt: { gte: month, lte: endDate } },
 		})
 
 		const ourDebt = await this.#_prisma.users.aggregate({
@@ -343,12 +316,13 @@ export class OrderService {
 			dates.push(format(addDays(week, i), 'yyyy-MM-dd'))
 		}
 
+		console.log(today, endDate, week, month)
 		const weeklyChartArray = dates.map((date) => {
 			const found = Array.isArray(weeklyChart) ? weeklyChart.find((item) => format(item.date, 'yyyy-MM-dd') === date) : 0
 			console.log('found: ', found)
 			return {
 				date,
-				sum: found ? found.totalSum : 0,
+				sum: found ? found.totalsum : 0,
 			}
 		})
 
