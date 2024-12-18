@@ -311,7 +311,7 @@ export class OrderService {
 		ORDER BY DATE_TRUNC('day', "created_at") ASC;
 	  `
 
-		console.log(today, today.setHours(0, 0, 0, 0), endOfDay(today), startOfDay(week), startOfDay(month))
+		console.log(today, new Date(today.setHours(0, 0, 0, 0)), endOfDay(today), startOfDay(week), startOfDay(month))
 		const dates = []
 		for (let i = 0; i < 7; i++) {
 			dates.push(format(addDays(week, i), 'yyyy-MM-dd'))
@@ -321,7 +321,7 @@ export class OrderService {
 		const weeklyChartArray = dates.map((date) => {
 			const found = Array.isArray(weeklyChart)
 				? weeklyChart.find((item) => {
-						console.log(date, item.date)
+						console.log(date, item.date, format(item.date, 'yyyy-MM-dd'), format(item.date, 'yyyy-MM-dd') === date)
 						format(item.date, 'yyyy-MM-dd') === date
 				  })
 				: 0
