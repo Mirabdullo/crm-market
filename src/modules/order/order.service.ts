@@ -14,6 +14,7 @@ import { Decimal } from '../../types'
 import { endOfDay, startOfDay } from 'date-fns'
 import * as ExcelJS from 'exceljs'
 import { Response } from 'express'
+import { isArray } from 'class-validator'
 
 @Injectable()
 export class OrderService {
@@ -302,35 +303,36 @@ export class OrderService {
 			},
 		})
 
-		const weeklyChart = await this.#_prisma.order.groupBy({
-			by: ['createdAt'],
-			_sum: { sum: true },
-			where: { createdAt: { gte: startOfDay(week), lte: endOfDay(today) } },
-			orderBy: { createdAt: 'asc' },
-		})
+		const weeklyChart = await this.#_prisma.$queryRaw`SELECT DATE_TRUNC('day', "created_at") AS date,
+		  SUM("sum") AS totalSum FROM "order"
+		WHERE "created_at" BETWEEN ${week} AND ${today}
+		GROUP BY DATE_TRUNC('day', "created_at")
+		ORDER BY DATE_TRUNC('day', "created_at") ASC;
+	  `
 
+		console.log(today, week, month)
 		console.log({
 			todaySales: todaySales._sum.sum || 0,
 			weeklySales: weeklySales._sum.sum || 0,
 			monthlySales: monthlySales._sum.sum || 0,
 			ourDebt: ourDebt._sum.debt || 0,
 			fromDebt: fromDebt._sum.debt || 0,
-			weeklyChart: weeklyChart.map((w) => ({
-				date: w.createdAt,
-				sum: w._sum.sum || 0,
-			})),
+			weeklyChart: weeklyChart,
 		})
-		
+
 		return {
 			todaySales: todaySales._sum.sum ? todaySales._sum.sum.toNumber() : 0,
 			weeklySales: weeklySales._sum.sum ? weeklySales._sum.sum.toNumber() : 0,
 			monthlySales: monthlySales._sum.sum ? monthlySales._sum.sum.toNumber() : 0,
 			ourDebt: ourDebt._sum.debt ? ourDebt._sum.debt.toNumber() : 0,
 			fromDebt: fromDebt._sum.debt ? fromDebt._sum.debt.toNumber() : 0,
-			weeklyChart: weeklyChart.map((w) => ({
-				date: w.createdAt,
-				sum: w._sum.sum ? w._sum.sum.toNumber() : 0,
-			})),
+			weeklyChart:
+				weeklyChart && isArray(weeklyChart)
+					? weeklyChart.map((w) => ({
+							date: w.createdAt,
+							sum: w._sum.sum ? w._sum.sum.toNumber() : 0,
+					  }))
+					: [],
 		}
 	}
 
