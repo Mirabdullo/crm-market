@@ -1,14 +1,16 @@
-import { endOfDay, startOfDay } from 'date-fns'
+import { endOfDay, format, startOfDay } from 'date-fns'
 import { toZonedTime } from 'date-fns-tz'
 
 const timeZone = 'UTC'
 
 export const getStartDate = (date: Date) => {
+	console.log(date)
 	const zonedTime = toZonedTime(date, timeZone)
-	return startOfDay(zonedTime)
+	console.log(zonedTime)
+	return format(endOfDay(zonedTime), "yyyy-MM-dd'T'HH:mm:ss.SSSX")
 }
 
 export const getEndDate = (date: Date) => {
 	const zonedTime = toZonedTime(date, timeZone)
-	return endOfDay(zonedTime)
+	return format(endOfDay(zonedTime), "yyyy-MM-dd'T'HH:mm:ss.SSSX")
 }

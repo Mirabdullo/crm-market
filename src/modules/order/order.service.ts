@@ -9,7 +9,6 @@ import {
 	OrderRetriveResponse,
 	OrderStatisticsResponse,
 	OrderUpdateRequest,
-	WeeklyChartResponse,
 } from './interfaces'
 import { Decimal } from '../../types'
 import { addDays, endOfDay, format, startOfDay, subDays, subMonths } from 'date-fns'
