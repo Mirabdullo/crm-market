@@ -15,7 +15,7 @@ import { Decimal } from '../../types'
 import { addDays, endOfDay, format, startOfDay, startOfMonth, subDays, subMonths } from 'date-fns'
 import * as ExcelJS from 'exceljs'
 import { Response } from 'express'
-import { isArray } from 'class-validator'
+import { toZonedTime } from 'date-fns-tz'
 
 @Injectable()
 export class OrderService {
@@ -265,27 +265,33 @@ export class OrderService {
 
 	async orderStatistics(): Promise<OrderStatisticsResponse> {
 		const today = startOfDay(new Date())
+		const timeZone = 'UTC'
+
+		// Bugungi sana
 		const today1 = new Date()
+		const todayUtc = toZonedTime(today1, timeZone)
 
-		// Local vaqtni hisoblash uchun yangi sanalar
-		const todayStart = startOfDay(today)
-		const todayEnd = endOfDay(today)
+		// Kunning boshi va oxiri (UTC)
+		const todayStart = startOfDay(todayUtc)
+		const todayEnd = endOfDay(todayUtc)
 
-		// Bir hafta oldingi vaqtni olish
-		const week1 = subDays(today1, 7)
+		// Bir hafta oldingi vaqtni olish (UTC)
+		const week1 = subDays(todayUtc, 7)
 		const weekStart = startOfDay(week1)
 
-		// Bir oy oldingi vaqtni olish
-		const month1 = subMonths(today1, 1)
+		// Bir oy oldingi vaqtni olish (UTC)
+		const month1 = subMonths(todayUtc, 1)
 		const monthStart = startOfDay(month1)
 
+		// Chiqadigan vaqtlarni formatlash
 		console.log({
-			today: today1.toISOString(),
-			todayStart: todayStart.toISOString(),
-			todayEnd: todayEnd.toISOString(),
-			weekStart: weekStart.toISOString(),
-			monthStart: monthStart.toISOString(),
+			today: format(todayUtc, "yyyy-MM-dd'T'HH:mm:ss.SSSX"),
+			todayStart: format(todayStart, "yyyy-MM-dd'T'HH:mm:ss.SSSX"),
+			todayEnd: format(todayEnd, "yyyy-MM-dd'T'HH:mm:ss.SSSX"),
+			weekStart: format(weekStart, "yyyy-MM-dd'T'HH:mm:ss.SSSX"),
+			monthStart: format(monthStart, "yyyy-MM-dd'T'HH:mm:ss.SSSX"),
 		})
+
 		const todaySales = await this.#_prisma.order.aggregate({
 			_sum: { sum: true },
 			where: { createdAt: { gte: today, lte: endOfDay(today) } },
@@ -339,6 +345,7 @@ export class OrderService {
 
 		const weeklyChartArray = dates.map((date) => {
 			const found = Array.isArray(weeklyChart) ? weeklyChart.find((item) => format(item.date, 'yyyy-MM-dd') === date) : 0
+			console.log('found: ', found)
 			return {
 				date,
 				sum: found ? found.totalSum : 0,

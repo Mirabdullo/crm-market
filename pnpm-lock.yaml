@@ -59,6 +59,9 @@ dependencies:
   date-fns:
     specifier: ^4.1.0
     version: 4.1.0
+  date-fns-tz:
+    specifier: ^3.2.0
+    version: 3.2.0(date-fns@4.1.0)
   dotenv:
     specifier: ^16.4.5
     version: 16.4.5
@@ -2802,6 +2805,14 @@ packages:
   /css-what@6.1.0:
     resolution: {integrity: sha512-HTUrgRJ7r4dsZKU6GjmpfRK1O76h97Z8MfS1G0FozR+oF2kG6Vfe8JE6zwrkbxigziPHinCJ+gCPjA9EaBDtRw==}
     engines: {node: '>= 6'}
+    dev: false
+
+  /date-fns-tz@3.2.0(date-fns@4.1.0):
+    resolution: {integrity: sha512-sg8HqoTEulcbbbVXeg84u5UnlsQa8GS5QXMqjjYIhS4abEVVKIUwe0/l/UhrZdKaL/W5eWZNlbTeEIiOXTcsBQ==}
+    peerDependencies:
+      date-fns: ^3.0.0 || ^4.0.0
+    dependencies:
+      date-fns: 4.1.0
     dev: false
 
   /date-fns@4.1.0:
