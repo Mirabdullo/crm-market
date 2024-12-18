@@ -7,6 +7,7 @@ import {
 	OrderRetriveAllResponse,
 	OrderRetriveRequest,
 	OrderRetriveResponse,
+	OrderStatisticsResponse,
 	OrderUpdateRequest,
 } from './interfaces'
 import { Decimal } from '../../types'
@@ -260,6 +261,67 @@ export class OrderService {
 		}
 	}
 
+	async orderStatistics(): Promise<OrderStatisticsResponse> {
+		const today = new Date()
+		const todaySales = await this.#_prisma.order.aggregate({
+			_sum: { sum: true },
+			where: { createdAt: { gte: startOfDay(today), lte: endOfDay(today) } },
+		})
+
+		const week = new Date()
+		week.setDate(week.getDate() - 7)
+		const weeklySales = await this.#_prisma.order.aggregate({
+			_sum: { sum: true },
+			where: { createdAt: { gte: startOfDay(week), lte: endOfDay(today) } },
+		})
+
+		const month = new Date()
+		month.setMonth(month.getMonth() - 1)
+		const monthlySales = await this.#_prisma.order.aggregate({
+			_sum: { sum: true },
+			where: { createdAt: { gte: month, lte: endOfDay(today) } },
+		})
+
+		const ourDebt = await this.#_prisma.users.aggregate({
+			_sum: { debt: true },
+			where: {
+				OR: [
+					{ debt: { lt: 0 }, type: 'client' },
+					{ debt: { lt: 0 }, type: 'supplier' },
+				],
+			},
+		})
+
+		const fromDebt = await this.#_prisma.users.aggregate({
+			_sum: { debt: true },
+			where: {
+				OR: [
+					{ debt: { gt: 0 }, type: 'client' },
+					{ debt: { gt: 0 }, type: 'supplier' },
+				],
+			},
+		})
+
+		const weeklyChart = await this.#_prisma.order.groupBy({
+			by: ['createdAt'],
+			_sum: { sum: true },
+			where: { createdAt: { gte: startOfDay(week), lte: endOfDay(today) } },
+			orderBy: { createdAt: 'asc' },
+		})
+
+		return {
+			todaySales: todaySales._sum.sum.toNumber() || 0,
+			weeklySales: weeklySales._sum.sum.toNumber() || 0,
+			monthlySales: monthlySales._sum.sum.toNumber() || 0,
+			ourDebt: ourDebt._sum.debt.toNumber() || 0,
+			fromDebt: fromDebt._sum.debt.toNumber() || 0,
+			weeklyChart: weeklyChart.map((w) => ({
+				date: w.createdAt,
+				sum: w._sum.sum.toNumber() || 0,
+			})),
+		}
+	}
+
 	async orderUpload(payload: { res: Response; id: string }): Promise<any> {
 		const { res, id } = payload
 		const order = await this.#_prisma.order.findUnique({
@@ -449,7 +511,7 @@ export class OrderService {
 			await Promise.all(promises)
 
 			// To'lovni boshqarish
-			if (payment) {
+			if (paymentSum > 0) {
 				await this.#_prisma.payment.create({
 					data: {
 						orderId: order.id,
@@ -570,18 +632,23 @@ export class OrderService {
 				const addProductSum = addProducts.length ? addProducts.reduce((acc, p) => acc + p.price * p.count, 0) : 0
 				const sum = order.sum.toNumber() + addProductSum - removeProductSum - paymentSum
 
+				if (paymentSum > 0) {
+					promises.push(
+						this.#_prisma.payment.update({
+							where: { id: order.payment[0]?.id },
+							data: {
+								totalPay: paymentSum,
+								debt: sum,
+								card: payment.card,
+								cash: payment.cash,
+								transfer: payment.transfer,
+								other: payment.other,
+							},
+						}),
+					)
+				}
+
 				promises.push(
-					this.#_prisma.payment.update({
-						where: { id: order.payment[0]?.id },
-						data: {
-							totalPay: paymentSum,
-							debt: sum,
-							card: payment.card,
-							cash: payment.cash,
-							transfer: payment.transfer,
-							other: payment.other,
-						},
-					}),
 					this.#_prisma.order.update({
 						where: { id: order.id },
 						data: { debt: { decrement: paymentSum } },

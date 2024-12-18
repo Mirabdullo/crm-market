@@ -9,9 +9,10 @@ import {
 	OrderRetrieveResponseDto,
 	OrderRetrieveAllRequestDto,
 	OrderRetrieveAllResponseDto,
+	OrderStatisticsResponseDto,
 } from './dtos'
 import { ApiBearerAuth, ApiNoContentResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger'
-import { OrderRetriveAllResponse, OrderRetriveResponse } from './interfaces'
+import { OrderRetriveAllResponse, OrderRetriveResponse, OrderStatisticsResponse } from './interfaces'
 import { PassUserIdInterceptor } from '../../interceptors'
 import { Permission } from '@decorators'
 import { Permissions } from '@enums'
@@ -51,6 +52,11 @@ export class OrderController {
 		return this.#_service.orderUpload({ ...payload, res })
 	}
 
+	@Get('statistica')
+	@ApiOkResponse({ type: OrderStatisticsResponseDto })
+	OrderStatistics(): Promise<OrderStatisticsResponse> {
+		return this.#_service.orderStatistics()
+	}
 	@Permission(Permissions.ORDER_CREATE)
 	@Post()
 	@HttpCode(HttpStatus.NO_CONTENT)

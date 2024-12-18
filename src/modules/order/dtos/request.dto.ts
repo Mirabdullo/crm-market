@@ -59,6 +59,8 @@ export class OrderCreateRequestDto implements OrderCreateRequest {
 	@IsNotEmpty()
 	clientId: string
 
+	@IsUUID('4')
+	@IsNotEmpty()
 	userId: string
 
 	@ApiProperty({ type: Number })

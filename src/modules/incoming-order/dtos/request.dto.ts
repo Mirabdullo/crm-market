@@ -66,7 +66,6 @@ export class IncomingOrderCreateRequestDto implements IncomingOrderCreateRequest
 	@IsNotEmpty()
 	supplierId: string
 
-	@ApiProperty({ type: String })
 	@IsUUID('4')
 	@IsNotEmpty()
 	userId: string

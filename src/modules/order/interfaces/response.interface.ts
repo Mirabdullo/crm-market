@@ -11,6 +11,19 @@ export declare interface OrderRetriveAllResponse {
 	data: OrderRetriveResponse[]
 }
 
+export declare interface WeeklyChartResponse {
+	date: Date
+	sum: number
+}
+export declare interface OrderStatisticsResponse {
+	todaySales: number
+	weeklySales: number
+	monthlySales: number
+	ourDebt: number
+	fromDebt: number
+	weeklyChart: WeeklyChartResponse[]
+}
+
 export declare interface OrderRetriveResponse {
 	id: string
 	articl: number
