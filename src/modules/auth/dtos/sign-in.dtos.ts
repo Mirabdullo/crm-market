@@ -4,12 +4,12 @@ import { IsNotEmpty, IsString } from 'class-validator'
 import { AdminRetrieveResponseDto, AdminRetriveResponse } from '../../admins'
 
 export class AdminSignInRequestDto implements AdminSignInRequest {
-	@ApiProperty({ type: String })
+	@ApiProperty({ type: String, example: '998911111111' })
 	@IsString()
 	@IsNotEmpty()
 	phone: string
 
-	@ApiProperty({ type: String })
+	@ApiProperty({ type: String, example: 'admin' })
 	@IsString()
 	@IsNotEmpty()
 	password: string

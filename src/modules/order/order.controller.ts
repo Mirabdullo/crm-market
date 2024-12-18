@@ -40,6 +40,12 @@ export class OrderController {
 		})
 	}
 
+	@Get('statistica')
+	@ApiOkResponse({ type: OrderStatisticsResponseDto })
+	OrderStatistics(): Promise<OrderStatisticsResponse> {
+		return this.#_service.orderStatistics()
+	}
+
 	@Get(':id')
 	@ApiOkResponse({ type: OrderRetrieveResponseDto })
 	OrderRetrieve(@Param() payload: OrderRetrieveRequestDto): Promise<OrderRetriveResponse> {
@@ -52,11 +58,6 @@ export class OrderController {
 		return this.#_service.orderUpload({ ...payload, res })
 	}
 
-	@Get('statistica')
-	@ApiOkResponse({ type: OrderStatisticsResponseDto })
-	OrderStatistics(): Promise<OrderStatisticsResponse> {
-		return this.#_service.orderStatistics()
-	}
 	@Permission(Permissions.ORDER_CREATE)
 	@Post()
 	@HttpCode(HttpStatus.NO_CONTENT)
