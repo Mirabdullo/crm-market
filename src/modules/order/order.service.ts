@@ -309,15 +309,27 @@ export class OrderService {
 			orderBy: { createdAt: 'asc' },
 		})
 
-		return {
-			todaySales: todaySales._sum.sum.toNumber() || 0,
-			weeklySales: weeklySales._sum.sum.toNumber() || 0,
-			monthlySales: monthlySales._sum.sum.toNumber() || 0,
-			ourDebt: ourDebt._sum.debt.toNumber() || 0,
-			fromDebt: fromDebt._sum.debt.toNumber() || 0,
+		console.log({
+			todaySales: todaySales._sum.sum || 0,
+			weeklySales: weeklySales._sum.sum || 0,
+			monthlySales: monthlySales._sum.sum || 0,
+			ourDebt: ourDebt._sum.debt || 0,
+			fromDebt: fromDebt._sum.debt || 0,
 			weeklyChart: weeklyChart.map((w) => ({
 				date: w.createdAt,
-				sum: w._sum.sum.toNumber() || 0,
+				sum: w._sum.sum || 0,
+			})),
+		})
+		
+		return {
+			todaySales: todaySales._sum.sum ? todaySales._sum.sum.toNumber() : 0,
+			weeklySales: weeklySales._sum.sum ? weeklySales._sum.sum.toNumber() : 0,
+			monthlySales: monthlySales._sum.sum ? monthlySales._sum.sum.toNumber() : 0,
+			ourDebt: ourDebt._sum.debt ? ourDebt._sum.debt.toNumber() : 0,
+			fromDebt: fromDebt._sum.debt ? fromDebt._sum.debt.toNumber() : 0,
+			weeklyChart: weeklyChart.map((w) => ({
+				date: w.createdAt,
+				sum: w._sum.sum ? w._sum.sum.toNumber() : 0,
 			})),
 		}
 	}
