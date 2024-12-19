@@ -92,6 +92,7 @@ export class OrderService {
 					},
 				},
 				payment: {
+					where: { deletedAt: null },
 					select: {
 						id: true,
 						totalPay: true,
@@ -198,6 +199,7 @@ export class OrderService {
 					},
 				},
 				payment: {
+					where: { deletedAt: null },
 					select: {
 						id: true,
 						totalPay: true,
@@ -210,6 +212,7 @@ export class OrderService {
 					},
 				},
 				products: {
+					where: { deletedAt: null },
 					select: {
 						id: true,
 						cost: true,
@@ -525,7 +528,7 @@ export class OrderService {
 
 	async OrderUpdate(payload: OrderUpdateRequest): Promise<null> {
 		try {
-			const { id, addProducts, removeProducts, payment, accepted } = payload
+			const { id, accepted } = payload
 
 			const order = await this.#_prisma.order.findUnique({
 				where: { id },
@@ -533,127 +536,22 @@ export class OrderService {
 			})
 			if (!order) throw new NotFoundException("Ma'lumot topilmadi")
 
-			const promises: any[] = []
-
-			// Handle added products
-			if (addProducts.length && order.accepted) {
-				const totalSum = addProducts.reduce((acc, p) => acc + p.price * p.count, 0)
-
-				const mappedAddProducts = addProducts.map((product) => ({
-					orderId: order.id,
-					productId: product.product_id,
-					cost: 0,
-					count: product.count,
-					price: product.price,
-				}))
-
-				const updatedProducts = addProducts.map((product) =>
+			if (accepted) {
+				const updatedProducts = order.products.map((pr) =>
 					this.#_prisma.products.update({
-						where: { id: product.product_id },
-						data: { count: { decrement: product.count } },
+						where: { id: pr.productId },
+						data: { count: { decrement: pr.count } },
 					}),
 				)
 
-				promises.push(
-					this.#_prisma.orderProducts.createMany({ data: mappedAddProducts }),
+				await Promise.all([
 					...updatedProducts,
-					this.#_prisma.order.update({
-						where: { id: order.id },
-						data: { sum: { increment: totalSum } },
-					}),
 					this.#_prisma.users.update({
 						where: { id: order.clientId },
-						data: { debt: { increment: totalSum } },
+						data: { debt: { increment: order.debt } },
 					}),
-				)
+				])
 			}
-
-			// Handle removed products
-			if (removeProducts.length) {
-				const totalSum = removeProducts.reduce((acc, p) => acc + p.price * p.count, 0)
-				const productIds = removeProducts.map((p) => p.id)
-
-				const updatedProducts = removeProducts.map((product) =>
-					this.#_prisma.products.update({
-						where: { id: product.product_id },
-						data: { count: { increment: product.count } },
-					}),
-				)
-
-				promises.push(
-					...updatedProducts,
-					this.#_prisma.orderProducts.updateMany({
-						where: { id: { in: productIds } },
-						data: { deletedAt: new Date() },
-					}),
-					this.#_prisma.order.update({
-						where: { id: payload.id },
-						data: { sum: { decrement: totalSum } },
-					}),
-					this.#_prisma.users.update({
-						where: { id: order.clientId },
-						data: { debt: { decrement: totalSum } },
-					}),
-				)
-			}
-
-			// Handle payment updates
-			if (payment && Object.keys(payment).length) {
-				const paymentSum = (payment.card || 0) + (payment.cash || 0) + (payment.transfer || 0) + (payment.other || 0)
-				const removeProductSum = removeProducts.length ? removeProducts.reduce((acc, p) => acc + p.price * p.count, 0) : 0
-				const addProductSum = addProducts.length ? addProducts.reduce((acc, p) => acc + p.price * p.count, 0) : 0
-				const sum = order.sum.toNumber() + addProductSum - removeProductSum - paymentSum
-
-				if (paymentSum > 0) {
-					promises.push(
-						this.#_prisma.payment.update({
-							where: { id: order.payment[0]?.id },
-							data: {
-								totalPay: paymentSum,
-								debt: sum,
-								card: payment.card,
-								cash: payment.cash,
-								transfer: payment.transfer,
-								other: payment.other,
-							},
-						}),
-					)
-				}
-
-				promises.push(
-					this.#_prisma.order.update({
-						where: { id: order.id },
-						data: { debt: { decrement: paymentSum } },
-					}),
-					this.#_prisma.users.update({
-						where: { id: order.clientId },
-						data: { debt: { decrement: paymentSum } },
-					}),
-				)
-			}
-
-			// Handle order acceptance
-			if (!order.accepted && accepted) {
-				const totalSum = order.products.reduce((acc, product) => acc + product.price.toNumber() * product.count, 0)
-
-				const orderProductsUpdates = order.products.map((product) =>
-					this.#_prisma.products.update({
-						where: { id: product.productId },
-						data: { count: { decrement: product.count } },
-					}),
-				)
-
-				promises.push(
-					...orderProductsUpdates,
-					this.#_prisma.users.update({
-						where: { id: order.clientId },
-						data: { debt: { increment: totalSum } },
-					}),
-				)
-			}
-
-			// Execute all promises concurrently
-			await Promise.all(promises)
 
 			return null
 		} catch (error) {
