@@ -507,7 +507,7 @@ export class OrderService {
 			const orderProductsData = products.map((product) => ({
 				orderId: order.id,
 				productId: product.product_id,
-				cost: product.cost,
+				cost: 0,
 				count: product.count,
 				price: product.price,
 			}))
@@ -542,7 +542,7 @@ export class OrderService {
 				const mappedAddProducts = addProducts.map((product) => ({
 					orderId: order.id,
 					productId: product.product_id,
-					cost: product.cost,
+					cost: 0,
 					count: product.count,
 					price: product.price,
 				}))
