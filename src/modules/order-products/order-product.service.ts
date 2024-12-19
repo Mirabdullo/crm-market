@@ -126,7 +126,7 @@ export class OrderProductService {
 				data: {
 					orderId: payload.order_id,
 					productId: payload.product_id,
-					cost: payload.cost,
+					cost: 0,
 					price: payload.price,
 					count: payload.count,
 				},

@@ -2,7 +2,7 @@ export interface OrderProductCreateRequest {
 	order_id: string
 	product_id: string
 	price: number
-	cost: number
+	cost?: number
 	count: number
 }
 

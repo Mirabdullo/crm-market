@@ -72,7 +72,7 @@ export class OrderProductCreateRequestDto implements OrderProductCreateRequest {
 
 	@ApiProperty({ type: Number })
 	@IsNumber()
-	@IsNotEmpty()
+	@IsOptional()
 	cost: number
 
 	@ApiPropertyOptional({ type: Number })
