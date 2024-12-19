@@ -161,8 +161,17 @@ export class OrderProductService {
 	async orderProductUpdate(payload: OrderProductUpdateRequest): Promise<null> {
 		const orderProduct = await this.#_prisma.orderProducts.findUnique({
 			where: { id: payload.id },
+			select: {
+				id: true,
+				cost: true,
+				count: true,
+				price: true,
+			},
 		})
 		if (!orderProduct) throw new NotFoundException("Ma'lumot topilmadi")
+
+		if (payload.price !== orderProduct.price.toNumber()) {
+		}
 
 		await this.#_prisma.orderProducts.update({
 			where: { id: payload.id },
@@ -178,14 +187,38 @@ export class OrderProductService {
 	async orderProductDelete(payload: OrderProductDeleteRequest): Promise<null> {
 		const orderProduct = await this.#_prisma.orderProducts.findUnique({
 			where: { id: payload.id, deletedAt: null },
+			include: { order: true },
 		})
 
 		if (!orderProduct) throw new NotFoundException('maxsulot topilmadi')
 
-		await this.#_prisma.orderProducts.update({
-			where: { id: payload.id },
-			data: { deletedAt: new Date() },
-		})
+		const sum = orderProduct.price.toNumber() * orderProduct.count
+		await Promise.all([
+			this.#_prisma.orderProducts.update({
+				where: { id: payload.id },
+				data: { deletedAt: new Date() },
+			}),
+			this.#_prisma.order.update({
+				where: { id: orderProduct.orderId },
+				data: {
+					sum: { decrement: sum },
+					debt: { decrement: sum },
+				},
+			}),
+		])
+
+		if (orderProduct.order.accepted) {
+			await Promise.all([
+				this.#_prisma.products.update({
+					where: { id: orderProduct.productId },
+					data: { count: { increment: orderProduct.count } },
+				}),
+				this.#_prisma.users.update({
+					where: { id: orderProduct.order.clientId },
+					data: { debt: { decrement: sum } },
+				}),
+			])
+		}
 
 		return null
 	}
