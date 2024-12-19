@@ -166,20 +166,62 @@ export class OrderProductService {
 				cost: true,
 				count: true,
 				price: true,
+				orderId: true,
+				productId: true,
+				order: { select: { clientId: true, accepted: true } },
 			},
 		})
 		if (!orderProduct) throw new NotFoundException("Ma'lumot topilmadi")
 
+		const changes: Partial<typeof payload> = {}
 		if (payload.price !== orderProduct.price.toNumber()) {
+			changes.price = payload.price
+		}
+		if (payload.count !== orderProduct.count) {
+			changes.count = payload.count
 		}
 
-		await this.#_prisma.orderProducts.update({
-			where: { id: payload.id },
-			data: {
-				cost: payload.cost,
-				count: payload.count,
-			},
-		})
+		// Agar o'zgarishlar bo'lsa, davom etamiz
+		if (Object.keys(changes).length) {
+			const newPrice = changes.price ?? orderProduct.price.toNumber()
+			const newCount = changes.count ?? orderProduct.count
+			const newSum = newPrice * newCount
+			const currentSum = orderProduct.price.toNumber() * orderProduct.count
+
+			const orderDifference = newSum - currentSum
+			const countDifference = changes.count ? newCount - orderProduct.count : 0
+
+			await this.#_prisma.$transaction(async (prisma) => {
+				// `orderProducts`ni yangilash
+				await prisma.orderProducts.update({
+					where: { id: payload.id },
+					data: changes,
+				})
+
+				// `order`ning `sum` qiymatini yangilash
+				if (orderDifference !== 0) {
+					await prisma.order.update({
+						where: { id: orderProduct.orderId },
+						data: { sum: { increment: orderDifference } },
+					})
+
+					// `client`ning `debt` qiymatini yangilash
+				}
+
+				// `product`ning `count` qiymatini yangilash (faqat order `accepted` bo'lsa)
+				if (countDifference !== 0 && orderProduct.order.accepted) {
+					await prisma.products.update({
+						where: { id: orderProduct.productId },
+						data: { count: { decrement: countDifference } },
+					})
+
+					await prisma.users.update({
+						where: { id: orderProduct.order.clientId },
+						data: { debt: { increment: orderDifference } },
+					})
+				}
+			})
+		}
 
 		return null
 	}

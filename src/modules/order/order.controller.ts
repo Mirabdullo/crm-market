@@ -62,7 +62,7 @@ export class OrderController {
 	@Permission(Permissions.ORDER_CREATE)
 	@Post()
 	@HttpCode(HttpStatus.OK)
-	@ApiOkResponse({type: OrderCreateResponseDto})
+	@ApiOkResponse({ type: OrderCreateResponseDto })
 	OrderCreate(@Body() payload: OrderCreateRequestDto): Promise<OrderCreateResponse> {
 		return this.#_service.OrderCreate({
 			...payload,
