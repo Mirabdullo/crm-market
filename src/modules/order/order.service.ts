@@ -2,6 +2,7 @@ import { Injectable, InternalServerErrorException, NotFoundException } from '@ne
 import { PrismaService } from '@prisma'
 import {
 	OrderCreateRequest,
+	OrderCreateResponse,
 	OrderDeleteRequest,
 	OrderRetriveAllRequest,
 	OrderRetriveAllResponse,
@@ -51,10 +52,12 @@ export class OrderService {
 
 		let dateOption = {}
 		if (payload.startDate || payload.endDate) {
+			const sDate = new Date(format(payload.startDate, 'yyyy-MM-dd'))
+			const eDate = addHours(new Date(endOfDay(payload.endDate)), 3)
 			dateOption = {
 				createdAt: {
-					...(payload.startDate ? { gte: startOfDay(new Date(payload.startDate)) } : {}),
-					...(payload.endDate ? { lte: endOfDay(new Date(payload.endDate)) } : {}),
+					...(payload.startDate ? { gte: sDate } : {}),
+					...(payload.endDate ? { lte: eDate } : {}),
 				},
 			}
 		}
@@ -266,8 +269,6 @@ export class OrderService {
 		const today = new Date(format(new Date(), 'yyyy-MM-dd'))
 		const endDate = addHours(new Date(endOfDay(today)), 3)
 
-		console.log(today, endDate)
-
 		const todaySales = await this.#_prisma.order.aggregate({
 			_sum: { sum: true },
 			where: { createdAt: { gte: today, lte: endDate } },
@@ -317,13 +318,12 @@ export class OrderService {
 			dates.push(format(addDays(week, i), 'yyyy-MM-dd'))
 		}
 
-		console.log(today, endDate, week, month)
 		const weeklyChartArray = dates.map((date) => {
 			const found = Array.isArray(weeklyChart) ? weeklyChart.find((item) => format(item.date, 'yyyy-MM-dd') === date) : 0
 			console.log('found: ', found)
 			return {
 				date,
-				sum: found ? found.totalsum : 0,
+				sum: found ? found.totalsum.toNumber() : 0,
 			}
 		})
 
@@ -487,9 +487,9 @@ export class OrderService {
 		res.end()
 	}
 
-	async OrderCreate(payload: OrderCreateRequest): Promise<null> {
+	async OrderCreate(payload: OrderCreateRequest): Promise<OrderCreateResponse> {
 		try {
-			const { clientId, userId, products, accepted, payment } = payload
+			const { clientId, userId, products } = payload
 
 			// Mijozni tekshirish
 			const user = await this.#_prisma.users.findFirst({
@@ -497,18 +497,14 @@ export class OrderService {
 			})
 			if (!user) throw new NotFoundException('Mijoz topilmadi')
 
-			// Buyurtma yaratish
 			const totalSum = products.reduce((sum, product) => sum + product.price * product.count, 0)
-			const paymentSum = (payment?.card || 0) + (payment?.cash || 0) + (payment?.transfer || 0) + (payment?.other || 0)
-			const debt = totalSum - paymentSum
 
 			const order = await this.#_prisma.order.create({
 				data: {
 					clientId: clientId,
 					adminId: userId,
 					sum: totalSum,
-					debt,
-					accepted,
+					debt: totalSum,
 				},
 			})
 
@@ -519,46 +515,14 @@ export class OrderService {
 				cost: product.cost,
 				count: product.count,
 				price: product.price,
-				avarage_cost: product.avarage_cost,
+				avarage_cost: 0
 			}))
 
-			const promises = [this.#_prisma.orderProducts.createMany({ data: orderProductsData })]
-			await Promise.all(promises)
+			const promises = await this.#_prisma.orderProducts.createMany({ data: orderProductsData })
 
-			// To'lovni boshqarish
-			if (paymentSum > 0) {
-				await this.#_prisma.payment.create({
-					data: {
-						orderId: order.id,
-						clientId,
-						totalPay: paymentSum,
-						debt,
-						card: payment?.card || 0,
-						cash: payment?.cash || 0,
-						transfer: payment?.transfer || 0,
-						other: payment?.other || 0,
-					},
-				})
+			return {
+				id: order.id
 			}
-
-			if (accepted) {
-				const productUpdates = products.map((product) =>
-					this.#_prisma.products.update({
-						where: { id: product.product_id },
-						data: { count: { decrement: product.count } },
-					}),
-				)
-
-				await Promise.all([
-					...productUpdates,
-					await this.#_prisma.users.update({
-						where: { id: clientId },
-						data: { debt: { increment: debt } },
-					}),
-				])
-			}
-
-			return null
 		} catch (error) {
 			console.log(error)
 			throw new InternalServerErrorException('Kutilmagan xatolik!')
@@ -587,7 +551,7 @@ export class OrderService {
 					cost: product.cost,
 					count: product.count,
 					price: product.price,
-					avarage_cost: product.avarage_cost,
+					avarage_cost: 0,
 				}))
 
 				const updatedProducts = addProducts.map((product) =>

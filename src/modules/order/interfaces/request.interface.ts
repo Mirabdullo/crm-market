@@ -11,6 +11,10 @@ export interface OrderCreateRequest {
 	userId: string
 }
 
+export interface OrderCreateResponse {
+	id: string
+}
+
 export interface OrderUpdateRequest {
 	id: string
 	sum?: number

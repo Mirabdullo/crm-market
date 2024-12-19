@@ -12,7 +12,7 @@ import {
 	OrderStatisticsResponseDto,
 } from './dtos'
 import { ApiBearerAuth, ApiNoContentResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger'
-import { OrderRetriveAllResponse, OrderRetriveResponse, OrderStatisticsResponse } from './interfaces'
+import { OrderCreateResponse, OrderRetriveAllResponse, OrderRetriveResponse, OrderStatisticsResponse } from './interfaces'
 import { PassUserIdInterceptor } from '../../interceptors'
 import { Permission } from '@decorators'
 import { Permissions } from '@enums'
@@ -62,10 +62,9 @@ export class OrderController {
 	@Post()
 	@HttpCode(HttpStatus.NO_CONTENT)
 	@ApiNoContentResponse()
-	OrderCreate(@Body() payload: OrderCreateRequestDto): Promise<null> {
+	OrderCreate(@Body() payload: OrderCreateRequestDto): Promise<OrderCreateResponse> {
 		return this.#_service.OrderCreate({
 			...payload,
-			accepted: [true, 'true'].includes(payload.accepted) ? true : false,
 		})
 	}
 

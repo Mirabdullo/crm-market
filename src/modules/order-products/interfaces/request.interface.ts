@@ -12,7 +12,6 @@ export interface OrderProductRequest {
 	price: number
 	cost: number
 	count: number
-	avarage_cost: number
 }
 
 export interface OrderProductUpdateRequest {

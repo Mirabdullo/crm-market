@@ -10,7 +10,7 @@ import {
 	IncomingOrderUpdateRequest,
 } from './interfaces'
 import { Decimal } from '../../types'
-import { endOfDay, startOfDay } from 'date-fns'
+import { addHours, endOfDay, format, startOfDay } from 'date-fns'
 import { Cron, CronExpression } from '@nestjs/schedule'
 
 @Injectable()
@@ -52,10 +52,12 @@ export class IncomingOrderService {
 
 		let dateOption = {}
 		if (payload.startDate || payload.endDate) {
+			const sDate = new Date(format(payload.startDate, 'yyyy-MM-dd'))
+			const eDate = addHours(new Date(endOfDay(payload.endDate)), 3)
 			dateOption = {
 				createdAt: {
-					...(payload.startDate ? { gte: startOfDay(new Date(payload.startDate)) } : {}),
-					...(payload.endDate ? { lte: endOfDay(new Date(payload.endDate)) } : {}),
+					...(payload.startDate ? { gte: sDate } : {}),
+					...(payload.endDate ? { lte: eDate } : {}),
 				},
 			}
 		}

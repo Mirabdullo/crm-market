@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { OrderRetriveAllResponse, OrderRetriveResponse, OrderStatisticsResponse, WeeklyChartResponse } from '../interfaces'
+import { OrderCreateResponse, OrderRetriveAllResponse, OrderRetriveResponse, OrderStatisticsResponse, WeeklyChartResponse } from '../interfaces'
 import { UserRetrieveResponseDto, UserRetriveResponse } from '../../users'
 import { AdminResponse } from '../../admins'
 import { PaymentResponseDto, PaymentResponse } from '../../payment'
@@ -52,6 +52,11 @@ export class OrderRetrieveAllResponseDto implements OrderRetriveAllResponse {
 
 	@ApiProperty({ type: [OrderRetrieveResponseDto] })
 	data: OrderRetriveResponse[]
+}
+
+export class OrderCreateResponseDto implements OrderCreateResponse {
+	@ApiProperty({ type: String })
+	id: string
 }
 
 export class WeeklyChartResponseDto implements WeeklyChartResponse {

@@ -106,11 +106,6 @@ export class OrderProductRequestDto implements OrderProductRequest {
 	@IsNumber()
 	@IsNotEmpty()
 	price: number
-
-	@ApiPropertyOptional({ type: Number })
-	@IsNumber()
-	@IsNotEmpty()
-	avarage_cost: number
 }
 
 export class RemoveOrderProductsRequestDto implements RemoveOrderProductsRequest {
