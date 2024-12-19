@@ -10,6 +10,7 @@ import {
 	OrderRetrieveAllRequestDto,
 	OrderRetrieveAllResponseDto,
 	OrderStatisticsResponseDto,
+	OrderCreateResponseDto,
 } from './dtos'
 import { ApiBearerAuth, ApiNoContentResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger'
 import { OrderCreateResponse, OrderRetriveAllResponse, OrderRetriveResponse, OrderStatisticsResponse } from './interfaces'
@@ -60,10 +61,9 @@ export class OrderController {
 
 	@Permission(Permissions.ORDER_CREATE)
 	@Post()
-	@HttpCode(HttpStatus.NO_CONTENT)
-	@ApiNoContentResponse()
+	@HttpCode(HttpStatus.OK)
+	@ApiOkResponse({type: OrderCreateResponseDto})
 	OrderCreate(@Body() payload: OrderCreateRequestDto): Promise<OrderCreateResponse> {
-		console.log(payload)
 		return this.#_service.OrderCreate({
 			...payload,
 		})
