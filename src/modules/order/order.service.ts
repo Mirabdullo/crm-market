@@ -569,9 +569,15 @@ export class OrderService {
 		if (!order) throw new NotFoundException('maxsulot topilmadi')
 
 		const promises: any = []
-		if (order.accepted) {
-			const orderProductIds = order.products.map((product) => product.id)
+		const orderProductIds = order.products.map((product) => product.id)
+		promises.push(
+			this.#_prisma.orderProducts.updateMany({
+				where: { id: { in: orderProductIds } },
+				data: { deletedAt: new Date() },
+			}),
+		)
 
+		if (order.accepted) {
 			const products = order.products.map((product) =>
 				this.#_prisma.products.update({
 					where: { id: product.productId },
@@ -580,28 +586,16 @@ export class OrderService {
 			)
 
 			promises.push(
-				this.#_prisma.orderProducts.updateMany({
-					where: { id: { in: orderProductIds } },
-					data: { deletedAt: new Date() },
-				}),
 				...products,
 				this.#_prisma.users.update({
 					where: { id: order.clientId },
 					data: { debt: { decrement: order.sum.toNumber() - order.debt.toNumber() } },
 				}),
-				this.#_prisma.payment.update({
-					where: { id: order.payment[0].id },
-					data: { deletedAt: new Date() },
-				}),
 			)
-		} else {
-			const orderProductIds = order.products.map((product) => product.id)
+		}
 
+		if (order.payment?.length) {
 			promises.push(
-				this.#_prisma.orderProducts.updateMany({
-					where: { id: { in: orderProductIds } },
-					data: { deletedAt: new Date() },
-				}),
 				this.#_prisma.payment.update({
 					where: { id: order.payment[0].id },
 					data: { deletedAt: new Date() },
