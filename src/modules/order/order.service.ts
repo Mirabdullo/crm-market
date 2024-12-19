@@ -110,7 +110,6 @@ export class OrderService {
 						cost: true,
 						count: true,
 						price: true,
-						avarage_cost: true,
 						createdAt: true,
 						product: {
 							select: {
@@ -152,7 +151,6 @@ export class OrderService {
 				cost: (prod.cost as Decimal).toNumber(),
 				price: (prod.price as Decimal).toNumber(),
 				count: prod.count,
-				avarage_cost: (prod.avarage_cost as Decimal).toNumber(),
 			})),
 		}))
 
@@ -217,7 +215,6 @@ export class OrderService {
 						cost: true,
 						count: true,
 						price: true,
-						avarage_cost: true,
 						createdAt: true,
 						product: {
 							select: {
@@ -260,7 +257,6 @@ export class OrderService {
 				cost: (prod.cost as Decimal).toNumber(),
 				price: (prod.price as Decimal).toNumber(),
 				count: prod.count,
-				avarage_cost: (prod.avarage_cost as Decimal).toNumber(),
 			})),
 		}
 	}
@@ -381,7 +377,6 @@ export class OrderService {
 						cost: true,
 						count: true,
 						price: true,
-						avarage_cost: true,
 						createdAt: true,
 						product: {
 							select: {
@@ -515,13 +510,12 @@ export class OrderService {
 				cost: product.cost,
 				count: product.count,
 				price: product.price,
-				avarage_cost: 0
 			}))
 
 			const promises = await this.#_prisma.orderProducts.createMany({ data: orderProductsData })
 
 			return {
-				id: order.id
+				id: order.id,
 			}
 		} catch (error) {
 			console.log(error)
@@ -551,7 +545,6 @@ export class OrderService {
 					cost: product.cost,
 					count: product.count,
 					price: product.price,
-					avarage_cost: 0,
 				}))
 
 				const updatedProducts = addProducts.map((product) =>

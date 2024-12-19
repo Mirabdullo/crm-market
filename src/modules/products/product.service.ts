@@ -36,7 +36,6 @@ export class ProductService {
 			select: {
 				id: true,
 				name: true,
-				avarage_cost: true,
 				category: true,
 				cost: true,
 				count: true,
@@ -53,7 +52,6 @@ export class ProductService {
 		const transformedProductList = productList.map((product) => ({
 			...product,
 			cost: (product.cost as Decimal).toNumber(),
-			avarage_cost: product.avarage_cost ? (product.avarage_cost as Decimal).toNumber() : undefined,
 			selling_price: (product.selling_price as Decimal).toNumber(),
 			wholesale_price: (product.wholesale_price as Decimal).toNumber(),
 		}))
@@ -80,7 +78,6 @@ export class ProductService {
 			select: {
 				id: true,
 				name: true,
-				avarage_cost: true,
 				cost: true,
 				count: true,
 				createdAt: true,
@@ -98,7 +95,6 @@ export class ProductService {
 		return {
 			...product,
 			cost: (product.cost as Decimal).toNumber(),
-			avarage_cost: product.avarage_cost ? (product.avarage_cost as Decimal).toNumber() : undefined,
 			selling_price: (product.selling_price as Decimal).toNumber(),
 			wholesale_price: (product.wholesale_price as Decimal).toNumber(),
 		}
@@ -119,7 +115,6 @@ export class ProductService {
 				selling_price: payload.selling_price,
 				unit: payload.unit || 'dona',
 				wholesale_price: payload.wholesale_price ?? 0,
-				avarage_cost: payload.cost,
 				image: payload.image || null,
 				category: payload.category || null,
 			},
@@ -144,7 +139,6 @@ export class ProductService {
 				selling_price: payload.selling_price,
 				unit: payload.unit,
 				wholesale_price: payload.wholesale_price,
-				avarage_cost: payload.cost,
 			},
 		})
 

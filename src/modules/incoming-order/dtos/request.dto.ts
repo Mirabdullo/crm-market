@@ -67,7 +67,7 @@ export class IncomingOrderCreateRequestDto implements IncomingOrderCreateRequest
 	supplierId: string
 
 	@IsUUID('4')
-	@IsNotEmpty()
+	@IsOptional()
 	userId: string
 
 	@ApiProperty({ type: Number })

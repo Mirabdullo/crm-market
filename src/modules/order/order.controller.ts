@@ -63,6 +63,7 @@ export class OrderController {
 	@HttpCode(HttpStatus.NO_CONTENT)
 	@ApiNoContentResponse()
 	OrderCreate(@Body() payload: OrderCreateRequestDto): Promise<OrderCreateResponse> {
+		console.log(payload)
 		return this.#_service.OrderCreate({
 			...payload,
 		})

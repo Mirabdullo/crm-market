@@ -60,7 +60,7 @@ export class OrderCreateRequestDto implements OrderCreateRequest {
 	clientId: string
 
 	@IsUUID('4')
-	@IsNotEmpty()
+	@IsOptional()
 	userId: string
 
 	@ApiProperty({ type: Number })

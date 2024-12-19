@@ -13,7 +13,6 @@ export declare interface ProductRetriveResponse {
 	unit: string
 	min_amount: number
 	cost: number
-	avarage_cost?: number
 	selling_price: number
 	wholesale_price: number
 	image?: string

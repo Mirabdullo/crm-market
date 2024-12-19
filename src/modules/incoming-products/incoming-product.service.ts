@@ -133,7 +133,6 @@ export class IncomingProductService {
 		await this.#_prisma.products.update({
 			where: { id: payload.product_id },
 			data: {
-				avarage_cost: (product.count * product.cost.toNumber() + payload.cost * payload.count) / (product.count + payload.count),
 				count: product.count + payload.count,
 				cost: payload.cost,
 			},

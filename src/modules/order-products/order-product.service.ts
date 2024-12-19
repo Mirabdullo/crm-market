@@ -37,7 +37,6 @@ export class OrderProductService {
 				cost: true,
 				price: true,
 				count: true,
-				avarage_cost: true,
 				createdAt: true,
 				product: {
 					select: {
@@ -55,7 +54,6 @@ export class OrderProductService {
 			...orderProduct,
 			cost: (orderProduct.cost as Decimal).toNumber(),
 			price: (orderProduct.price as Decimal).toNumber(),
-			avarage_cost: (orderProduct.avarage_cost as Decimal).toNumber(),
 			product: {
 				...orderProduct.product,
 			},
@@ -84,7 +82,6 @@ export class OrderProductService {
 				cost: true,
 				price: true,
 				count: true,
-				avarage_cost: true,
 				createdAt: true,
 				product: {
 					select: {
@@ -103,7 +100,6 @@ export class OrderProductService {
 			...orderProduct,
 			cost: (orderProduct.cost as Decimal).toNumber(),
 			price: (orderProduct.price as Decimal).toNumber(),
-			avarage_cost: (orderProduct.avarage_cost as Decimal).toNumber(),
 			product: {
 				...orderProduct.product,
 				id: orderProduct.product.id,
@@ -114,30 +110,50 @@ export class OrderProductService {
 	}
 
 	async orderProductCreate(payload: OrderProductCreateRequest): Promise<null> {
-		const product = await this.#_prisma.products.findFirst({
-			where: { id: payload.product_id, deletedAt: null },
-		})
-		if (!product) throw new NotFoundException('Maxsulot topilmadi')
+		const [product, order] = await Promise.all([
+			this.#_prisma.products.findFirst({
+				where: { id: payload.product_id, deletedAt: null },
+			}),
 
-		await this.#_prisma.orderProducts.create({
-			data: {
-				orderId: payload.order_id,
-				productId: payload.product_id,
-				cost: payload.cost,
-				price: payload.price,
-				count: payload.count,
-				avarage_cost: payload.avarage_cost,
-			},
-		})
+			this.#_prisma.order.findFirst({ where: { id: payload.order_id } }),
+		])
+		if (!product || !order) throw new NotFoundException('Maxsulot yoki sotuv topilmadi')
 
-		await this.#_prisma.products.update({
-			where: { id: payload.product_id },
-			data: {
-				avarage_cost: (product.count * product.cost.toNumber() + payload.cost * payload.count) / (product.count + payload.count),
-				count: product.count + payload.count,
-				cost: payload.cost,
-			},
-		})
+		const promises = []
+
+		promises.push(
+			this.#_prisma.orderProducts.create({
+				data: {
+					orderId: payload.order_id,
+					productId: payload.product_id,
+					cost: payload.cost,
+					price: payload.price,
+					count: payload.count,
+				},
+			}),
+			this.#_prisma.order.update({
+				where: { id: payload.order_id },
+				data: { sum: { increment: payload.price * payload.count }, debt: { increment: payload.price * payload.count } },
+			}),
+		)
+
+		if (order.accepted) {
+			promises.push(
+				this.#_prisma.products.update({
+					where: { id: payload.product_id },
+					data: {
+						count: product.count + payload.count,
+						cost: payload.cost,
+					},
+				}),
+				this.#_prisma.users.update({
+					where: { id: order.clientId },
+					data: { debt: { increment: payload.price * payload.count } },
+				}),
+			)
+		}
+
+		await Promise.all(promises)
 
 		return null
 	}

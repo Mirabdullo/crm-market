@@ -28,9 +28,6 @@ export class OrderProductRetrieveResponseDto implements OrderProductRetriveRespo
 	@ApiProperty({ type: Number })
 	price: number
 
-	@ApiProperty({ type: Number })
-	avarage_cost: number
-
 	@ApiProperty({ type: ProductForOrderProductDto })
 	product: ProductForOrderProduct
 }

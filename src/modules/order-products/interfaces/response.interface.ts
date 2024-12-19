@@ -11,7 +11,6 @@ export declare interface OrderProductRetriveResponse {
 	cost: number
 	count: number
 	price: number
-	avarage_cost: number
 	createdAt: Date
 	product: ProductForOrderProduct
 }

@@ -589,7 +589,7 @@ export class IncomingOrderService {
 					...products,
 					this.#_prisma.users.update({
 						where: { id: order.supplierId },
-						data: { debt: { increment: order.payment[0].totalPay.toNumber() - order.sum.toNumber() } },
+						data: { debt: { increment: order?.payment[0]?.totalPay.toNumber() - order.sum.toNumber() } },
 					}),
 				)
 			})
