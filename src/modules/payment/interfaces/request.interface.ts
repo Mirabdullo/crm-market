@@ -37,6 +37,7 @@ export interface PaymentRetriveAllRequest {
 	pageSize?: number
 	pageNumber?: number
 	search?: string
+	clientId?: string
 	pagination?: boolean
 	startDate?: string
 	endDate?: string

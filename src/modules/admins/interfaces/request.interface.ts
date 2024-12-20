@@ -2,6 +2,7 @@ export declare interface AdminCreateRequest {
 	name: string
 	phone: string
 	password: string
+	permissions: string[]
 }
 
 export declare interface AdminUpdateRequest {

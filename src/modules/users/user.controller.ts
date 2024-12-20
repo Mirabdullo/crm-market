@@ -53,7 +53,11 @@ export class UserController {
 	@Get('client/deed')
 	@ApiOkResponse({ type: UserRetrieveAllResponseDto })
 	ClientDeedRetrieve(@Query() payload: UserDeedRetrieveRequestDto): Promise<any> {
-		return this.#_service.clientDeedRetrieve(payload)
+		return this.#_service.clientDeedRetrieve({
+			...payload,
+			startDate: payload.startDate ? payload.startDate : new Date().toDateString(),
+			endDate: payload.endDate ? payload.endDate : new Date().toDateString(),
+		})
 	}
 
 	@Get(':id')

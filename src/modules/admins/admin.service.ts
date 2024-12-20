@@ -102,9 +102,11 @@ export class AdminService {
 				},
 			},
 		})
+
 		if (!admin) {
 			throw new NotFoundException('Admin not found')
 		}
+
 		return admin
 	}
 
@@ -121,11 +123,19 @@ export class AdminService {
 
 		const hashedPassword = await bcrypt.hash(payload.password, 7)
 
+		const permissions = await this.#_prisma.permissions.findMany({
+			where: { id: { in: payload.permissions } },
+			select: { id: true },
+		})
+
 		await this.#_prisma.admins.create({
 			data: {
 				name: payload.name,
 				phone: payload.phone,
 				password: hashedPassword,
+				permissions: {
+					connect: permissions,
+				},
 			},
 		})
 

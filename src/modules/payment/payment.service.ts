@@ -28,8 +28,15 @@ export class PaymentService {
 			}
 		}
 
+		let clientOption = {}
+		if (payload.clientId) {
+			clientOption = {
+				clientId: payload.clientId,
+			}
+		}
+
 		const paymentList = await this.#_prisma.payment.findMany({
-			where: { deletedAt: null },
+			where: { deletedAt: null, ...clientOption },
 			select: {
 				id: true,
 				card: true,
@@ -66,7 +73,7 @@ export class PaymentService {
 		}))
 
 		const totalCount = await this.#_prisma.payment.count({
-			where: { deletedAt: null },
+			where: { deletedAt: null, ...clientOption },
 		})
 
 		return {

@@ -169,7 +169,7 @@ export class UserService {
 		const sorted = combined.sort((a, b) => {
 			const dateA = a.type === 'order' ? a.createdAt : a.updatedAt
 			const dateB = b.type === 'order' ? b.createdAt : b.updatedAt
-			return new Date(dateB).getTime() - new Date(dateA).getTime() // Descending order
+			return new Date(dateA).getTime() - new Date(dateB).getTime()
 		})
 
 		return {

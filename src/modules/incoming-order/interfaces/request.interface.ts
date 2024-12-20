@@ -4,7 +4,7 @@ import { IncomingProductCreateRequest, IncomingProductRemoveRequest, IncomingPro
 export interface IncomingOrderCreateRequest {
 	supplierId: string
 	sum?: number
-	createdAt: string
+	sellingDate: string
 	accepted?: boolean
 	products: IncomingProductCreateRequest[]
 	payment?: IncomingOrderPaymentRequest
@@ -13,9 +13,7 @@ export interface IncomingOrderCreateRequest {
 
 export interface IncomingOrderUpdateRequest {
 	id: string
-	addProducts?: IncomingProductRequest[]
-	removeProducts?: IncomingProductRemoveRequest[]
-	payment?: IncomingOrderPaymentUpdateRequest
+	sellingDate?: string
 }
 
 export interface IncomingOrderDeleteRequest {

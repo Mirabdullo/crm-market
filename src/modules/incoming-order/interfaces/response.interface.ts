@@ -17,6 +17,7 @@ export declare interface IncomingOrderRetriveResponse {
 	debt: number
 	accepted: boolean
 	createdAt: Date
+	sellingDate: Date
 	supplier: UserResponse
 	admin: AdminResponse
 	payment: PaymentResponse

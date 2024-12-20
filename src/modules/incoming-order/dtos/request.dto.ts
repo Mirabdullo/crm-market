@@ -78,7 +78,7 @@ export class IncomingOrderCreateRequestDto implements IncomingOrderCreateRequest
 	@ApiProperty({ type: String })
 	@IsString()
 	@IsNotEmpty()
-	createdAt: string
+	sellingDate: string
 
 	@ApiProperty({ type: IncomingProductCreateRequestDto })
 	@IsArray()
@@ -101,22 +101,10 @@ export class IncomingOrderUpdateRequestDto implements IncomingOrderUpdateRequest
 	@IsNotEmpty()
 	id: string
 
-	@ApiPropertyOptional({ type: [IncomingProductRequestDto] })
-	@IsArray()
-	@IsObject({ each: true })
+	@ApiPropertyOptional({ type: String })
+	@IsString()
 	@IsOptional()
-	addProducts?: IncomingProductRequest[]
-
-	@ApiPropertyOptional({ type: [IncomingProductRemoveRequestDto] })
-	@IsArray()
-	@IsObject({ each: true })
-	@IsOptional()
-	removeProducts?: IncomingProductRemoveRequest[]
-
-	@ApiPropertyOptional({ type: IncomingOrderPaymentUpdateRequestDto })
-	@IsObject()
-	@IsOptional()
-	payment?: IncomingOrderPaymentUpdateRequest
+	sellingDate?: string
 }
 
 export class IncomingOrderDeleteRequestDto implements IncomingOrderDeleteRequest {

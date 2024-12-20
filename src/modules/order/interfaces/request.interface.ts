@@ -4,7 +4,7 @@ import { PaymentRequest, PaymentUpdateRequest } from '../../payment'
 export interface OrderCreateRequest {
 	clientId: string
 	sum?: number
-	createdAt: string
+	sellingDate: string
 	accepted?: boolean
 	products: OrderProductRequest[]
 	payment?: PaymentRequest
@@ -23,6 +23,7 @@ export interface OrderUpdateRequest {
 	removeProducts?: RemoveOrderProductsRequest[]
 	payment?: PaymentUpdateRequest
 	accepted?: boolean
+	sellingDate?: string
 }
 
 export interface OrderDeleteRequest {
@@ -34,6 +35,7 @@ export interface OrderRetriveAllRequest {
 	pageNumber?: number
 	search?: string
 	sellerId?: string
+	clientId?: string
 	pagination?: boolean
 	startDate?: string
 	endDate?: string

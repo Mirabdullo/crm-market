@@ -21,6 +21,9 @@ export class IncomingOrderRetrieveResponseDto implements IncomingOrderRetriveRes
 	@ApiProperty({ type: Date })
 	createdAt: Date
 
+	@ApiProperty({ type: Date })
+	sellingDate: Date
+
 	@ApiProperty({ type: UserRetrieveResponseDto })
 	supplier: UserRetriveResponse
 

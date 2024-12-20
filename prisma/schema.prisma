@@ -100,15 +100,16 @@ model Products {
 }
 
 model IncomingOrder {
-  id          String     @map("id")            @db.Uuid       @default(dbgenerated("GEN_RANDOM_UUID()"))
-  supplierId  String     @map("supplier_id")   @db.Uuid() 
-  sum         Decimal    @map("sum")           @db.Decimal(10,3)
-  debt        Decimal    @map("debt")          @db.Decimal(10,3)  @default(0)
-  adminId     String     @map("admin_id")      @db.Uuid()
-  accepted    Boolean    @map("accepted")      @db.Boolean    @default(false)
-  createdAt   DateTime   @map("created_at")    @db.Timestamp  @default(now())
-  updatedAt   DateTime   @map("updated_at")    @db.Timestamp  @updatedAt
-  deletedAt   DateTime?  @map("deleted_at")    @db.Timestamp
+  id           String     @map("id")            @db.Uuid       @default(dbgenerated("GEN_RANDOM_UUID()"))
+  supplierId   String     @map("supplier_id")   @db.Uuid() 
+  sum          Decimal    @map("sum")           @db.Decimal(10,3)
+  debt         Decimal    @map("debt")          @db.Decimal(10,3)  @default(0)
+  adminId      String     @map("admin_id")      @db.Uuid()
+  accepted     Boolean    @map("accepted")      @db.Boolean    @default(false)
+  sellingDate  DateTime   @map("selling_date")  @db.Timestamp  @default(now())
+  createdAt    DateTime   @map("created_at")    @db.Timestamp  @default(now())
+  updatedAt    DateTime   @map("updated_at")    @db.Timestamp  @updatedAt
+  deletedAt    DateTime?  @map("deleted_at")    @db.Timestamp
 
   incomingProducts   IncomingProducts[]
   payment    IncomingOrderPayment[]
@@ -139,16 +140,17 @@ model IncomingProducts {
 }
 
 model Order {
-  id         String       @map("id")            @db.Uuid       @default(dbgenerated("GEN_RANDOM_UUID()"))
-  articl     Int          @map("articl")        @db.Integer    @default(autoincrement())
-  clientId   String       @map("client_id")     @db.Uuid() 
-  sum        Decimal      @map("sum")           @db.Decimal(10,3)
-  debt       Decimal      @map("debt")          @db.Decimal(10,3)  @default(0)
-  adminId    String       @map("admin_id")      @db.Uuid()
-  accepted   Boolean      @map("accepted")      @db.Boolean    @default(false)
-  createdAt  DateTime     @map("created_at")    @db.Timestamp  @default(now())
-  updatedAt  DateTime     @map("updated_at")    @db.Timestamp  @updatedAt
-  deletedAt  DateTime?    @map("deleted_at")    @db.Timestamp
+  id           String       @map("id")            @db.Uuid       @default(dbgenerated("GEN_RANDOM_UUID()"))
+  articl       Int          @map("articl")        @db.Integer    @default(autoincrement())
+  clientId     String       @map("client_id")     @db.Uuid() 
+  sum          Decimal      @map("sum")           @db.Decimal(10,3)
+  debt         Decimal      @map("debt")          @db.Decimal(10,3)  @default(0)
+  adminId      String       @map("admin_id")      @db.Uuid()
+  accepted     Boolean      @map("accepted")      @db.Boolean    @default(false)
+  sellingDate  DateTime     @map("selling_date")  @db.Timestamp  @default(now())
+  createdAt    DateTime     @map("created_at")    @db.Timestamp  @default(now())
+  updatedAt    DateTime     @map("updated_at")    @db.Timestamp  @updatedAt
+  deletedAt    DateTime?    @map("deleted_at")    @db.Timestamp
 
   products   OrderProducts[]
   payment    Payment[]

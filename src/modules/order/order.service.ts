@@ -37,7 +37,7 @@ export class OrderService {
 		let sellerOption = {}
 		if (payload.sellerId) {
 			sellerOption = {
-				admin: { id: payload.sellerId },
+				adminId: payload.sellerId,
 			}
 		}
 
@@ -47,6 +47,13 @@ export class OrderService {
 				client: {
 					OR: [{ name: { contains: payload.search, mode: 'insensitive' } }, { phone: { contains: payload.search, mode: 'insensitive' } }],
 				},
+			}
+		}
+
+		let clientOption = {}
+		if (payload.clientId) {
+			clientOption = {
+				clientId: payload.clientId,
 			}
 		}
 
@@ -68,6 +75,7 @@ export class OrderService {
 				...sellerOption,
 				...searchOption,
 				...dateOption,
+				...clientOption,
 			},
 			select: {
 				id: true,
@@ -76,6 +84,7 @@ export class OrderService {
 				debt: true,
 				accepted: true,
 				createdAt: true,
+				sellingDate: true,
 				client: {
 					select: {
 						id: true,
@@ -135,6 +144,7 @@ export class OrderService {
 			debt: order.debt.toNumber(),
 			accepted: order.accepted,
 			createdAt: order.createdAt,
+			sellingDate: order.sellingDate,
 			seller: order.admin,
 			payment: order.payment.map((pay) => {
 				return {
@@ -162,6 +172,7 @@ export class OrderService {
 				...sellerOption,
 				...searchOption,
 				...dateOption,
+				...clientOption,
 			},
 		})
 
@@ -183,6 +194,7 @@ export class OrderService {
 				articl: true,
 				accepted: true,
 				createdAt: true,
+				sellingDate: true,
 				debt: true,
 				client: {
 					select: {
@@ -246,6 +258,7 @@ export class OrderService {
 			debt: Order.debt.toNumber(),
 			accepted: Order.accepted,
 			createdAt: Order.createdAt,
+			sellingDate: Order.sellingDate,
 			payment: Order.payment.map((payment) => {
 				return {
 					...payment,
@@ -489,7 +502,7 @@ export class OrderService {
 
 	async OrderCreate(payload: OrderCreateRequest): Promise<OrderCreateResponse> {
 		try {
-			const { clientId, userId, products } = payload
+			const { clientId, userId, products, sellingDate } = payload
 
 			// Mijozni tekshirish
 			const user = await this.#_prisma.users.findFirst({
@@ -505,6 +518,7 @@ export class OrderService {
 					adminId: userId,
 					sum: totalSum,
 					debt: totalSum,
+					sellingDate,
 				},
 			})
 
@@ -517,7 +531,7 @@ export class OrderService {
 				price: product.price,
 			}))
 
-			const promises = await this.#_prisma.orderProducts.createMany({ data: orderProductsData })
+			await this.#_prisma.orderProducts.createMany({ data: orderProductsData })
 
 			return {
 				id: order.id,

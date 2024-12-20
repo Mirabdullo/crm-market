@@ -75,6 +75,7 @@ export class IncomingOrderService {
 				debt: true,
 				accepted: true,
 				createdAt: true,
+				sellingDate: true,
 				supplier: {
 					select: {
 						id: true,
@@ -176,6 +177,7 @@ export class IncomingOrderService {
 				debt: true,
 				accepted: true,
 				createdAt: true,
+				sellingDate: true,
 				supplier: {
 					select: {
 						id: true,
@@ -255,24 +257,22 @@ export class IncomingOrderService {
 
 	async incomingOrderCreate(payload: IncomingOrderCreateRequest): Promise<null> {
 		try {
-			const { supplierId, userId, accepted, createdAt, products, payment } = payload
+			const { supplierId, userId, accepted, sellingDate, products, payment } = payload
 			const user = await this.#_prisma.users.findFirst({
 				where: { id: payload.supplierId, deletedAt: null },
 			})
 			if (!user) throw new NotFoundException('Yetkazib beruvchi topilmadi')
 
-			const paymentSum = (payment?.card || 0) + (payment?.cash || 0) + (payment?.transfer || 0) + (payment?.other || 0) + (payment?.humo || 0)
 			const totalSum = products.reduce((sum, product) => sum + product.cost * product.count, 0)
-			const debt = paymentSum - totalSum
 
 			const order = await this.#_prisma.incomingOrder.create({
 				data: {
 					supplierId: supplierId,
 					adminId: userId,
 					sum: totalSum,
-					debt,
+					debt: totalSum,
 					accepted: accepted,
-					createdAt,
+					sellingDate,
 				},
 			})
 
@@ -291,48 +291,6 @@ export class IncomingOrderService {
 				data: mappedProducts,
 			})
 
-			if (payment) {
-				await this.#_prisma.incomingOrderPayment.create({
-					data: {
-						orderId: order.id,
-						clientId: supplierId,
-						totalPay: paymentSum,
-						debt,
-						card: payment.card,
-						cash: payment.cash,
-						transfer: payment.transfer,
-						other: payment.other,
-						humo: payment.humo,
-					},
-				})
-			}
-
-			if (startOfDay(new Date(createdAt)) <= startOfDay(new Date())) {
-				const productUpdates = products.map((product) =>
-					this.#_prisma.products.update({
-						where: { id: product.product_id },
-						data: {
-							cost: product.cost,
-							count: { increment: product.count },
-							selling_price: product.selling_price,
-							wholesale_price: product.wholesale_price,
-						},
-					}),
-				)
-
-				await Promise.all([
-					...productUpdates,
-					this.#_prisma.users.update({
-						where: { id: supplierId },
-						data: { debt },
-					}),
-					this.#_prisma.incomingOrder.update({
-						where: { id: order.id },
-						data: { accepted: true },
-					}),
-				])
-			}
-
 			return null
 		} catch (error) {
 			console.log(error)
@@ -341,7 +299,7 @@ export class IncomingOrderService {
 	}
 
 	async incomingOrderUpdate(payload: IncomingOrderUpdateRequest): Promise<null> {
-		const { id, addProducts, removeProducts, payment } = payload
+		const { id, sellingDate } = payload
 
 		// Find the incoming order with includes for payment and incoming products
 		const incomingOrder = await this.#_prisma.incomingOrder.findUnique({
@@ -353,217 +311,13 @@ export class IncomingOrderService {
 			throw new NotFoundException("Ma'lumot topilmadi") // Throw error for missing order
 		}
 
-		const isOrderPassed = startOfDay(new Date(incomingOrder.createdAt)) <= startOfDay(new Date())
+		// await this.#_prisma.incomingOrder.update({
+		// 	where: { id },
+		// 	// data: { sum: { increment: addProductsSum }, debt: { increment: addProductsSum } },
+		// })
 
-		// Update payment if provided
-		if (Object.keys(payment).length) {
-			const totalPay = (payment.card || 0) + (payment.cash || 0) + (payment.other || 0) + (payment.transfer || 0)
-			await this.#_prisma.incomingOrderPayment.update({
-				where: { id: incomingOrder.payment[0].id },
-				data: {
-					totalPay,
-					debt: totalPay - incomingOrder.sum.toNumber(),
-					...payment, // Spread payment details (card, cash, etc.)
-				},
-			})
-		}
-
-		// Handle adding products
-		if (addProducts.length) {
-			const addProductsSum = addProducts.reduce((sum, product) => sum + product.cost * product.count, 0)
-
-			const mappedProducts = addProducts.map((product) => ({
-				incomingOrderId: id,
-				productId: product.product_id,
-				cost: product.cost,
-				count: product.count,
-				selling_price: product.selling_price,
-				wholesale_price: product.wholesale_price,
-			}))
-
-			await this.#_prisma.incomingProducts.createMany({ data: mappedProducts })
-
-			// If order is accepted (passed), update product counts and user debt
-			if (isOrderPassed) {
-				const productUpdates = addProducts.map((product) =>
-					this.#_prisma.products.update({
-						where: { id: product.product_id },
-						data: { count: { increment: product.count } },
-					}),
-				)
-
-				await Promise.all([
-					...productUpdates,
-					this.#_prisma.users.update({
-						where: { id: incomingOrder.supplierId },
-						data: { debt: { increment: addProductsSum } },
-					}),
-				])
-			}
-
-			// Update incoming order sum and debt (always)
-			await this.#_prisma.incomingOrder.update({
-				where: { id },
-				data: { sum: { increment: addProductsSum }, debt: { increment: addProductsSum } },
-			})
-		}
-
-		// Handle removing products
-		if (removeProducts.length) {
-			const productIds = removeProducts.map((p) => p.id)
-			const totalSum = removeProducts.reduce((sum, p) => sum + p.cost * p.count, 0)
-
-			await Promise.all([
-				this.#_prisma.incomingProducts.updateMany({
-					where: { id: { in: productIds } },
-					data: { deletedAt: new Date() }, // Mark products as deleted
-				}),
-				this.#_prisma.incomingOrder.update({
-					where: { id },
-					data: { sum: { decrement: totalSum }, debt: { decrement: totalSum } },
-				}),
-				this.#_prisma.payment.update({
-					where: { id: incomingOrder.payment[0].id },
-					data: { debt: { decrement: totalSum } },
-				}),
-			])
-
-			// If order is accepted (passed), update product counts and user debt
-			if (isOrderPassed) {
-				const removedProductUpdates = removeProducts.map((product) =>
-					this.#_prisma.products.update({
-						where: { id: product.product_id },
-						data: { count: { decrement: product.count } },
-					}),
-				)
-
-				await Promise.all([
-					...removedProductUpdates,
-					this.#_prisma.users.update({
-						where: { id: incomingOrder.supplierId },
-						data: { debt: { decrement: totalSum } },
-					}),
-				])
-			}
-		}
-
-		return null // No need to return anything specific
+		return null
 	}
-
-	// async incomingOrderUpdate(payload: IncomingOrderUpdateRequest): Promise<null> {
-	// 	const { id, addProducts, removeProducts, payment } = payload
-	// 	const incomingOrder = await this.#_prisma.incomingOrder.findUnique({
-	// 		where: { id: id },
-	// 		include: { payment: true, incomingProducts: true },
-	// 	})
-	// 	if (!incomingOrder) throw new NotFoundException("Ma'lumot topilmadi")
-
-	// 	const isPassed = startOfDay(new Date(incomingOrder.createdAt)) <= startOfDay(new Date())
-
-	// 	if (Object.keys(payment).length) {
-	// 		const totalPay = (payment.card || 0) + (payment.cash || 0) + (payment.other || 0) + (payment.transfer || 0)
-	// 		await this.#_prisma.incomingOrderPayment.update({
-	// 			where: { id: incomingOrder.payment[0].id },
-	// 			data: {
-	// 				totalPay,
-	// 				debt: totalPay - incomingOrder.sum.toNumber(),
-	// 				card: payment.card,
-	// 				cash: payment.cash,
-	// 				transfer: payment.transfer,
-	// 				other: payment.other,
-	// 			},
-	// 		})
-	// 	}
-
-	// 	if (addProducts.length) {
-	// 		const addProudctsSum = addProducts.reduce((sum, product) => sum + product.cost * product.count, 0)
-
-	// 		const mappedProducts = addProducts.map((product) => {
-	// 			return {
-	// 				incomingOrderId: id,
-	// 				productId: product.product_id,
-	// 				cost: product.cost,
-	// 				count: product.count,
-	// 				selling_price: product.selling_price,
-	// 				wholesale_price: product.wholesale_price,
-	// 			}
-	// 		})
-
-	// 		await this.#_prisma.incomingProducts.createMany({
-	// 			data: mappedProducts,
-	// 		})
-
-	// 		if (removeProducts.length) {
-	// 			const productIds = removeProducts.map((p) => p.id)
-	// 			const totalSum = removeProducts.reduce((sum, p) => sum + p.cost * p.count, 0)
-
-	// 			const updatedProducts = removeProducts.map((product) =>
-	// 				this.#_prisma.products.update({
-	// 					where: { id: product.product_id },
-	// 					data: { count: { decrement: product.count } },
-	// 				}),
-	// 			)
-
-	// 			await Promise.all([
-	// 				this.#_prisma.incomingProducts.updateMany({
-	// 					where: { id: { in: productIds } },
-	// 					data: { deletedAt: new Date() },
-	// 				}),
-	// 				this.#_prisma.incomingOrder.update({
-	// 					where: { id: incomingOrder.id },
-	// 					data: {
-	// 						sum: { decrement: totalSum },
-	// 						debt: { decrement: totalSum },
-	// 					},
-	// 				}),
-	// 				this.#_prisma.payment.update({
-	// 					where: { id: incomingOrder.payment[0].id },
-	// 					data: {
-	// 						debt: { decrement: totalSum },
-	// 					},
-	// 				}),
-	// 			])
-
-	// 			if (isPassed) {
-	// 				await Promise.all([
-	// 					...updatedProducts,
-	// 					this.#_prisma.users.update({
-	// 						where: { id: incomingOrder.supplierId },
-	// 						data: { debt: { decrement: totalSum } },
-	// 					}),
-	// 				])
-	// 			}
-	// 		}
-
-	// 		if (isPassed) {
-	// 			const productUpdates = addProducts.map((product) =>
-	// 				this.#_prisma.products.update({
-	// 					where: { id: product.product_id },
-	// 					data: {
-	// 						cost: product.cost,
-	// 						count: { increment: product.count },
-	// 						selling_price: product.selling_price,
-	// 						wholesale_price: product.wholesale_price,
-	// 					},
-	// 				}),
-	// 			)
-
-	// 			await Promise.all([
-	// 				...productUpdates,
-	// 				this.#_prisma.users.update({
-	// 					where: { id: incomingOrder.supplierId },
-	// 					data: { debt: { increment: addProudctsSum } },
-	// 				}),
-	// 				this.#_prisma.incomingOrder.update({
-	// 					where: { id: incomingOrder.id },
-	// 					data: { debt: { increment: totalSum }, sum: { increment: totalSum } },
-	// 				}),
-	// 			])
-	// 		}
-	// 	}
-
-	// 	return null
-	// }
 
 	@Cron(CronExpression.EVERY_2_HOURS)
 	async acceptIncomingOrders() {

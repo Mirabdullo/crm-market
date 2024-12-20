@@ -29,6 +29,11 @@ export class PaymentRetrieveAllRequestDto implements PaymentRetriveAllRequest {
 	pagination?: boolean
 
 	@ApiPropertyOptional({ type: String })
+	@IsUUID('4')
+	@IsOptional()
+	clientId?: string
+
+	@ApiPropertyOptional({ type: String })
 	@IsString()
 	@IsOptional()
 	startDate?: string

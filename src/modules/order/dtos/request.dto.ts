@@ -30,6 +30,11 @@ export class OrderRetrieveAllRequestDto implements OrderRetriveAllRequest {
 	@IsOptional()
 	sellerId?: string
 
+	@ApiPropertyOptional({ type: String })
+	@IsUUID('4')
+	@IsOptional()
+	clientId?: string
+
 	@ApiPropertyOptional({ type: Boolean, example: false })
 	@IsBooleanString()
 	@IsOptional()
@@ -71,7 +76,7 @@ export class OrderCreateRequestDto implements OrderCreateRequest {
 	@ApiProperty({ type: String })
 	@IsString()
 	@IsNotEmpty()
-	createdAt: string
+	sellingDate: string
 
 	@ApiProperty({ type: [OrderProductRequestDto] })
 	@IsArray()
@@ -118,6 +123,11 @@ export class OrderUpdateRequestDto implements OrderUpdateRequest {
 	@IsBoolean()
 	@IsOptional()
 	accepted?: boolean
+
+	@ApiProperty({ type: String })
+	@IsString()
+	@IsOptional()
+	sellingDate?: string
 }
 
 export class OrderDeleteRequestDto implements OrderDeleteRequest {
