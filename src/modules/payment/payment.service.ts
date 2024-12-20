@@ -29,7 +29,7 @@ export class PaymentService {
 		}
 
 		const paymentList = await this.#_prisma.payment.findMany({
-			where: {deletedAt: null},
+			where: { deletedAt: null },
 			select: {
 				id: true,
 				card: true,
@@ -149,10 +149,12 @@ export class PaymentService {
 			)
 			await Promise.all(updatedProducts)
 
-			await prisma.order.update({
-				where: { id: orderId },
-				data: { debt: { decrement: sum }, accepted: true },
-			})
+			if (payload.orderId) {
+				await prisma.order.update({
+					where: { id: orderId },
+					data: { debt: { decrement: sum }, accepted: true },
+				})
+			}
 
 			const remainingDebt = order.sum.toNumber() - sum
 			if (remainingDebt > 0) {
