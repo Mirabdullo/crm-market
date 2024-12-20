@@ -9,6 +9,7 @@ import {
 	AdminRetrieveResponseDto,
 	AdminRetrieveAllRequestDto,
 	AdminRetrieveAllResponseDto,
+	AdminProfileRetrieveRequestDto,
 } from './dtos'
 import { ApiBearerAuth, ApiNoContentResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger'
 import { AdminRetriveAllResponse, AdminRetriveResponse } from './interfaces'
@@ -39,7 +40,7 @@ export class AdminController {
 	@UseInterceptors(PassUserIdInterceptor)
 	@Get('profile')
 	@ApiOkResponse({ type: AdminRetrieveResponseDto })
-	GetProfile(@Body() payload: { id: string }): Promise<AdminRetriveResponse> {
+	GetProfile(@Body() payload: AdminProfileRetrieveRequestDto): Promise<AdminRetriveResponse> {
 		return this.#_service.getProfile(payload)
 	}
 

@@ -37,6 +37,7 @@ export class PaymentService {
 				transfer: true,
 				other: true,
 				createdAt: true,
+				description: true,
 				order: {
 					select: {
 						id: true,
@@ -85,6 +86,7 @@ export class PaymentService {
 				cash: true,
 				transfer: true,
 				other: true,
+				description: true,
 				createdAt: true,
 				order: {
 					select: {
@@ -115,21 +117,44 @@ export class PaymentService {
 	}
 
 	async paymentCreate(payload: PaymentCreateRequest): Promise<null> {
+		const { card, transfer, other, cash, orderId, clientId, description } = payload
 		const order = await this.#_prisma.order.findFirst({
-			where: { id: payload.orderId },
+			where: { id: orderId },
+			include: { products: true },
 		})
 		if (!order) throw new ForbiddenException('This payment already exists')
 
-		await this.#_prisma.payment.create({
-			data: {
-				orderId: payload.orderId,
-				clientId: payload.clientId,
-				cash: payload.cash,
-				transfer: payload.transfer,
-				card: payload.card,
-				other: payload.other,
-			},
-		})
+		const sum = (card || 0) + (transfer || 0) + (other || 0) + (cash || 0)
+		if (sum > 0) {
+			await this.#_prisma.payment.create({
+				data: {
+					orderId: payload.orderId,
+					clientId: payload.clientId,
+					cash: payload.cash,
+					transfer: payload.transfer,
+					card: payload.card,
+					other: payload.other,
+					description: payload.description,
+				},
+			})
+
+			await this.#_prisma.order.update({
+				where: { id: orderId },
+				data: { debt: { decrement: sum }, accepted: true },
+			})
+
+			await this.#_prisma.users.update({
+				where: { id: clientId },
+				data: { debt: { increment: order.sum.toNumber() - sum } },
+			})
+
+			const updatedProducts = order.products.map((pro) =>
+				this.#_prisma.products.update({
+					where: { id: pro.productId },
+					data: { count: { decrement: pro.count } },
+				}),
+			)
+		}
 
 		return null
 	}

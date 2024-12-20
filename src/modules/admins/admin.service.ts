@@ -4,6 +4,7 @@ import * as bcrypt from 'bcrypt'
 import {
 	AdminCreateRequest,
 	AdminDeleteRequest,
+	AdminProfileRetriveRequest,
 	AdminRetriveAllRequest,
 	AdminRetriveAllResponse,
 	AdminRetriveRequest,
@@ -83,9 +84,9 @@ export class AdminService {
 		return admin
 	}
 
-	async getProfile(payload: AdminRetriveRequest): Promise<AdminRetriveResponse> {
+	async getProfile(payload: AdminProfileRetriveRequest): Promise<AdminRetriveResponse> {
 		const admin = await this.#_prisma.admins.findUnique({
-			where: { id: payload.id, deletedAt: null },
+			where: { id: payload.userId, deletedAt: null },
 			select: {
 				id: true,
 				name: true,

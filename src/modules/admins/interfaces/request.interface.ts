@@ -26,3 +26,7 @@ export declare interface AdminRetriveAllRequest {
 export declare interface AdminRetriveRequest {
 	id: string
 }
+
+export declare interface AdminProfileRetriveRequest {
+	userId: string
+}

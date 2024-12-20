@@ -21,8 +21,6 @@ export class PassUserIdInterceptor implements NestInterceptor {
 			userId: user.id,
 		})
 
-		console.log(request.body)
-
 		return next.handle()
 	}
 }

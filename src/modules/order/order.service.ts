@@ -102,6 +102,7 @@ export class OrderService {
 						transfer: true,
 						other: true,
 						createdAt: true,
+						description: true,
 					},
 				},
 				products: {
@@ -208,6 +209,7 @@ export class OrderService {
 						cash: true,
 						transfer: true,
 						other: true,
+						description: true,
 						createdAt: true,
 					},
 				},

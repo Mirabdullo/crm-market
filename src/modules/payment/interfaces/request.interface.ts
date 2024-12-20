@@ -5,6 +5,7 @@ export interface PaymentCreateRequest {
 	transfer?: number
 	card?: number
 	other?: number
+	description?: string
 }
 
 export interface PaymentRequest {
@@ -14,6 +15,7 @@ export interface PaymentRequest {
 	transfer?: number
 	card?: number
 	other?: number
+	description?: string
 }
 
 export interface PaymentUpdateRequest {
@@ -24,6 +26,7 @@ export interface PaymentUpdateRequest {
 	transfer?: number
 	card?: number
 	other?: number
+	description?: string
 }
 
 export interface PaymentDeleteRequest {

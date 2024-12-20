@@ -1,6 +1,6 @@
 import { IsArray, IsInt, IsNotEmpty, IsOptional, IsPositive, IsString, IsUUID } from 'class-validator'
 import { Type } from 'class-transformer'
-import { AdminCreateRequest, AdminDeleteRequest, AdminRetriveAllRequest, AdminRetriveRequest, AdminUpdateRequest } from '../interfaces'
+import { AdminCreateRequest, AdminDeleteRequest, AdminProfileRetriveRequest, AdminRetriveAllRequest, AdminRetriveRequest, AdminUpdateRequest } from '../interfaces'
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
 
 export class AdminRetrieveAllRequestDto implements AdminRetriveAllRequest {
@@ -29,6 +29,13 @@ export class AdminRetrieveRequestDto implements AdminRetriveRequest {
 	@IsUUID('4')
 	@IsNotEmpty()
 	id: string
+}
+
+export class AdminProfileRetrieveRequestDto implements AdminProfileRetriveRequest {
+	@ApiProperty({ type: String })
+	@IsUUID('4')
+	@IsOptional()
+	userId: string
 }
 
 export class AdminCreateRequestDto implements AdminCreateRequest {

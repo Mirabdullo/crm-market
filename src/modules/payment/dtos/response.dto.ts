@@ -47,6 +47,9 @@ export class PaymentRetrieveResponseDto implements PaymentRetriveResponse {
 
 	@ApiProperty({ type: PaymentClientDto })
 	client: PaymentClient
+
+	@ApiProperty({ type: String })
+	description: string
 }
 
 export class PaymentResponseDto implements PaymentResponse {
@@ -73,6 +76,9 @@ export class PaymentResponseDto implements PaymentResponse {
 
 	@ApiProperty({ type: Date })
 	createdAt: Date
+
+	@ApiProperty({ type: String })
+	description: string
 }
 
 export class PaymentRetrieveAllResponseDto implements PaymentRetriveAllResponse {

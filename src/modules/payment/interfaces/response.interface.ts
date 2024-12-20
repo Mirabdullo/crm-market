@@ -12,6 +12,7 @@ export declare interface PaymentRetriveResponse {
 	transfer: number
 	card: number
 	other: number
+	description: string
 	createdAt: Date
 }
 
@@ -23,6 +24,7 @@ export declare interface PaymentResponse {
 	transfer: number
 	card: number
 	other: number
+	description: string
 	createdAt: Date
 }
 

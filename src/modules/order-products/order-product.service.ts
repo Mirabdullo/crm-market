@@ -202,7 +202,7 @@ export class OrderProductService {
 				if (orderDifference !== 0) {
 					await prisma.order.update({
 						where: { id: orderProduct.orderId },
-						data: { sum: { increment: orderDifference }, debt: {increment: orderDifference} },
+						data: { sum: { increment: orderDifference }, debt: { increment: orderDifference } },
 					})
 
 					// `client`ning `debt` qiymatini yangilash

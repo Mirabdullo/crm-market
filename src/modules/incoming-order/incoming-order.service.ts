@@ -100,6 +100,7 @@ export class IncomingOrderService {
 						transfer: true,
 						other: true,
 						createdAt: true,
+						description: true,
 					},
 				},
 				incomingProducts: {
@@ -200,6 +201,7 @@ export class IncomingOrderService {
 						transfer: true,
 						other: true,
 						createdAt: true,
+						description: true,
 					},
 				},
 				incomingProducts: {
@@ -579,8 +581,8 @@ export class IncomingOrderService {
 						data: {
 							cost: p.cost,
 							count: { increment: p.count },
-							selling_price: p.selling_price,
-							wholesale_price: p.wholesale_price,
+							...(p.selling_price !== null && { selling_price: p.selling_price }),
+							...(p.wholesale_price !== null && { wholesale_price: p.wholesale_price }),
 						},
 					}),
 				)
