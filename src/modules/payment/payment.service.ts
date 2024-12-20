@@ -54,6 +54,7 @@ export class PaymentService {
 				},
 			},
 			...paginationOptions,
+			orderBy: {createdAt: 'desc'}
 		})
 
 		const transformedPaymentList = paymentList.map((payment) => ({
@@ -150,9 +151,10 @@ export class PaymentService {
 			await Promise.all(updatedProducts)
 
 			if (payload.orderId) {
+				const orderSum = sum > order.debt.toNumber() ? 0 : { decrement: sum }
 				await prisma.order.update({
 					where: { id: orderId },
-					data: { debt: { decrement: sum }, accepted: true },
+					data: { debt: orderSum, accepted: true },
 				})
 			}
 
