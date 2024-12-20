@@ -1,5 +1,5 @@
 export interface PaymentCreateRequest {
-	orderId: string
+	orderId?: string
 	clientId: string
 	cash?: number
 	transfer?: number
