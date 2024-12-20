@@ -125,55 +125,88 @@ export class PaymentService {
 		if (!order) throw new ForbiddenException('This payment already exists')
 
 		const sum = (card || 0) + (transfer || 0) + (other || 0) + (cash || 0)
-		if (sum > 0) {
-			await this.#_prisma.payment.create({
-				data: {
-					orderId: payload.orderId,
-					clientId: payload.clientId,
-					cash: payload.cash,
-					transfer: payload.transfer,
-					card: payload.card,
-					other: payload.other,
-					description: payload.description,
-				},
-			})
 
-			await this.#_prisma.order.update({
-				where: { id: orderId },
-				data: { debt: { decrement: sum }, accepted: true },
-			})
-
-			await this.#_prisma.users.update({
-				where: { id: clientId },
-				data: { debt: { increment: order.sum.toNumber() - sum } },
-			})
+		await this.#_prisma.$transaction(async (prisma) => {
+			if (sum > 0) {
+				await prisma.payment.create({
+					data: {
+						orderId: payload.orderId,
+						clientId: payload.clientId,
+						cash: payload.cash,
+						transfer: payload.transfer,
+						card: payload.card,
+						other: payload.other,
+						description: payload.description,
+					},
+				})
+			}
 
 			const updatedProducts = order.products.map((pro) =>
-				this.#_prisma.products.update({
+				prisma.products.update({
 					where: { id: pro.productId },
 					data: { count: { decrement: pro.count } },
 				}),
 			)
-		}
+			await Promise.all(updatedProducts)
+
+			await prisma.order.update({
+				where: { id: orderId },
+				data: { debt: { decrement: sum }, accepted: true },
+			})
+
+			const remainingDebt = order.sum.toNumber() - sum
+			if (remainingDebt > 0) {
+				await prisma.users.update({
+					where: { id: clientId },
+					data: { debt: { increment: remainingDebt } },
+				})
+			}
+		})
 
 		return null
 	}
 
 	async paymentUpdate(payload: PaymentUpdateRequest): Promise<null> {
+		const { id, card, transfer, other, cash, description } = payload
+
 		const payment = await this.#_prisma.payment.findUnique({
 			where: { id: payload.id },
+			include: { client: true, order: true },
 		})
 		if (!payment) throw new NotFoundException('payment not found')
+
+		const sum = (card || 0) + (transfer || 0) + (other || 0) + (cash || 0)
 
 		await this.#_prisma.payment.update({
 			where: { id: payload.id },
 			data: {
+				totalPay: sum,
 				cash: payload.cash,
 				transfer: payload.transfer,
 				card: payload.card,
 				other: payload.other,
+				description: payload.description,
 			},
 		})
+
+		await this.#_prisma.users.update({
+			where: { id: payment.clientId },
+			data: { debt: { decrement: sum - payment.totalPay.toNumber() } },
+		})
+
+		if (payment.order) {
+			if (sum > payment.order.debt.toNumber()) {
+				await this.#_prisma.order.update({
+					where: { id: payment.order.id },
+					data: { debt: { decrement: 0 } },
+				})
+			} else {
+				await this.#_prisma.order.update({
+					where: { id: payment.order.id },
+					data: { debt: { decrement: sum - payment.totalPay.toNumber() } },
+				})
+			}
+		}
 
 		return null
 	}
@@ -181,6 +214,7 @@ export class PaymentService {
 	async paymentDelete(payload: PaymentDeleteRequest): Promise<null> {
 		const payment = await this.#_prisma.payment.findUnique({
 			where: { id: payload.id, deletedAt: null },
+			include: { order: true },
 		})
 
 		if (!payment) throw new NotFoundException('payment not found')
@@ -189,6 +223,18 @@ export class PaymentService {
 			where: { id: payload.id },
 			data: { deletedAt: new Date() },
 		})
+
+		await this.#_prisma.users.update({
+			where: { id: payment.clientId },
+			data: { debt: { decrement: payment.totalPay } },
+		})
+
+		if (payment.order) {
+			await this.#_prisma.order.update({
+				where: { id: payment.orderId },
+				data: { debt: { increment: payment.totalPay } },
+			})
+		}
 
 		return null
 	}
