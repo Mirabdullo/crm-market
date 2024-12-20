@@ -54,7 +54,7 @@ export class PaymentService {
 				},
 			},
 			...paginationOptions,
-			orderBy: {createdAt: 'desc'}
+			orderBy: { createdAt: 'desc' },
 		})
 
 		const transformedPaymentList = paymentList.map((payment) => ({

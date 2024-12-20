@@ -9,6 +9,7 @@ import {
 	UserRetrieveResponseDto,
 	UserRetrieveAllRequestDto,
 	UserRetrieveAllResponseDto,
+	UserDeedRetrieveRequestDto,
 } from './dtos'
 import { ApiBearerAuth, ApiNoContentResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger'
 import { UserRetriveAllResponse, UserRetriveResponse } from './interfaces'
@@ -47,6 +48,12 @@ export class UserController {
 			pageSize: payload.pageSize ?? PAGE_SIZE,
 			pagination: [true, 'true'].includes(payload.pagination) ? false : true,
 		})
+	}
+
+	@Get('client/deed')
+	@ApiOkResponse({ type: UserRetrieveAllResponseDto })
+	ClientDeedRetrieve(@Query() payload: UserDeedRetrieveRequestDto): Promise<any> {
+		return this.#_service.clientDeedRetrieve(payload)
 	}
 
 	@Get(':id')

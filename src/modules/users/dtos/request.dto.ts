@@ -1,6 +1,6 @@
 import { IsBooleanString, IsInt, IsNotEmpty, IsOptional, IsPositive, IsString, IsUUID } from 'class-validator'
 import { Type } from 'class-transformer'
-import { UserCreateRequest, UserDeleteRequest, UserRetriveAllRequest, UserRetriveRequest, UserUpdateRequest } from '../interfaces'
+import { UserCreateRequest, UserDeedRetrieveRequest, UserDeleteRequest, UserRetriveAllRequest, UserRetriveRequest, UserUpdateRequest } from '../interfaces'
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
 
 export class UserRetrieveAllRequestDto implements UserRetriveAllRequest {
@@ -70,4 +70,21 @@ export class UserDeleteRequestDto implements UserDeleteRequest {
 	@IsUUID('4')
 	@IsNotEmpty()
 	id: string
+}
+
+export class UserDeedRetrieveRequestDto implements UserDeedRetrieveRequest {
+	@ApiProperty({ type: String })
+	@IsUUID('4')
+	@IsNotEmpty()
+	id: string
+
+	@ApiPropertyOptional({ type: String })
+	@IsString()
+	@IsOptional()
+	startDate?: string
+
+	@ApiPropertyOptional({ type: String })
+	@IsString()
+	@IsOptional()
+	endDate?: string
 }

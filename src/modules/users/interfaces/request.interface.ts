@@ -24,3 +24,9 @@ export declare interface UserRetriveAllRequest {
 export declare interface UserRetriveRequest {
 	id: string
 }
+
+export declare interface UserDeedRetrieveRequest {
+	id: string
+	startDate?: string
+	endDate?: string
+}

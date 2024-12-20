@@ -1,7 +1,17 @@
 import { Injectable, ForbiddenException, NotFoundException } from '@nestjs/common'
 import { PrismaService } from '@prisma'
-import { UserCreateRequest, UserDeleteRequest, UserRetriveAllRequest, UserRetriveAllResponse, UserRetriveRequest, UserRetriveResponse, UserUpdateRequest } from './interfaces'
+import {
+	UserCreateRequest,
+	UserDeedRetrieveRequest,
+	UserDeleteRequest,
+	UserRetriveAllRequest,
+	UserRetriveAllResponse,
+	UserRetriveRequest,
+	UserRetriveResponse,
+	UserUpdateRequest,
+} from './interfaces'
 import { UserTypeEnum } from '@prisma/client'
+import { addHours, endOfDay, format } from 'date-fns'
 
 @Injectable()
 export class UserService {
@@ -98,6 +108,76 @@ export class UserService {
 				pageCount: Math.ceil(totalCount / payload.pageSize),
 				data: formattedData,
 			}
+		}
+	}
+
+	async clientDeedRetrieve(payload: UserDeedRetrieveRequest): Promise<any> {
+		const { id, startDate, endDate } = payload
+		let dateOption = {}
+		if (startDate || endDate) {
+			const sDate = new Date(format(startDate, 'yyyy-MM-dd'))
+			const eDate = addHours(new Date(endOfDay(endDate)), 3)
+			console.log(startDate, endDate)
+			console.log(sDate, eDate)
+			dateOption = {
+				createdAt: {
+					gte: sDate,
+					lte: eDate,
+				},
+			}
+		}
+
+		const user = await this.#_prisma.users.findFirst({
+			where: { id, deletedAt: null, type: 'client', ...dateOption },
+			select: {
+				id: true,
+				name: true,
+				phone: true,
+				debt: true,
+				orders: {
+					where: { ...dateOption, deletedAt: null },
+					select: {
+						id: true,
+						sum: true,
+						articl: true,
+						debt: true,
+						createdAt: true,
+						updatedAt: true,
+						accepted: true,
+					},
+				},
+				payments: {
+					where: { ...dateOption, deletedAt: null },
+					select: {
+						id: true,
+						card: true,
+						cash: true,
+						other: true,
+						transfer: true,
+						totalPay: true,
+						description: true,
+						createdAt: true,
+						updatedAt: true,
+					},
+				},
+			},
+		})
+
+		const combined = [...user.orders.map((order) => ({ ...order, type: 'order' })), ...user.payments.map((payment) => ({ ...payment, type: 'payment' }))]
+
+		// Sort combined array
+		const sorted = combined.sort((a, b) => {
+			const dateA = a.type === 'order' ? a.createdAt : a.updatedAt
+			const dateB = b.type === 'order' ? b.createdAt : b.updatedAt
+			return new Date(dateB).getTime() - new Date(dateA).getTime() // Descending order
+		})
+
+		return {
+			id: id,
+			name: user.name,
+			phone: user.phone,
+			debt: user.debt,
+			data: sorted,
 		}
 	}
 
