@@ -29,7 +29,7 @@ export class PaymentService {
 		}
 
 		const paymentList = await this.#_prisma.payment.findMany({
-			where: {},
+			where: {deletedAt: null},
 			select: {
 				id: true,
 				card: true,
