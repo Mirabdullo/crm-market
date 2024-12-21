@@ -15,7 +15,7 @@ export declare interface IncomingOrderPaymentRetriveResponse {
 	humo: number
 	createdAt: Date
 	// order: IncomingOrderPaymentOrder
-	// client: IncomingOrderPaymentClient
+	// supplier: IncomingOrderPaymentClient
 }
 
 export declare interface IncomingOrderPaymentResponse {

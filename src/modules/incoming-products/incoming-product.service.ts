@@ -10,6 +10,7 @@ import {
 	IncomingProductUpdateRequest,
 } from './interfaces'
 import { Decimal } from '../../types'
+import { format } from 'date-fns'
 
 @Injectable()
 export class IncomingProductService {
@@ -114,29 +115,51 @@ export class IncomingProductService {
 	}
 
 	async incomingProductCreate(payload: IncomingProductCreateRequest): Promise<null> {
-		const product = await this.#_prisma.products.findFirst({
-			where: { id: payload.product_id, deletedAt: null },
-		})
-		if (!product) throw new NotFoundException('Maxsulot topilmadi')
+		const [order, product] = await Promise.all([
+			this.#_prisma.incomingOrder.findFirst({
+				where: { id: payload.incomingOrderId },
+			}),
+			this.#_prisma.products.findFirst({
+				where: { id: payload.product_id, deletedAt: null },
+			}),
+		])
+		if (!product || !order) throw new NotFoundException('Maxsulot topilmadi')
 
 		await this.#_prisma.incomingProducts.create({
 			data: {
 				incomingOrderId: payload.incomingOrderId,
-				selling_price: payload.selling_price,
-				wholesale_price: payload.wholesale_price,
+				selling_price: payload.selling_price ?? undefined,
+				wholesale_price: payload.wholesale_price ?? undefined,
 				productId: payload.product_id,
 				cost: payload.cost,
 				count: payload.count,
 			},
 		})
 
-		await this.#_prisma.products.update({
-			where: { id: payload.product_id },
+		await this.#_prisma.incomingOrder.update({
+			where: { id: order.id },
 			data: {
-				count: product.count + payload.count,
-				cost: payload.cost,
+				sum: { increment: payload.cost * payload.count },
+				debt: { increment: payload.cost * payload.count },
 			},
 		})
+
+		if (format(order.sellingDate, 'yyyy-MM-dd') <= format(new Date(), 'yyyy-MM-dd')) {
+			await this.#_prisma.products.update({
+				where: { id: payload.product_id },
+				data: {
+					count: { increment: payload.count },
+					cost: payload.cost,
+					selling_price: payload.selling_price,
+					wholesale_price: payload.wholesale_price,
+				},
+			})
+
+			await this.#_prisma.users.update({
+				where: { id: order.supplierId },
+				data: { debt: { increment: payload.cost * payload.count } },
+			})
+		}
 
 		return null
 	}
@@ -144,6 +167,7 @@ export class IncomingProductService {
 	async incomingProductUpdate(payload: IncomingProductUpdateRequest): Promise<null> {
 		const incomingProduct = await this.#_prisma.incomingProducts.findUnique({
 			where: { id: payload.id },
+			include: { incomingOrder: true },
 		})
 		if (!incomingProduct) throw new NotFoundException("Ma'lumot topilmadi")
 
@@ -152,8 +176,36 @@ export class IncomingProductService {
 			data: {
 				cost: payload.cost,
 				count: payload.count,
+				selling_price: payload.selling_price,
+				wholesale_price: payload.wholesale_price,
 			},
 		})
+
+		const productSum = incomingProduct.cost.toNumber() * incomingProduct.count
+		await this.#_prisma.incomingOrder.update({
+			where: { id: incomingProduct.incomingOrderId },
+			data: {
+				sum: { decrement: productSum - payload.cost * payload.count },
+				debt: { decrement: productSum - payload.cost * payload.count },
+			},
+		})
+
+		if (format(incomingProduct.incomingOrder.sellingDate, 'yyyy-MM-dd') <= format(new Date(), 'yyyy-MM-dd')) {
+			await this.#_prisma.users.update({
+				where: { id: incomingProduct.incomingOrder.supplierId },
+				data: { debt: { decrement: productSum - payload.cost * payload.count } },
+			})
+
+			await this.#_prisma.products.update({
+				where: { id: incomingProduct.productId },
+				data: {
+					count: { decrement: incomingProduct.count - payload.count },
+					cost: payload.cost,
+					selling_price: payload.selling_price,
+					wholesale_price: payload.wholesale_price,
+				},
+			})
+		}
 
 		return null
 	}
@@ -161,9 +213,32 @@ export class IncomingProductService {
 	async incomingProductDelete(payload: IncomingProductDeleteRequest): Promise<null> {
 		const incomingProduct = await this.#_prisma.incomingProducts.findUnique({
 			where: { id: payload.id, deletedAt: null },
+			include: { incomingOrder: true },
 		})
 
 		if (!incomingProduct) throw new NotFoundException('maxsulot topilmadi')
+
+		await this.#_prisma.incomingOrder.update({
+			where: { id: incomingProduct.incomingOrderId },
+			data: {
+				sum: { decrement: incomingProduct.cost.toNumber() * incomingProduct.count },
+				debt: { decrement: incomingProduct.cost.toNumber() * incomingProduct.count },
+			},
+		})
+
+		if (format(incomingProduct.incomingOrder.sellingDate, 'yyyy-MM-dd') <= format(new Date(), 'yyyy-MM-dd')) {
+			await this.#_prisma.users.update({
+				where: { id: incomingProduct.incomingOrder.supplierId },
+				data: {
+					debt: { decrement: incomingProduct.cost.toNumber() * incomingProduct.count },
+				},
+			})
+
+			await this.#_prisma.products.update({
+				where: { id: incomingProduct.productId },
+				data: { count: { decrement: incomingProduct.count } },
+			})
+		}
 
 		await this.#_prisma.incomingProducts.update({
 			where: { id: payload.id },

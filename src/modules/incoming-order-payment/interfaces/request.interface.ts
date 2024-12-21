@@ -1,6 +1,6 @@
 export interface IncomingOrderPaymentCreateRequest {
 	orderId: string
-	clientId: string
+	supplierId: string
 	cash?: number
 	transfer?: number
 	card?: number

@@ -154,10 +154,12 @@ export class PaymentService {
 
 	async paymentCreate(payload: PaymentCreateRequest): Promise<null> {
 		const { card, transfer, other, cash, orderId, clientId, description } = payload
-		const order = await this.#_prisma.order.findFirst({
-			where: { id: orderId },
-			include: { products: true },
-		})
+		const order = orderId
+			? await this.#_prisma.order.findFirst({
+					where: { id: orderId },
+					include: { products: true },
+			  })
+			: null
 
 		const sum = (card || 0) + (transfer || 0) + (other || 0) + (cash || 0)
 
@@ -165,14 +167,14 @@ export class PaymentService {
 			if (sum > 0) {
 				await prisma.payment.create({
 					data: {
-						orderId: payload.orderId,
-						clientId: payload.clientId,
+						orderId: orderId,
+						clientId: clientId,
 						totalPay: sum,
-						cash: payload.cash,
-						transfer: payload.transfer,
-						card: payload.card,
-						other: payload.other,
-						description: payload.description,
+						cash: cash,
+						transfer: transfer,
+						card: card,
+						other: other,
+						description: description,
 					},
 				})
 			}
@@ -194,7 +196,6 @@ export class PaymentService {
 						accepted: true,
 					},
 				})
-			} else {
 			}
 
 			await prisma.users.update({

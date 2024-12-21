@@ -282,8 +282,8 @@ export class IncomingOrderService {
 					productId: product.product_id,
 					cost: product.cost,
 					count: product.count,
-					selling_price: product.selling_price,
-					wholesale_price: product.wholesale_price,
+					selling_price: product.selling_price ?? 0,
+					wholesale_price: product.wholesale_price ?? 0,
 				}
 			})
 
@@ -311,10 +311,33 @@ export class IncomingOrderService {
 			throw new NotFoundException("Ma'lumot topilmadi") // Throw error for missing order
 		}
 
-		// await this.#_prisma.incomingOrder.update({
-		// 	where: { id },
-		// 	// data: { sum: { increment: addProductsSum }, debt: { increment: addProductsSum } },
-		// })
+		if (format(incomingOrder.sellingDate, 'yyyy-MM-dd') === format(new Date(), 'yyyy-MM-dd')) {
+			await this.#_prisma.$transaction(async (prisma) => {
+				const sum = incomingOrder.incomingProducts.reduce((acc, product) => acc + product.cost.toNumber() * product.count, 0)
+				const updateProducts = incomingOrder.incomingProducts.map((product) =>
+					prisma.products.update({
+						where: { id: product.productId },
+						data: {
+							cost: product.cost,
+							count: product.count,
+							selling_price: product.selling_price ?? 0,
+							wholesale_price: product.wholesale_price ?? 0,
+						},
+					}),
+				)
+				await Promise.all(updateProducts)
+
+				await prisma.incomingOrder.update({
+					where: { id },
+					data: { debt: { increment: sum } },
+				})
+
+				await prisma.users.update({
+					where: { id: incomingOrder.supplierId },
+					data: { debt: {} },
+				})
+			})
+		}
 
 		return null
 	}
@@ -345,7 +368,7 @@ export class IncomingOrderService {
 					...products,
 					this.#_prisma.users.update({
 						where: { id: order.supplierId },
-						data: { debt: { increment: order?.payment[0]?.totalPay.toNumber() - order.sum.toNumber() } },
+						data: { debt: { increment: (order?.payment[0]?.totalPay.toNumber() || 0) - order.sum.toNumber() } },
 					}),
 				)
 			})
@@ -364,11 +387,11 @@ export class IncomingOrderService {
 			include: { payment: true, incomingProducts: true },
 		})
 
-		if (!incomingOrder) throw new NotFoundException('maxsulot topilmadi')
+		if (!incomingOrder) throw new NotFoundException('Mahsulotlar tushiruvi topilmadi')
 
 		const promises: any[] = []
 		const iProductIds = incomingOrder.incomingProducts.map((p) => p.id)
-		if (incomingOrder.accepted) {
+		if (format(incomingOrder.sellingDate, 'yyyy-MM-dd') <= format(new Date(), 'yyyy-MM-dd')) {
 			const products = incomingOrder.incomingProducts.map((product) =>
 				this.#_prisma.products.update({
 					where: { id: product.productId },
@@ -378,9 +401,17 @@ export class IncomingOrderService {
 
 			promises.push(
 				...products,
+				this.#_prisma.incomingProducts.updateMany({
+					where: { id: { in: incomingOrder.incomingProducts.map((p) => p.id) } },
+					data: { deletedAt: new Date() },
+				}),
 				this.#_prisma.users.update({
 					where: { id: incomingOrder.supplierId },
 					data: { debt: { increment: incomingOrder.sum } },
+				}),
+				this.#_prisma.incomingOrder.update({
+					where: { id: incomingOrder.id },
+					data: { deletedAt: new Date() },
 				}),
 			)
 		}

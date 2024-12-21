@@ -62,7 +62,7 @@ export class IncomingOrderPaymentCreateRequestDto implements IncomingOrderPaymen
 	@ApiProperty({ type: String, example: 'uuid' })
 	@IsUUID('4')
 	@IsNotEmpty()
-	clientId: string
+	supplierId: string
 
 	@ApiPropertyOptional({ type: Number })
 	@IsNumber()

@@ -55,7 +55,7 @@ export class IncomingOrderPaymentRetrieveResponseDto implements IncomingOrderPay
 	// order: IncomingOrderPaymentOrder
 
 	// @ApiProperty({ type: IncomingOrderPaymentClientDto })
-	// client: IncomingOrderPaymentClient
+	// supplier: IncomingOrderPaymentClient
 }
 
 export class IncomingOrderPaymentResponseDto implements IncomingOrderPaymentResponse {
