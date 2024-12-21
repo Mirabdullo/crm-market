@@ -163,7 +163,9 @@ export class UserService {
 			},
 		})
 
-		const combined = [...user.orders.map((order) => ({ ...order, type: 'order' })), ...user.payments.map((payment) => ({ ...payment, type: 'payment' }))]
+		const orders = user.orders ? user.orders?.map((order) => ({ ...order, type: 'order' })) : []
+		const payments = user.payments ? user.payments.map((payment) => ({ ...payment, type: 'payment' })) : []
+		const combined = [...orders, ...payments]
 
 		// Sort combined array
 		const sorted = combined.sort((a, b) => {
