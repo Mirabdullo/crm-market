@@ -158,11 +158,11 @@ export class OrderService {
 				return {
 					...pay,
 					totalPay: pay?.totalPay?.toNumber() || 0,
-					debt: pay.debt.toNumber() || 0,
-					cash: pay.cash.toNumber() || 0,
-					card: pay.card.toNumber() || 0,
-					transfer: pay.transfer.toNumber() || 0,
-					other: pay.other.toNumber() || 0,
+					debt: pay?.debt?.toNumber() || 0,
+					cash: pay?.cash?.toNumber() || 0,
+					card: pay?.card?.toNumber() || 0,
+					transfer: pay?.transfer?.toNumber() || 0,
+					other: pay?.other?.toNumber() || 0,
 				}
 			})[0],
 			products: order.products.map((prod) => ({
