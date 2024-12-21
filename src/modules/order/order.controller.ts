@@ -74,6 +74,7 @@ export class OrderController {
 	@HttpCode(HttpStatus.NO_CONTENT)
 	@ApiNoContentResponse()
 	OrderUpdate(@Param() id: OrderUpdateRequestDto, @Body() payload: OrderUpdateRequestDto): Promise<null> {
+		const accepted = ['true', true].includes(payload.accepted) ? true : false
 		return this.#_service.OrderUpdate({ id, ...payload })
 	}
 

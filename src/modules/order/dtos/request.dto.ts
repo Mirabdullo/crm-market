@@ -99,27 +99,7 @@ export class OrderUpdateRequestDto implements OrderUpdateRequest {
 	@IsNotEmpty()
 	id: string
 
-	@ApiProperty({ type: Number })
-	@IsNumber()
-	@IsOptional()
-	sum?: number
-
-	@ApiPropertyOptional({ type: [OrderProductRequestDto] })
-	@IsArray()
-	@IsOptional()
-	addProducts?: OrderProductRequest[]
-
-	@ApiPropertyOptional({ type: [RemoveOrderProductsRequestDto] })
-	@IsArray()
-	@IsOptional()
-	removeProducts?: RemoveOrderProductsRequest[]
-
-	@ApiPropertyOptional({ type: PaymentRequestDto })
-	@IsOptional()
-	@IsObject()
-	payment?: PaymentUpdateRequest
-
-	@ApiPropertyOptional({ type: Boolean, example: false })
+	@ApiPropertyOptional({ type: Boolean, example: true })
 	@IsBoolean()
 	@IsOptional()
 	accepted?: boolean

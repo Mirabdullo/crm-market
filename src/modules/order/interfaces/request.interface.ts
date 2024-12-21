@@ -7,7 +7,6 @@ export interface OrderCreateRequest {
 	sellingDate: string
 	accepted?: boolean
 	products: OrderProductRequest[]
-	payment?: PaymentRequest
 	userId: string
 }
 
@@ -17,11 +16,6 @@ export interface OrderCreateResponse {
 
 export interface OrderUpdateRequest {
 	id: string
-	sum?: number
-	addProducts?: OrderProductRequest[]
-	updateProducts?: OrderProductUpdateRequest[]
-	removeProducts?: RemoveOrderProductsRequest[]
-	payment?: PaymentUpdateRequest
 	accepted?: boolean
 	sellingDate?: string
 }
