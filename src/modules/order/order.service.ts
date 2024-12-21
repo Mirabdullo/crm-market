@@ -187,11 +187,11 @@ export class OrderService {
 		formattedData.forEach((order) => {
 			totalCalc.totalSum += order.sum
 			totalCalc.totalDebt += order.debt
-			totalCalc.totalPay += order?.payment?.totalPay
-			totalCalc.totalCard += order?.payment?.card
-			totalCalc.totalCash += order?.payment?.cash
-			totalCalc.totalTransfer += order?.payment?.transfer
-			totalCalc.totalOther += order?.payment?.other
+			totalCalc.totalPay += order?.payment?.totalPay || 0
+			totalCalc.totalCard += order?.payment?.card || 0
+			totalCalc.totalCash += order?.payment?.cash || 0
+			totalCalc.totalTransfer += order?.payment?.transfer || 0
+			totalCalc.totalOther += order?.payment?.other || 0
 		})
 
 		const totalCount = await this.#_prisma.order.count({
