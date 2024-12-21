@@ -157,7 +157,7 @@ export class OrderService {
 			payment: order.payment.map((pay) => {
 				return {
 					...pay,
-					totalPay: (pay.totalPay as Decimal).toNumber() || 0,
+					totalPay: pay?.totalPay?.toNumber() || 0,
 					debt: (pay.debt as Decimal).toNumber() || 0,
 					cash: (pay.cash as Decimal).toNumber() || 0,
 					card: (pay.card as Decimal).toNumber() || 0,
