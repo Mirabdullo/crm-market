@@ -128,7 +128,7 @@ export class UserService {
 		}
 
 		const user = await this.#_prisma.users.findFirst({
-			where: { id, deletedAt: null, type: 'client'},
+			where: { id, deletedAt: null, type: 'client' },
 			select: {
 				id: true,
 				name: true,

@@ -37,6 +37,7 @@ export class OrderController {
 			...payload,
 			pageNumber: payload.pageNumber ?? PAGE_NUMBER,
 			pageSize: payload.pageSize ?? PAGE_SIZE,
+			accepted: ['true', true].includes(payload.accepted) ? true : false,
 			pagination: [true, 'true'].includes(payload.pagination) ? false : true,
 		})
 	}
@@ -75,7 +76,7 @@ export class OrderController {
 	@ApiNoContentResponse()
 	OrderUpdate(@Param() id: OrderUpdateRequestDto, @Body() payload: OrderUpdateRequestDto): Promise<null> {
 		const accepted = ['true', true].includes(payload.accepted) ? true : false
-		return this.#_service.OrderUpdate({ id, ...payload })
+		return this.#_service.OrderUpdate({ id, accepted, ...payload })
 	}
 
 	@Permission(Permissions.ORDER_DELETE)

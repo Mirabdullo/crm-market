@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { OrderCreateResponse, OrderRetriveAllResponse, OrderRetriveResponse, OrderStatisticsResponse, WeeklyChartResponse } from '../interfaces'
+import { OrderCreateResponse, OrderRetriveAllResponse, OrderRetriveResponse, OrderStatisticsResponse, OrderTotalCalcResponse, WeeklyChartResponse } from '../interfaces'
 import { UserRetrieveResponseDto, UserRetriveResponse } from '../../users'
 import { AdminResponse } from '../../admins'
 import { PaymentResponseDto, PaymentResponse } from '../../payment'
@@ -40,6 +40,29 @@ export class OrderRetrieveResponseDto implements OrderRetriveResponse {
 	products: OrderProductRetriveResponse[]
 }
 
+export class OrderTotalCalcResponseDto implements OrderTotalCalcResponse {
+	@ApiProperty({ type: Number })
+	totalSum: number
+
+	@ApiProperty({ type: Number })
+	totalDebt: number
+
+	@ApiProperty({ type: Number })
+	totalPay: number
+
+	@ApiProperty({ type: Number })
+	totalCard: number
+
+	@ApiProperty({ type: Number })
+	totalTransfer: number
+
+	@ApiProperty({ type: Number })
+	totalCash: number
+
+	@ApiProperty({ type: Number })
+	totalOther: number
+}
+
 export class OrderRetrieveAllResponseDto implements OrderRetriveAllResponse {
 	@ApiProperty({ type: Number })
 	pageSize: number
@@ -55,6 +78,9 @@ export class OrderRetrieveAllResponseDto implements OrderRetriveAllResponse {
 
 	@ApiProperty({ type: [OrderRetrieveResponseDto] })
 	data: OrderRetriveResponse[]
+
+	@ApiProperty({ type: OrderTotalCalcResponseDto })
+	totalCalc: OrderTotalCalcResponse
 }
 
 export class OrderCreateResponseDto implements OrderCreateResponse {

@@ -33,6 +33,7 @@ export interface OrderRetriveAllRequest {
 	pagination?: boolean
 	startDate?: string
 	endDate?: string
+	accepted?: boolean
 }
 
 export interface OrderRetriveRequest {

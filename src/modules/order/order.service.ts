@@ -69,6 +69,13 @@ export class OrderService {
 			}
 		}
 
+		let acceptedOption = {}
+		if (payload.accepted) {
+			acceptedOption = {
+				accepted: payload.accepted,
+			}
+		}
+
 		const OrderList = await this.#_prisma.order.findMany({
 			where: {
 				deletedAt: null,
@@ -76,6 +83,7 @@ export class OrderService {
 				...searchOption,
 				...dateOption,
 				...clientOption,
+				...acceptedOption,
 			},
 			select: {
 				id: true,
@@ -166,6 +174,26 @@ export class OrderService {
 			})),
 		}))
 
+		const totalCalc = {
+			totalSum: 0,
+			totalDebt: 0,
+			totalPay: 0,
+			totalCard: 0,
+			totalCash: 0,
+			totalTransfer: 0,
+			totalOther: 0,
+		}
+
+		formattedData.forEach((order) => {
+			totalCalc.totalSum += order.sum
+			totalCalc.totalDebt += order.debt
+			totalCalc.totalPay += order.payment.totalPay
+			totalCalc.totalCard += order.payment.card
+			totalCalc.totalCash += order.payment.cash
+			totalCalc.totalTransfer += order.payment.transfer
+			totalCalc.totalOther += order.payment.other
+		})
+
 		const totalCount = await this.#_prisma.order.count({
 			where: {
 				deletedAt: null,
@@ -182,6 +210,7 @@ export class OrderService {
 			pageSize: payload.pageSize,
 			pageCount: Math.ceil(totalCount / payload.pageSize),
 			data: formattedData,
+			totalCalc,
 		}
 	}
 

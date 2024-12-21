@@ -40,6 +40,11 @@ export class OrderRetrieveAllRequestDto implements OrderRetriveAllRequest {
 	@IsOptional()
 	pagination?: boolean
 
+	@ApiPropertyOptional({ type: Boolean, example: true })
+	@IsBoolean()
+	@IsOptional()
+	accepted?: boolean
+
 	@ApiPropertyOptional({ type: String })
 	@IsString()
 	@IsOptional()

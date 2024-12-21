@@ -9,6 +9,17 @@ export declare interface OrderRetriveAllResponse {
 	pageCount: number
 	totalCount: number
 	data: OrderRetriveResponse[]
+	totalCalc: OrderTotalCalcResponse
+}
+
+export declare interface OrderTotalCalcResponse {
+	totalSum: number
+	totalDebt: number
+	totalPay: number
+	totalCard: number
+	totalCash: number
+	totalTransfer: number
+	totalOther: number
 }
 
 export declare interface WeeklyChartResponse {

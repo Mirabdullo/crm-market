@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { PaymentClient, PaymentOrder, PaymentResponse, PaymentRetriveAllResponse, PaymentRetriveResponse } from '../interfaces'
+import { PaymentClient, PaymentOrder, PaymentResponse, PaymentRetriveAllResponse, PaymentRetriveResponse, PaymentTotalCalcResponse } from '../interfaces'
 
 export class PaymentOrderDto implements PaymentOrder {
 	@ApiProperty({ type: String })
@@ -81,6 +81,23 @@ export class PaymentResponseDto implements PaymentResponse {
 	description: string
 }
 
+export class PaymentTotalCalcResponseDto implements PaymentTotalCalcResponse {
+	@ApiProperty({ type: Number })
+	totalPay: number
+
+	@ApiProperty({ type: Number })
+	totalCard: number
+
+	@ApiProperty({ type: Number })
+	totalCash: number
+
+	@ApiProperty({ type: Number })
+	totalTransfer: number
+
+	@ApiProperty({ type: Number })
+	totalOther: number
+}
+
 export class PaymentRetrieveAllResponseDto implements PaymentRetriveAllResponse {
 	@ApiProperty({ type: Number })
 	pageSize: number
@@ -93,6 +110,9 @@ export class PaymentRetrieveAllResponseDto implements PaymentRetriveAllResponse 
 
 	@ApiProperty({ type: Number })
 	totalCount: number
+
+	@ApiProperty({ type: PaymentRetrieveAllResponseDto })
+	totalCalc: PaymentTotalCalcResponse
 
 	@ApiProperty({ type: [PaymentRetrieveResponseDto] })
 	data: PaymentRetriveResponse[]

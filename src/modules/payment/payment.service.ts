@@ -35,10 +35,20 @@ export class PaymentService {
 			}
 		}
 
+		let searchOption = {}
+		if (payload.search) {
+			searchOption = {
+				client: {
+					OR: [{ name: { contains: payload.search, mode: 'insensitive' } }, { phone: { contains: payload.search, mode: 'insensitive' } }],
+				},
+			}
+		}
+
 		const paymentList = await this.#_prisma.payment.findMany({
-			where: { deletedAt: null, ...clientOption },
+			where: { deletedAt: null, ...clientOption, ...searchOption },
 			select: {
 				id: true,
+				totalPay: true,
 				card: true,
 				cash: true,
 				transfer: true,
@@ -66,6 +76,7 @@ export class PaymentService {
 
 		const transformedPaymentList = paymentList.map((payment) => ({
 			...payment,
+			totalPay: payment.totalPay.toNumber(),
 			cash: (payment.cash as Decimal).toNumber(),
 			card: payment.card ? (payment.card as Decimal).toNumber() : undefined,
 			transfer: (payment.transfer as Decimal).toNumber(),
@@ -73,7 +84,23 @@ export class PaymentService {
 		}))
 
 		const totalCount = await this.#_prisma.payment.count({
-			where: { deletedAt: null, ...clientOption },
+			where: { deletedAt: null, ...clientOption, ...searchOption },
+		})
+
+		const totalCalc = {
+			totalPay: 0,
+			totalCard: 0,
+			totalCash: 0,
+			totalTransfer: 0,
+			totalOther: 0,
+		}
+
+		transformedPaymentList.forEach((payment) => {
+			totalCalc.totalPay += payment.totalPay
+			totalCalc.totalCard += payment.card
+			totalCalc.totalCash += payment.cash
+			totalCalc.totalTransfer += payment.transfer
+			totalCalc.totalOther += payment.other
 		})
 
 		return {
@@ -82,6 +109,7 @@ export class PaymentService {
 			pageSize: payload.pageSize,
 			pageCount: Math.ceil(totalCount / payload.pageSize),
 			data: transformedPaymentList,
+			totalCalc,
 		}
 	}
 
@@ -130,7 +158,6 @@ export class PaymentService {
 			where: { id: orderId },
 			include: { products: true },
 		})
-		if (!order) throw new ForbiddenException('This payment already exists')
 
 		const sum = (card || 0) + (transfer || 0) + (other || 0) + (cash || 0)
 
@@ -140,6 +167,7 @@ export class PaymentService {
 					data: {
 						orderId: payload.orderId,
 						clientId: payload.clientId,
+						totalPay: sum,
 						cash: payload.cash,
 						transfer: payload.transfer,
 						card: payload.card,
@@ -149,29 +177,30 @@ export class PaymentService {
 				})
 			}
 
-			const updatedProducts = order.products.map((pro) =>
-				prisma.products.update({
-					where: { id: pro.productId },
-					data: { count: { decrement: pro.count } },
-				}),
-			)
-			await Promise.all(updatedProducts)
+			if (orderId && order) {
+				const updatedProducts = order.products.map((pro) =>
+					prisma.products.update({
+						where: { id: pro.productId },
+						data: { count: { decrement: pro.count } },
+					}),
+				)
+				await Promise.all(updatedProducts)
 
-			if (payload.orderId) {
 				const orderSum = sum > order.debt.toNumber() ? 0 : { decrement: sum }
 				await prisma.order.update({
 					where: { id: orderId },
-					data: { debt: orderSum, accepted: true },
+					data: {
+						debt: orderSum,
+						accepted: true,
+					},
 				})
+			} else {
 			}
 
-			const remainingDebt = order.sum.toNumber() - sum
-			if (remainingDebt > 0) {
-				await prisma.users.update({
-					where: { id: clientId },
-					data: { debt: { increment: remainingDebt } },
-				})
-			}
+			await prisma.users.update({
+				where: { id: clientId },
+				data: { debt: { increment: sum } },
+			})
 		})
 
 		return null

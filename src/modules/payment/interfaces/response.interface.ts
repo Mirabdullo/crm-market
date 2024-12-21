@@ -3,7 +3,16 @@ export declare interface PaymentRetriveAllResponse {
 	pageNumber: number
 	pageCount: number
 	totalCount: number
+	totalCalc: PaymentTotalCalcResponse
 	data: PaymentRetriveResponse[]
+}
+
+export declare interface PaymentTotalCalcResponse {
+	totalPay: number
+	totalCard: number
+	totalCash: number
+	totalTransfer: number
+	totalOther: number
 }
 
 export declare interface PaymentRetriveResponse {

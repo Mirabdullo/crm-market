@@ -47,6 +47,7 @@ export class ProductService {
 				wholesale_price: true,
 			},
 			...paginationOptions,
+			orderBy: { createdAt: 'desc' },
 		})
 
 		const transformedProductList = productList.map((product) => ({
