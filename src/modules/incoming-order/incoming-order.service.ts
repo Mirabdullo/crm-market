@@ -350,8 +350,7 @@ export class IncomingOrderService {
 		})
 
 		if (incomingOrders.length) {
-			const promises: any = []
-			incomingOrders.map((order) => {
+			const transactions = incomingOrders.map((order) => {
 				const products = order.incomingProducts.map((p) =>
 					this.#_prisma.products.update({
 						where: { id: p.productId },
@@ -364,18 +363,17 @@ export class IncomingOrderService {
 					}),
 				)
 
-				promises.push(
-					...products,
-					this.#_prisma.users.update({
-						where: { id: order.supplierId },
-						data: { debt: { increment: (order?.payment[0]?.totalPay?.toNumber() || 0) - order.sum.toNumber() } },
-					}),
-				)
+				const userUpdate = this.#_prisma.users.update({
+					where: { id: order.supplierId },
+					data: { debt: { increment: (order?.payment[0]?.totalPay?.toNumber() || 0) - order.sum.toNumber() } },
+				})
+
+				return this.#_prisma.$transaction([...products, userUpdate])
 			})
 
 			console.log('Cron job ishladi malumot bor', new Date())
 
-			await Promise.all([...promises])
+			await Promise.all(transactions)
 		}
 
 		console.log('cron job')
