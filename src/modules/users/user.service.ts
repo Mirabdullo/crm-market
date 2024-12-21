@@ -163,8 +163,12 @@ export class UserService {
 			},
 		})
 
-		const orders = user.orders ? user.orders?.map((order) => ({ ...order, type: 'order' })) : []
-		const payments = user.payments ? user.payments.map((payment) => ({ ...payment, type: 'payment' })) : []
+		if (!user) {
+			throw new NotFoundException('Client topilmadi')
+		}
+
+		const orders = user?.orders?.map((order) => ({ ...order, type: 'order' })) || []
+		const payments = user.payments.map((payment) => ({ ...payment, type: 'payment' })) || []
 		const combined = [...orders, ...payments]
 
 		// Sort combined array
