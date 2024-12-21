@@ -187,7 +187,7 @@ export class OrderService {
 		formattedData.forEach((order) => {
 			totalCalc.totalSum += order.sum
 			totalCalc.totalDebt += order.debt
-			totalCalc.totalPay += order.payment.totalPay
+			totalCalc.totalPay += order?.payment?.totalPay
 			totalCalc.totalCard += order.payment.card
 			totalCalc.totalCash += order.payment.cash
 			totalCalc.totalTransfer += order.payment.transfer
