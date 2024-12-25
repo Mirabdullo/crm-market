@@ -54,14 +54,14 @@ export async function UserDeedUpload(data: any, payload: UserDeedRetrieveRequest
 	// Ma'lumotlarni kiritish
 	data.data.forEach((entry: any, index: number) => {
 		if (entry.type === 'payment') {
-			const row = worksheet.addRow({
-				id: index + 1,
-				time: format(entry.updatedAt, 'dd.MM.yyyy HH:mm'),
-				operation: 'Оплата',
-				debit: '',
-				credit: entry.totalPay.toNumber(),
-				description: entry.description,
-			})
+			const row = worksheet.addRow([
+				index + 1,
+				format(entry.updatedAt, 'dd.MM.yyyy HH:mm'),
+				'Оплата',
+				'',
+				entry.totalPay.toNumber(),
+				entry.description,
+			])
 
 			row.eachCell((cell) => {
 				cell.alignment = { vertical: 'middle', horizontal: 'center' }
@@ -73,14 +73,14 @@ export async function UserDeedUpload(data: any, payload: UserDeedRetrieveRequest
 				}
 			})
 		} else {
-			const row = worksheet.addRow({
-				id: index + 1,
-				time: format(entry.createdAt, 'dd.MM.yyyy HH:mm'),
-				operation: `Продажа: ${entry.articl}`,
-				debit: entry.sum.toNumber(),
-				credit: '',
-				description: '',
-			})
+			const row = worksheet.addRow([
+				index + 1,
+				format(entry.createdAt, 'dd.MM.yyyy HH:mm'),
+				`Продажа: ${entry.articl}`,
+				entry.sum.toNumber(),
+				'',
+				'',
+			])
 
 			row.eachCell((cell) => {
 				cell.alignment = { vertical: 'middle', horizontal: 'center' }
