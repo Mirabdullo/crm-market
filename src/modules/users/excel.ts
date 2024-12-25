@@ -28,12 +28,12 @@ export async function UserDeedUpload(data: any, payload: UserDeedRetrieveRequest
 	worksheet.getCell('F3').value = `Остаток: ${data.debt.toNumber()}`
 	worksheet.getCell('F3').alignment = { horizontal: 'right' }
 
-	// // Boshlang'ich o'zgaruvchilarni kiritish
-	// worksheet.mergeCells('A5:F5')
-	// worksheet.getCell('A5').value = 'Начальный остаток'
-	// worksheet.getCell('A5').font = { bold: true }
+	// Boshlang'ich o'zgaruvchilarni kiritish
+	worksheet.mergeCells('A5:F5')
+	worksheet.getCell('A5').value = 'Начальный остаток'
+	worksheet.getCell('A5').font = { bold: true }
 
-	// worksheet.getCell('E5').value = 0
+	worksheet.getCell('E5').value = 0
 
 	// Ma'lumotlarni kiritish
 	data.data.forEach((entry: any, index: number) => {
