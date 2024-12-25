@@ -124,7 +124,7 @@ export class IncomingProductService {
 			}),
 		])
 		if (!product || !order) throw new NotFoundException('Maxsulot topilmadi')
-
+		console.log(payload)
 		await this.#_prisma.incomingProducts.create({
 			data: {
 				incomingOrderId: payload.incomingOrderId,

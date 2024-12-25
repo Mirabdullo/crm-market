@@ -255,7 +255,7 @@ export class IncomingOrderService {
 		}
 	}
 
-	async incomingOrderCreate(payload: IncomingOrderCreateRequest): Promise<null> {
+	async incomingOrderCreate(payload: IncomingOrderCreateRequest): Promise<null | any> {
 		try {
 			const { supplierId, userId, accepted, sellingDate, products, payment } = payload
 			const user = await this.#_prisma.users.findFirst({
@@ -273,7 +273,7 @@ export class IncomingOrderService {
 					debt: totalSum,
 					accepted: accepted,
 					sellingDate,
-				},
+				}
 			})
 
 			const mappedProducts = products.map((product) => {
@@ -291,7 +291,7 @@ export class IncomingOrderService {
 				data: mappedProducts,
 			})
 
-			return null
+			return order
 		} catch (error) {
 			console.log(error)
 			throw new InternalServerErrorException('Kutilmagan xatolik')

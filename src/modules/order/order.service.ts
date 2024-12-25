@@ -380,7 +380,7 @@ export class OrderService {
 		}
 	}
 
-	async orderUpload(payload: { res: Response; id: string }): Promise<any> {
+	async orderUpload(payload: { res: Response; id: string }): Promise<void> {
 		const { res, id } = payload
 		const order = await this.#_prisma.order.findUnique({
 			where: { id },
