@@ -17,25 +17,24 @@ export async function UserDeedUpload(data: any, payload: UserDeedRetrieveRequest
 	]
 
 	worksheet.mergeCells('A1:C1')
-
-	// Birlashtirilgan hujayraga qiymat o‘rnatish
 	worksheet.getCell('A1').value = `Клиент: ${data.name}`
 	worksheet.getCell('A1').font = { bold: true }
 	worksheet.getCell('A1').alignment = { horizontal: 'center' }
 
 	worksheet.mergeCells('D1:F1')
-	worksheet.getCell('F3').value = `Остаток: ${data.debt.toNumber()}`
-	worksheet.getCell('F3').alignment = { horizontal: 'right' }
+	worksheet.getCell('D1').value = `Остаток: ${data.debt.toNumber()}`
+	worksheet.getCell('D1').alignment = { horizontal: 'right' }
 
 	worksheet.mergeCells('A2:F2')
 	worksheet.getCell('A2').value = `Акт сверки с ${format(payload.startDate, 'dd.MM.yyyy')} по ${format(payload.endDate, 'dd.MM.yyyy')}`
 	worksheet.getCell('A2').font = { bold: true }
-
+	worksheet.addRow([])
 	// Boshlang'ich o'zgaruvchilarni kiritish
-	worksheet.mergeCells('A5:F5')
-	worksheet.getCell('A5').value = 'Начальный остаток'
-	worksheet.getCell('A5').font = { bold: true }
-	worksheet.getCell('E5').value = 0
+	worksheet.mergeCells('A4:F4')
+	worksheet.getCell('A4').value = 'Начальный остаток'
+	worksheet.getCell('A4').font = { bold: true }
+	worksheet.getCell('E4').value = 0
+	worksheet.addRow([])
 
 	// Ma'lumotlarni kiritish
 	data.data.forEach((entry: any, index: number) => {
@@ -59,6 +58,8 @@ export async function UserDeedUpload(data: any, payload: UserDeedRetrieveRequest
 			})
 		}
 	})
+
+	worksheet.getRow(6).height = 8
 
 	// Yakuniy hisoblarni kiritish
 	const totalRow = worksheet.addRow({
