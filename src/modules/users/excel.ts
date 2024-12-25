@@ -36,7 +36,7 @@ export async function UserDeedUpload(data: any, payload: UserDeedRetrieveRequest
 	worksheet.getCell('E5').value = 0
 
 	// Ma'lumotlarni kiritish
-	data.entries.forEach((entry: any, index: number) => {
+	data.data.forEach((entry: any, index: number) => {
 		if (entry.type === 'payment') {
 			worksheet.addRow({
 				id: index + 1,
@@ -84,7 +84,7 @@ export async function UserDeedUpload(data: any, payload: UserDeedRetrieveRequest
 		operation: 'Остаток на конец',
 		debit: '',
 		credit: '',
-		description: data.remaining,
+		description: '',
 	}).font = { bold: true }
 
 	// Excel faylni saqlash
