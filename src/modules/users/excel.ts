@@ -18,22 +18,22 @@ export async function UserDeedUpload(data: any, payload: UserDeedRetrieveRequest
 
 	// Bosh ma'lumotlarni kiritish
 	worksheet.mergeCells('B1:F1')
-	worksheet.getCell('B1').value = `Клиент: ${data.name}`
-	worksheet.getCell('B1').font = { bold: true }
+	worksheet.getCell('A1').value = `Клиент: ${data.name}`
+	worksheet.getCell('A1').font = { bold: true }
 
-	worksheet.mergeCells('B2:F2')
-	worksheet.getCell('B2').value = `Акт сверки с ${format(payload.startDate, 'dd.MM.yyyy')} по ${format(payload.endDate, 'dd.MM.yyyy')}`
-	worksheet.getCell('B2').font = { bold: true }
+	worksheet.mergeCells('A1:F2')
+	worksheet.getCell('A1').value = `Акт сверки с ${format(payload.startDate, 'dd.MM.yyyy')} по ${format(payload.endDate, 'dd.MM.yyyy')}`
+	worksheet.getCell('A1').font = { bold: true }
 
 	worksheet.getCell('F3').value = `Остаток: ${data.debt.toNumber()}`
 	worksheet.getCell('F3').alignment = { horizontal: 'right' }
 
-	// Boshlang'ich o'zgaruvchilarni kiritish
-	worksheet.mergeCells('A5:F5')
-	worksheet.getCell('A5').value = 'Начальный остаток'
-	worksheet.getCell('A5').font = { bold: true }
+	// // Boshlang'ich o'zgaruvchilarni kiritish
+	// worksheet.mergeCells('A5:F5')
+	// worksheet.getCell('A5').value = 'Начальный остаток'
+	// worksheet.getCell('A5').font = { bold: true }
 
-	worksheet.getCell('E5').value = 0
+	// worksheet.getCell('E5').value = 0
 
 	// Ma'lumotlarni kiritish
 	data.data.forEach((entry: any, index: number) => {
@@ -86,6 +86,17 @@ export async function UserDeedUpload(data: any, payload: UserDeedRetrieveRequest
 		credit: '',
 		description: '',
 	}).font = { bold: true }
+
+	worksheet.eachRow((row) => {
+		row.eachCell((cell) => {
+			cell.border = {
+				top: { style: 'thin' },
+				left: { style: 'thin' },
+				bottom: { style: 'thin' },
+				right: { style: 'thin' },
+			}
+		})
+	})
 
 	// Excel faylni saqlash
 	let date = new Date().toLocaleString()
