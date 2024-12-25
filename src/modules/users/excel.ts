@@ -94,5 +94,9 @@ export async function UserDeedUpload(data: any, payload: UserDeedRetrieveRequest
 	date = date.replaceAll(' ', '')
 	date = date.replaceAll(':', '')
 
-	return workbook.xlsx.writeFile(`${data.name + date}.xlsx`)
+	payload.res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+	payload.res.setHeader('Content-Disposition', `attachment; filename=${data.name + date}.xlsx`)
+
+	await workbook.xlsx.write(payload.res)
+	payload.res.end()
 }

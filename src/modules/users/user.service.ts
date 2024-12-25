@@ -190,8 +190,6 @@ export class UserService {
 				},
 				payload,
 			)
-
-			res.end()
 		} else {
 			return {
 				id: id,
