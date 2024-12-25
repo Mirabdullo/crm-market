@@ -123,7 +123,7 @@ export async function UserDeedUploadWithProduct(data: any, payload: UserDeedRetr
 
 	worksheet.mergeCells('A1:C1')
 	worksheet.getCell('A1').value = `Клиент: ${data.name}`
-	worksheet.getCell('A1').font = { bold: true, size: 14 }
+	worksheet.getCell('A1').font = { bold: true }
 
 	worksheet.mergeCells('D1:F1')
 	worksheet.getCell('D1').value = `Остаток: ${data.debt.toNumber()}`
@@ -179,8 +179,8 @@ export async function UserDeedUploadWithProduct(data: any, payload: UserDeedRetr
 		} else {
 			totalSum += entry.sum.toNumber()
 			if (entry.products.length) {
-				index += 1
 				entry.products.forEach((product: any) => {
+					index += 1
 					const row = worksheet.addRow([
 						index,
 						product.product.name,
