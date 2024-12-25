@@ -1,4 +1,4 @@
-import ExcelJS from 'exceljs'
+import * as ExcelJS from 'exceljs'
 import { UserDeedRetrieveRequest } from './interfaces'
 import { format } from 'date-fns'
 
