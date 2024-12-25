@@ -19,7 +19,6 @@ export async function UserDeedUpload(data: any, payload: UserDeedRetrieveRequest
 	worksheet.mergeCells('A1:C1')
 	worksheet.getCell('A1').value = `Клиент: ${data.name}`
 	worksheet.getCell('A1').font = { bold: true }
-	worksheet.getCell('A1').alignment = { horizontal: 'center' }
 
 	worksheet.mergeCells('D1:F1')
 	worksheet.getCell('D1').value = `Остаток: ${data.debt.toNumber()}`
@@ -30,10 +29,14 @@ export async function UserDeedUpload(data: any, payload: UserDeedRetrieveRequest
 	worksheet.getCell('A2').font = { bold: true }
 	worksheet.addRow([])
 	// Boshlang'ich o'zgaruvchilarni kiritish
-	worksheet.mergeCells('A4:F4')
+	worksheet.mergeCells('A4:C3')
 	worksheet.getCell('A4').value = 'Начальный остаток'
 	worksheet.getCell('A4').font = { bold: true }
-	worksheet.getCell('E4').value = 0
+
+	worksheet.mergeCells('D4:F4')
+	worksheet.getCell('D4').value = 0
+	worksheet.getCell('D4').font = { bold: true }
+	worksheet.getCell('D4').alignment = { horizontal: 'right' }
 	worksheet.addRow([])
 
 	// Ma'lumotlarni kiritish
@@ -58,8 +61,6 @@ export async function UserDeedUpload(data: any, payload: UserDeedRetrieveRequest
 			})
 		}
 	})
-
-	worksheet.getRow(6).height = 8
 
 	// Yakuniy hisoblarni kiritish
 	const totalRow = worksheet.addRow({
