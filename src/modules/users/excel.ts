@@ -29,18 +29,17 @@ export async function UserDeedUpload(data: any, payload: UserDeedRetrieveRequest
 	worksheet.getCell('D4').alignment = { horizontal: 'right' }
 	worksheet.addRow([])
 
-
 	const headerRow = worksheet.addRow(['№', 'Время', 'Операция', 'Дебит', 'Кредит', 'Описание'])
 	headerRow.font = { bold: true }
-	headerRow.alignment = { horizontal: 'center', vertical: 'middle' }
+	headerRow.alignment = { vertical: 'middle' }
 	headerRow.height = 18
 
-	worksheet.getColumn(1).width = 5 
-	worksheet.getColumn(2).width = 12 
-	worksheet.getColumn(3).width = 16 
-	worksheet.getColumn(4).width = 10 
+	worksheet.getColumn(1).width = 5
+	worksheet.getColumn(2).width = 20
+	worksheet.getColumn(3).width = 16
+	worksheet.getColumn(4).width = 10
 	worksheet.getColumn(5).width = 10
-	worksheet.getColumn(6).width = 20 
+	worksheet.getColumn(6).width = 20
 
 	headerRow.eachCell((cell) => {
 		cell.border = {
@@ -51,17 +50,13 @@ export async function UserDeedUpload(data: any, payload: UserDeedRetrieveRequest
 		}
 	})
 
+	let totalSum = 0
+	let totalPay = 0
 	// Ma'lumotlarni kiritish
 	data.data.forEach((entry: any, index: number) => {
 		if (entry.type === 'payment') {
-			const row = worksheet.addRow([
-				index + 1,
-				format(entry.updatedAt, 'dd.MM.yyyy HH:mm'),
-				'Оплата',
-				'',
-				entry.totalPay.toNumber(),
-				entry.description,
-			])
+			totalPay += entry.totalPay.toNumber()
+			const row = worksheet.addRow([index + 1, format(entry.updatedAt, 'dd.MM.yyyy HH:mm'), 'Оплата', '', entry.totalPay.toNumber(), entry.description])
 
 			row.eachCell((cell) => {
 				cell.alignment = { vertical: 'middle', horizontal: 'center' }
@@ -73,14 +68,8 @@ export async function UserDeedUpload(data: any, payload: UserDeedRetrieveRequest
 				}
 			})
 		} else {
-			const row = worksheet.addRow([
-				index + 1,
-				format(entry.createdAt, 'dd.MM.yyyy HH:mm'),
-				`Продажа: ${entry.articl}`,
-				entry.sum.toNumber(),
-				'',
-				'',
-			])
+			totalSum += entry.sum.toNumber()
+			const row = worksheet.addRow([index + 1, format(entry.createdAt, 'dd.MM.yyyy HH:mm'), `Продажа: ${entry.articl}`, entry.sum.toNumber(), '', ''])
 
 			row.eachCell((cell) => {
 				cell.alignment = { vertical: 'middle', horizontal: 'center' }
@@ -99,8 +88,8 @@ export async function UserDeedUpload(data: any, payload: UserDeedRetrieveRequest
 		id: '',
 		time: '',
 		operation: 'Итого',
-		debit: data.data.reduce((acc: number, order: any) => (acc + order.type === 'order' ? order.sum.toNumber() : 0), 0),
-		credit: data.data.reduce((acc: number, payment: any) => (acc + payment.type === 'payment' ? payment.totalPay.toNumber() : 0), 0),
+		debit: totalSum,
+		credit: totalPay,
 		description: '',
 	})
 	totalRow.font = { bold: true }
