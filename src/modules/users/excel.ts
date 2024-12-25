@@ -23,21 +23,25 @@ export async function UserDeedUpload(data: any, payload: UserDeedRetrieveRequest
 	worksheet.getCell('A4').value = 'Начальный остаток'
 	worksheet.getCell('A4').font = { bold: true }
 
-	worksheet.mergeCells('D4:F4')
+	worksheet.mergeCells('D4:E4')
 	worksheet.getCell('D4').value = 0
 	worksheet.getCell('D4').font = { bold: true }
 	worksheet.getCell('D4').alignment = { horizontal: 'right' }
 	worksheet.addRow([])
 
-	worksheet.columns = [
-		{ header: '№', key: 'id', width: 5 },
-		{ header: 'Время', key: 'time', width: 20 },
-		{ header: 'Операция', key: 'operation', width: 20 },
-		{ header: 'Дебит', key: 'debit', width: 10 },
-		{ header: 'Кредит', key: 'credit', width: 10 },
-		{ header: 'Описание', key: 'description', width: 30 },
-	]
-	
+
+	const headerRow = worksheet.addRow(['№', 'Время', 'Операция', 'Дебит', 'Кредит', 'Описание'])
+	headerRow.font = { bold: true }
+	headerRow.alignment = { horizontal: 'center', vertical: 'middle' }
+	headerRow.height = 18
+
+	worksheet.getColumn(1).width = 5 
+	worksheet.getColumn(2).width = 12 
+	worksheet.getColumn(3).width = 16 
+	worksheet.getColumn(4).width = 10 
+	worksheet.getColumn(5).width = 10
+	worksheet.getColumn(6).width = 20 
+
 	// Ma'lumotlarni kiritish
 	data.data.forEach((entry: any, index: number) => {
 		if (entry.type === 'payment') {
