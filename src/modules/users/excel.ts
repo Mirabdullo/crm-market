@@ -6,16 +6,6 @@ export async function UserDeedUpload(data: any, payload: UserDeedRetrieveRequest
 	const workbook = new ExcelJS.Workbook()
 	const worksheet = workbook.addWorksheet('Report')
 
-	// Jadval ustunlarini o'rnatish
-	worksheet.columns = [
-		{ header: '№', key: 'id', width: 5 },
-		{ header: 'Время', key: 'time', width: 20 },
-		{ header: 'Операция', key: 'operation', width: 20 },
-		{ header: 'Дебит', key: 'debit', width: 10 },
-		{ header: 'Кредит', key: 'credit', width: 10 },
-		{ header: 'Описание', key: 'description', width: 30 },
-	]
-
 	worksheet.mergeCells('A1:C1')
 	worksheet.getCell('A1').value = `Клиент: ${data.name}`
 	worksheet.getCell('A1').font = { bold: true }
@@ -39,6 +29,15 @@ export async function UserDeedUpload(data: any, payload: UserDeedRetrieveRequest
 	worksheet.getCell('D4').alignment = { horizontal: 'right' }
 	worksheet.addRow([])
 
+	worksheet.columns = [
+		{ header: '№', key: 'id', width: 5 },
+		{ header: 'Время', key: 'time', width: 20 },
+		{ header: 'Операция', key: 'operation', width: 20 },
+		{ header: 'Дебит', key: 'debit', width: 10 },
+		{ header: 'Кредит', key: 'credit', width: 10 },
+		{ header: 'Описание', key: 'description', width: 30 },
+	]
+	
 	// Ma'lumotlarni kiritish
 	data.data.forEach((entry: any, index: number) => {
 		if (entry.type === 'payment') {
