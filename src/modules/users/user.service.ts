@@ -12,6 +12,7 @@ import {
 } from './interfaces'
 import { UserTypeEnum } from '@prisma/client'
 import { addHours, endOfDay, format } from 'date-fns'
+import { UserDeedUpload } from './excel'
 
 @Injectable()
 export class UserService {
@@ -178,12 +179,25 @@ export class UserService {
 			return new Date(dateA).getTime() - new Date(dateB).getTime()
 		})
 
-		return {
-			id: id,
-			name: user.name,
-			phone: user.phone,
-			debt: user.debt,
-			data: sorted,
+		if (payload.type === 'excel') {
+			await UserDeedUpload(
+				{
+					id: id,
+					name: user.name,
+					phone: user.phone,
+					debt: user.debt,
+					data: sorted,
+				},
+				payload,
+			)
+		} else {
+			return {
+				id: id,
+				name: user.name,
+				phone: user.phone,
+				debt: user.debt,
+				data: sorted,
+			}
 		}
 	}
 

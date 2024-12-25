@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common'
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query, Res } from '@nestjs/common'
 import { UserService } from './user.service'
 import { PAGE_NUMBER, PAGE_SIZE } from './constants'
 import {
@@ -15,6 +15,7 @@ import { ApiBearerAuth, ApiNoContentResponse, ApiOkResponse, ApiTags } from '@ne
 import { UserRetriveAllResponse, UserRetriveResponse } from './interfaces'
 import { Permissions } from '@enums'
 import { Permission } from '@decorators'
+import { Response } from 'express'
 
 @ApiTags('User')
 @ApiBearerAuth()
@@ -52,9 +53,10 @@ export class UserController {
 
 	@Get('client/deed')
 	@ApiOkResponse({ type: UserRetrieveAllResponseDto })
-	ClientDeedRetrieve(@Query() payload: UserDeedRetrieveRequestDto): Promise<any> {
+	ClientDeedRetrieve(@Query() payload: UserDeedRetrieveRequestDto, @Res() res: Response): Promise<any> {
 		return this.#_service.clientDeedRetrieve({
 			...payload,
+			res,
 			startDate: payload.startDate ? payload.startDate : new Date().toDateString(),
 			endDate: payload.endDate ? payload.endDate : new Date().toDateString(),
 		})

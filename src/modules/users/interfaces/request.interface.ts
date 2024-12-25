@@ -1,3 +1,5 @@
+import { Response } from 'express'
+
 export declare interface UserCreateRequest {
 	name: string
 	phone: string
@@ -27,6 +29,8 @@ export declare interface UserRetriveRequest {
 
 export declare interface UserDeedRetrieveRequest {
 	id: string
+	res: Response
+	type: string
 	startDate?: string
 	endDate?: string
 }

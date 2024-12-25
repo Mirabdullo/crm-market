@@ -2,6 +2,7 @@ import { IsBooleanString, IsInt, IsNotEmpty, IsOptional, IsPositive, IsString, I
 import { Type } from 'class-transformer'
 import { UserCreateRequest, UserDeedRetrieveRequest, UserDeleteRequest, UserRetriveAllRequest, UserRetriveRequest, UserUpdateRequest } from '../interfaces'
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
+import { Response } from 'express'
 
 export class UserRetrieveAllRequestDto implements UserRetriveAllRequest {
 	@ApiPropertyOptional({ type: Number })
@@ -77,6 +78,13 @@ export class UserDeedRetrieveRequestDto implements UserDeedRetrieveRequest {
 	@IsUUID('4')
 	@IsNotEmpty()
 	id: string
+
+	@ApiPropertyOptional({ type: String })
+	@IsString()
+	@IsOptional()
+	type: string
+
+	res: Response
 
 	@ApiPropertyOptional({ type: String })
 	@IsString()
