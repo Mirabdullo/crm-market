@@ -21,9 +21,9 @@ export async function UserDeedUpload(data: any, payload: UserDeedRetrieveRequest
 	worksheet.getCell('A1').value = `Клиент: ${data.name}`
 	worksheet.getCell('A1').font = { bold: true }
 
-	worksheet.mergeCells('A1:F2')
-	worksheet.getCell('A1').value = `Акт сверки с ${format(payload.startDate, 'dd.MM.yyyy')} по ${format(payload.endDate, 'dd.MM.yyyy')}`
-	worksheet.getCell('A1').font = { bold: true }
+	worksheet.mergeCells('A2:F2');
+	worksheet.getCell('A2').value = `Акт сверки с ${format(payload.startDate, 'dd.MM.yyyy')} по ${format(payload.endDate, 'dd.MM.yyyy')}`;
+	worksheet.getCell('A2').font = { bold: true };
 
 	worksheet.getCell('F3').value = `Остаток: ${data.debt.toNumber()}`
 	worksheet.getCell('F3').alignment = { horizontal: 'right' }
@@ -32,7 +32,6 @@ export async function UserDeedUpload(data: any, payload: UserDeedRetrieveRequest
 	worksheet.mergeCells('A5:F5')
 	worksheet.getCell('A5').value = 'Начальный остаток'
 	worksheet.getCell('A5').font = { bold: true }
-
 	worksheet.getCell('E5').value = 0
 
 	// Ma'lumotlarni kiritish
