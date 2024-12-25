@@ -63,8 +63,8 @@ export async function UserDeedUpload(data: any, payload: UserDeedRetrieveRequest
 		id: '',
 		time: '',
 		operation: 'Итого',
-		debit: data.reduce((acc: number, order: any) => (acc + order.type === 'order' ? order.sum.toNumber() : 0), 0),
-		credit: data.reduce((acc: number, payment: any) => (acc + payment.type === 'payment' ? payment.totalPay.toNumber() : 0), 0),
+		debit: data.data.reduce((acc: number, order: any) => (acc + order.type === 'order' ? order.sum.toNumber() : 0), 0),
+		credit: data.data.reduce((acc: number, payment: any) => (acc + payment.type === 'payment' ? payment.totalPay.toNumber() : 0), 0),
 		description: '',
 	})
 	totalRow.font = { bold: true }
