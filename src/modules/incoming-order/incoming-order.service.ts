@@ -10,7 +10,7 @@ import {
 	IncomingOrderUpdateRequest,
 } from './interfaces'
 import { Decimal } from '../../types'
-import { addHours, endOfDay, format, startOfDay } from 'date-fns'
+import { addHours, endOfDay, format } from 'date-fns'
 import { Cron, CronExpression } from '@nestjs/schedule'
 
 @Injectable()
@@ -257,7 +257,7 @@ export class IncomingOrderService {
 
 	async incomingOrderCreate(payload: IncomingOrderCreateRequest): Promise<null | any> {
 		try {
-			const { supplierId, userId, accepted, sellingDate, products, payment } = payload
+			const { supplierId, userId, accepted, sellingDate, products } = payload
 			const user = await this.#_prisma.users.findFirst({
 				where: { id: payload.supplierId, deletedAt: null },
 			})
@@ -273,7 +273,7 @@ export class IncomingOrderService {
 					debt: totalSum,
 					accepted: accepted,
 					sellingDate,
-				}
+				},
 			})
 
 			const mappedProducts = products.map((product) => {
@@ -299,7 +299,7 @@ export class IncomingOrderService {
 	}
 
 	async incomingOrderUpdate(payload: IncomingOrderUpdateRequest): Promise<null> {
-		const { id, sellingDate } = payload
+		const { id } = payload
 
 		// Find the incoming order with includes for payment and incoming products
 		const incomingOrder = await this.#_prisma.incomingOrder.findUnique({

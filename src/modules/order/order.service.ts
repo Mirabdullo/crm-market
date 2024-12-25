@@ -15,7 +15,6 @@ import { Decimal } from '../../types'
 import { addDays, addHours, endOfDay, format, startOfDay, subDays, subMonths } from 'date-fns'
 import * as ExcelJS from 'exceljs'
 import { Response } from 'express'
-import { getEndDate, getStartDate } from '../../helpers'
 
 @Injectable()
 export class OrderService {
@@ -510,7 +509,7 @@ export class OrderService {
 		summaryRow2.getCell(5).font = { bold: true }
 
 		// 5. Style qo'shish
-		worksheet.eachRow((row, rowNumber) => {
+		worksheet.eachRow((row) => {
 			row.eachCell((cell) => {
 				cell.border = {
 					top: { style: 'thin' },

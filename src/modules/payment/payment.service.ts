@@ -1,4 +1,4 @@
-import { Injectable, ForbiddenException, NotFoundException } from '@nestjs/common'
+import { Injectable, NotFoundException } from '@nestjs/common'
 import { PrismaService } from '@prisma'
 import {
 	PaymentCreateRequest,
@@ -211,7 +211,7 @@ export class PaymentService {
 		const { id, card, transfer, other, cash, description } = payload
 
 		const payment = await this.#_prisma.payment.findUnique({
-			where: { id: payload.id },
+			where: { id },
 			include: { client: true, order: true },
 		})
 		if (!payment) throw new NotFoundException('payment not found')
@@ -222,11 +222,11 @@ export class PaymentService {
 			where: { id: payload.id },
 			data: {
 				totalPay: sum,
-				cash: payload.cash,
-				transfer: payload.transfer,
-				card: payload.card,
-				other: payload.other,
-				description: payload.description,
+				cash: cash,
+				transfer: transfer,
+				card: card,
+				other: other,
+				description: description,
 			},
 		})
 

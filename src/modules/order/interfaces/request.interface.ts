@@ -1,5 +1,4 @@
-import { OrderProductRequest, OrderProductUpdateRequest, RemoveOrderProductsRequest } from '../../order-products'
-import { PaymentRequest, PaymentUpdateRequest } from '../../payment'
+import { OrderProductRequest } from '../../order-products'
 
 export interface OrderCreateRequest {
 	clientId: string

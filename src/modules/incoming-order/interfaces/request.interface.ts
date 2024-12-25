@@ -1,5 +1,5 @@
-import { IncomingOrderPaymentRequest, IncomingOrderPaymentUpdateRequest } from '../../incoming-order-payment'
-import { IncomingProductCreateRequest, IncomingProductRemoveRequest, IncomingProductRequest } from '../../incoming-products'
+import { IncomingOrderPaymentRequest } from '../../incoming-order-payment'
+import { IncomingProductCreateRequest } from '../../incoming-products'
 
 export interface IncomingOrderCreateRequest {
 	supplierId: string
