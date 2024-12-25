@@ -84,33 +84,12 @@ export async function UserDeedUpload(data: any, payload: UserDeedRetrieveRequest
 	})
 
 	// Yakuniy hisoblarni kiritish
-	const totalRow = worksheet.addRow({
-		id: '',
-		time: '',
-		operation: 'Итого',
-		debit: totalSum,
-		credit: totalPay,
-		description: '',
-	})
+	const totalRow = worksheet.addRow(['', '', 'Итого', totalSum, totalPay, ''])
 	totalRow.font = { bold: true }
 
-	worksheet.addRow({
-		id: '',
-		time: '',
-		operation: 'Конечный остаток',
-		debit: '',
-		credit: '',
-		description: data.debt.toNumber(),
-	}).font = { bold: true }
+	worksheet.addRow(['', '', 'Конечный остаток', '', '', data.debt.toNumber()]).font = { bold: true }
 
-	worksheet.addRow({
-		id: '',
-		time: '',
-		operation: 'Остаток на конец',
-		debit: '',
-		credit: '',
-		description: '',
-	}).font = { bold: true }
+	worksheet.addRow(['', '', 'Остаток на конец', '', '', '']).font = { bold: true }
 
 	worksheet.eachRow((row) => {
 		row.eachCell((cell) => {
