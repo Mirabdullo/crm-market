@@ -16,22 +16,20 @@ export async function UserDeedUpload(data: any, payload: UserDeedRetrieveRequest
 		{ header: 'Описание', key: 'description', width: 30 },
 	]
 
-	// "Клиент" matni alohida ustun
-	worksheet.getCell('A1').value = 'Клиент:'
-	worksheet.getCell('A1').font = { bold: true }
-	worksheet.getCell('A1').alignment = { horizontal: 'left' }
+	worksheet.mergeCells('A1:C1')
 
-	// Mijoz nomini alohida ustun
-	worksheet.getCell('B1').value = data.name
-	worksheet.getCell('B1').font = { bold: true }
-	worksheet.getCell('B1').alignment = { horizontal: 'left' }
+	// Birlashtirilgan hujayraga qiymat o‘rnatish
+	worksheet.getCell('A1').value = `Клиент: ${data.name}`
+	worksheet.getCell('A1').font = { bold: true }
+	worksheet.getCell('A1').alignment = { horizontal: 'center' }
+
+	worksheet.mergeCells('D1:F1')
+	worksheet.getCell('F3').value = `Остаток: ${data.debt.toNumber()}`
+	worksheet.getCell('F3').alignment = { horizontal: 'right' }
 
 	worksheet.mergeCells('A2:F2')
 	worksheet.getCell('A2').value = `Акт сверки с ${format(payload.startDate, 'dd.MM.yyyy')} по ${format(payload.endDate, 'dd.MM.yyyy')}`
 	worksheet.getCell('A2').font = { bold: true }
-
-	worksheet.getCell('F3').value = `Остаток: ${data.debt.toNumber()}`
-	worksheet.getCell('F3').alignment = { horizontal: 'right' }
 
 	// Boshlang'ich o'zgaruvchilarni kiritish
 	worksheet.mergeCells('A5:F5')
