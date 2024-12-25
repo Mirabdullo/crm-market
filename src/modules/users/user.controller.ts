@@ -62,6 +62,17 @@ export class UserController {
 		})
 	}
 
+	@Get('supplier/deed')
+	@ApiOkResponse({ type: UserRetrieveAllResponseDto })
+	SupplierDeedRetrieve(@Query() payload: UserDeedRetrieveRequestDto, @Res() res: Response): Promise<any> {
+		return this.#_service.supplierDeedRetrieve({
+			...payload,
+			res,
+			startDate: payload.startDate ? payload.startDate : new Date().toDateString(),
+			endDate: payload.endDate ? payload.endDate : new Date().toDateString(),
+		})
+	}
+
 	@Get(':id')
 	@ApiOkResponse({ type: UserRetrieveResponseDto })
 	UserRetrieve(@Param() payload: UserRetrieveRequestDto): Promise<UserRetriveResponse> {

@@ -79,7 +79,7 @@ export class UserDeedRetrieveRequestDto implements UserDeedRetrieveRequest {
 	@IsNotEmpty()
 	id: string
 
-	@ApiPropertyOptional({ type: String, example: 'excel' })
+	@ApiPropertyOptional({ type: String, example: 'deed', enum: ['deed', 'product'] })
 	@IsString()
 	@IsOptional()
 	type: string

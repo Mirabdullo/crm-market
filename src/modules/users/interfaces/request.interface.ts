@@ -29,8 +29,8 @@ export declare interface UserRetriveRequest {
 
 export declare interface UserDeedRetrieveRequest {
 	id: string
-	res: Response
 	type: string
+	res: Response
 	startDate?: string
 	endDate?: string
 }
