@@ -19,7 +19,7 @@ export async function UserDeedUpload(data: any, payload: UserDeedRetrieveRequest
 	worksheet.getCell('A2').font = { bold: true }
 	worksheet.addRow([])
 	// Boshlang'ich o'zgaruvchilarni kiritish
-	worksheet.mergeCells('A4:C3')
+	worksheet.mergeCells('A4:C4')
 	worksheet.getCell('A4').value = 'Начальный остаток'
 	worksheet.getCell('A4').font = { bold: true }
 
@@ -42,10 +42,19 @@ export async function UserDeedUpload(data: any, payload: UserDeedRetrieveRequest
 	worksheet.getColumn(5).width = 10
 	worksheet.getColumn(6).width = 20 
 
+	headerRow.eachCell((cell) => {
+		cell.border = {
+			top: { style: 'thin' },
+			left: { style: 'thin' },
+			bottom: { style: 'thin' },
+			right: { style: 'thin' },
+		}
+	})
+
 	// Ma'lumotlarni kiritish
 	data.data.forEach((entry: any, index: number) => {
 		if (entry.type === 'payment') {
-			worksheet.addRow({
+			const row = worksheet.addRow({
 				id: index + 1,
 				time: format(entry.updatedAt, 'dd.MM.yyyy HH:mm'),
 				operation: 'Оплата',
@@ -53,14 +62,34 @@ export async function UserDeedUpload(data: any, payload: UserDeedRetrieveRequest
 				credit: entry.totalPay.toNumber(),
 				description: entry.description,
 			})
+
+			row.eachCell((cell) => {
+				cell.alignment = { vertical: 'middle', horizontal: 'center' }
+				cell.border = {
+					top: { style: 'thin' },
+					left: { style: 'thin' },
+					bottom: { style: 'thin' },
+					right: { style: 'thin' },
+				}
+			})
 		} else {
-			worksheet.addRow({
+			const row = worksheet.addRow({
 				id: index + 1,
 				time: format(entry.createdAt, 'dd.MM.yyyy HH:mm'),
 				operation: `Продажа: ${entry.articl}`,
 				debit: entry.sum.toNumber(),
 				credit: '',
 				description: '',
+			})
+
+			row.eachCell((cell) => {
+				cell.alignment = { vertical: 'middle', horizontal: 'center' }
+				cell.border = {
+					top: { style: 'thin' },
+					left: { style: 'thin' },
+					bottom: { style: 'thin' },
+					right: { style: 'thin' },
+				}
 			})
 		}
 	})
