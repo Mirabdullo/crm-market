@@ -94,8 +94,5 @@ export async function UserDeedUpload(data: any, payload: UserDeedRetrieveRequest
 	date = date.replaceAll(' ', '')
 	date = date.replaceAll(':', '')
 
-	await workbook.xlsx.writeFile(`${data.name + date}.xlsx`)
-	console.log('Excel file saved as report.xlsx')
-
-	payload.res.end()
+	return workbook.xlsx.writeFile(`${data.name + date}.xlsx`)
 }

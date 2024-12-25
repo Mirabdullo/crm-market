@@ -113,7 +113,7 @@ export class UserService {
 	}
 
 	async clientDeedRetrieve(payload: UserDeedRetrieveRequest): Promise<any> {
-		const { id, startDate, endDate } = payload
+		const { id, startDate, endDate, res, type } = payload
 		let dateOption = {}
 		if (startDate || endDate) {
 			const sDate = new Date(format(startDate, 'yyyy-MM-dd'))
@@ -179,7 +179,7 @@ export class UserService {
 			return new Date(dateA).getTime() - new Date(dateB).getTime()
 		})
 
-		if (payload.type === 'excel') {
+		if (type === 'excel') {
 			await UserDeedUpload(
 				{
 					id: id,
@@ -190,6 +190,8 @@ export class UserService {
 				},
 				payload,
 			)
+
+			res.end()
 		} else {
 			return {
 				id: id,
