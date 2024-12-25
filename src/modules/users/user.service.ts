@@ -12,7 +12,7 @@ import {
 } from './interfaces'
 import { UserTypeEnum } from '@prisma/client'
 import { addHours, endOfDay, format } from 'date-fns'
-import { UserDeedUpload } from './excel'
+import { UserDeedUpload, UserDeedUploadWithProduct } from './excel'
 
 @Injectable()
 export class UserService {
@@ -128,6 +128,25 @@ export class UserService {
 			}
 		}
 
+		let productOption = {}
+		if (type === 'product') {
+			productOption = {
+				products: {
+					select: {
+						id: true,
+						cost: true,
+						count: true,
+						price: true,
+						product: {
+							select: {
+								name: true,
+							},
+						},
+					},
+				},
+			}
+		}
+
 		const user = await this.#_prisma.users.findFirst({
 			where: { id, deletedAt: null, type: 'client' },
 			select: {
@@ -145,6 +164,7 @@ export class UserService {
 						createdAt: true,
 						updatedAt: true,
 						accepted: true,
+						...productOption,
 					},
 				},
 				payments: {
@@ -179,8 +199,19 @@ export class UserService {
 			return new Date(dateA).getTime() - new Date(dateB).getTime()
 		})
 
-		if (type === 'excel') {
+		if (type === 'deed') {
 			await UserDeedUpload(
+				{
+					id: id,
+					name: user.name,
+					phone: user.phone,
+					debt: user.debt,
+					data: sorted,
+				},
+				payload,
+			)
+		} else if (type === 'product') {
+			await UserDeedUploadWithProduct(
 				{
 					id: id,
 					name: user.name,
