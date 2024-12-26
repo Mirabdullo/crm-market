@@ -137,6 +137,7 @@ export class OrderService {
 							},
 						},
 					},
+					orderBy: { createdAt: 'desc' },
 				},
 			},
 			orderBy: { createdAt: 'desc' },
@@ -269,6 +270,7 @@ export class OrderService {
 							},
 						},
 					},
+					orderBy: { createdAt: 'desc' },
 				},
 			},
 		})

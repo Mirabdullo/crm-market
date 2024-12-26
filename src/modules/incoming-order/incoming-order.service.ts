@@ -121,6 +121,7 @@ export class IncomingOrderService {
 							},
 						},
 					},
+					orderBy: { createdAt: 'desc' },
 				},
 			},
 			orderBy: { createdAt: 'desc' },
@@ -223,6 +224,7 @@ export class IncomingOrderService {
 							},
 						},
 					},
+					orderBy: { createdAt: 'desc' },
 				},
 			},
 		})

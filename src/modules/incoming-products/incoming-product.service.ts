@@ -211,7 +211,7 @@ export class IncomingProductService {
 	}
 
 	async incomingProductDelete(payload: IncomingProductDeleteRequest): Promise<null> {
-		const incomingProduct = await this.#_prisma.incomingProducts.findUnique({
+		const incomingProduct = await this.#_prisma.incomingProducts.findFirst({
 			where: { id: payload.id, deletedAt: null },
 			include: { incomingOrder: true },
 		})
