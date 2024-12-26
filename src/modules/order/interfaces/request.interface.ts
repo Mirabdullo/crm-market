@@ -30,6 +30,7 @@ export interface OrderRetriveAllRequest {
 	sellerId?: string
 	clientId?: string
 	pagination?: boolean
+	type?: string
 	startDate?: string
 	endDate?: string
 	accepted?: boolean

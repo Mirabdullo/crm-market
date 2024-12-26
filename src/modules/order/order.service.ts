@@ -15,6 +15,7 @@ import { Decimal } from '../../types'
 import { addDays, addHours, endOfDay, format, startOfDay, subDays, subMonths } from 'date-fns'
 import * as ExcelJS from 'exceljs'
 import { Response } from 'express'
+import { OrderUpload } from './excel'
 
 @Injectable()
 export class OrderService {
@@ -204,13 +205,17 @@ export class OrderService {
 			},
 		})
 
-		return {
-			totalCount: totalCount,
-			pageNumber: payload.pageNumber,
-			pageSize: payload.pageSize,
-			pageCount: Math.ceil(totalCount / payload.pageSize),
-			data: formattedData,
-			totalCalc,
+		if (payload.type === 'excel') {
+			await OrderUpload(formattedData)
+		} else {
+			return {
+				totalCount: totalCount,
+				pageNumber: payload.pageNumber,
+				pageSize: payload.pageSize,
+				pageCount: Math.ceil(totalCount / payload.pageSize),
+				data: formattedData,
+				totalCalc,
+			}
 		}
 	}
 
