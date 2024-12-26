@@ -130,7 +130,7 @@ export class IncomingOrderPaymentService {
 		const client = await this.#_prisma.users.findFirst({
 			where: { id: supplierId },
 		})
-
+		console.log(client)
 		if (!client) throw new ForbiddenException('Mijoz topilmadi')
 		if (orderId && !order) throw new ForbiddenException('Mahsulot tushiruvi topilmadi')
 
@@ -163,6 +163,7 @@ export class IncomingOrderPaymentService {
 
 			// Agar order tasdiqlangan bo'lsa, mijozning qarzi o'zgaradi
 			if (format(order.sellingDate, 'yyyy-MM-dd') <= format(new Date(), 'yyyy-MM-dd')) {
+				console.log(sum, supplierId)
 				promises.push(
 					this.#_prisma.users.update({
 						where: { id: supplierId },

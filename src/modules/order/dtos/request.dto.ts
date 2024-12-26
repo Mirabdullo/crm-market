@@ -4,6 +4,7 @@ import { OrderCreateRequest, OrderDeleteRequest, OrderRetriveAllRequest, OrderRe
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
 import { OrderProductRequest, OrderProductRequestDto } from '../../order-products'
 import { PaymentRequest, PaymentRequestDto } from '../../payment'
+import { Response } from 'express'
 
 export class OrderRetrieveAllRequestDto implements OrderRetriveAllRequest {
 	@ApiPropertyOptional({ type: Number })
@@ -19,6 +20,8 @@ export class OrderRetrieveAllRequestDto implements OrderRetriveAllRequest {
 	@IsOptional()
 	@Type(() => Number)
 	pageSize?: number
+
+	res: Response
 
 	@ApiPropertyOptional({ type: String })
 	@IsString()

@@ -3,8 +3,7 @@ import { format } from 'date-fns'
 import { OrderRetriveAllResponse } from './interfaces'
 import { Response } from 'express'
 
-let res: Response
-export async function OrderUpload(data: OrderRetriveAllResponse['data']): Promise<void> {
+export async function OrderUpload(data: OrderRetriveAllResponse['data'], res: Response): Promise<void> {
 	const workbook = new ExcelJS.Workbook()
 	const worksheet = workbook.addWorksheet('продажа')
 

@@ -1,3 +1,4 @@
+import { Response } from 'express'
 import { OrderProductRequest } from '../../order-products'
 
 export interface OrderCreateRequest {
@@ -31,6 +32,7 @@ export interface OrderRetriveAllRequest {
 	clientId?: string
 	pagination?: boolean
 	type?: string
+	res: Response
 	startDate?: string
 	endDate?: string
 	accepted?: boolean
