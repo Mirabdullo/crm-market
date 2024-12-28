@@ -32,7 +32,7 @@ export class OrderController {
 
 	@Get()
 	@ApiOkResponse({ type: [OrderRetrieveAllResponseDto] })
-	OrderRetrieveAll(@Query() payload: OrderRetrieveAllRequestDto, @Res() res: Response): Promise<OrderRetriveAllResponse | void> {
+	OrderRetrieveAll(@Query() payload: OrderRetrieveAllRequestDto, @Res() res: Response): Promise<OrderRetriveAllResponse> {
 		return this.#_service.OrderRetrieveAll({
 			...payload,
 			res,
