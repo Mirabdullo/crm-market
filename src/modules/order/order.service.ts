@@ -206,10 +206,11 @@ export class OrderService {
 				},
 			})
 
-			console.log(payload)
 			if (payload.type && payload.type === 'excel') {
+				console.log('excel')
 				await OrderUpload(formattedData, payload.res)
 			} else {
+				console.log(payload)
 				return {
 					totalCount: totalCount,
 					pageNumber: payload.pageNumber,
