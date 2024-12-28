@@ -128,6 +128,80 @@ export class UserService {
 			}
 		}
 
+		const user = await this.#_prisma.users.findFirst({
+			where: { id, deletedAt: null, type: 'client' },
+			select: {
+				id: true,
+				name: true,
+				phone: true,
+				debt: true,
+				orders: {
+					where: { ...dateOption, deletedAt: null },
+					select: {
+						id: true,
+						sum: true,
+						articl: true,
+						debt: true,
+						createdAt: true,
+						updatedAt: true,
+						accepted: true,
+					},
+				},
+				payments: {
+					where: { ...dateOption, deletedAt: null },
+					select: {
+						id: true,
+						card: true,
+						cash: true,
+						other: true,
+						transfer: true,
+						totalPay: true,
+						description: true,
+						createdAt: true,
+						updatedAt: true,
+					},
+				},
+			},
+		})
+
+		if (!user) {
+			throw new NotFoundException('Client topilmadi')
+		}
+
+		const orders = user?.orders?.map((order) => ({ ...order, type: 'order' })) || []
+		const payments = user.payments.map((payment) => ({ ...payment, type: 'payment' })) || []
+		const combined = [...orders, ...payments]
+
+		// Sort combined array
+		const sorted = combined.sort((a, b) => {
+			const dateA = a.type === 'order' ? a.createdAt : a.updatedAt
+			const dateB = b.type === 'order' ? b.createdAt : b.updatedAt
+			return new Date(dateA).getTime() - new Date(dateB).getTime()
+		})
+
+		return {
+			id: id,
+			name: user.name,
+			phone: user.phone,
+			debt: user.debt,
+			data: sorted,
+		}
+	}
+
+	async clientDeedRetrieveUpload(payload: UserDeedRetrieveRequest): Promise<any> {
+		const { id, startDate, endDate, type } = payload
+		let dateOption = {}
+		if (startDate || endDate) {
+			const sDate = new Date(format(startDate, 'yyyy-MM-dd'))
+			const eDate = addHours(new Date(endOfDay(endDate)), 3)
+			dateOption = {
+				createdAt: {
+					gte: sDate,
+					lte: eDate,
+				},
+			}
+		}
+
 		let productOption = {}
 		if (type === 'product') {
 			productOption = {
@@ -210,7 +284,7 @@ export class UserService {
 				},
 				payload,
 			)
-		} else if (type === 'product') {
+		} else {
 			await UserDeedUploadWithProduct(
 				{
 					id: id,
@@ -221,18 +295,85 @@ export class UserService {
 				},
 				payload,
 			)
-		} else {
-			return {
-				id: id,
-				name: user.name,
-				phone: user.phone,
-				debt: user.debt,
-				data: sorted,
-			}
 		}
 	}
 
 	async supplierDeedRetrieve(payload: UserDeedRetrieveRequest): Promise<any> {
+		const { id, startDate, endDate, type } = payload
+		let dateOption = {}
+		if (startDate || endDate) {
+			const sDate = new Date(format(startDate, 'yyyy-MM-dd'))
+			const eDate = addHours(new Date(endOfDay(endDate)), 3)
+			console.log(startDate, endDate)
+			console.log(sDate, eDate)
+			dateOption = {
+				createdAt: {
+					gte: sDate,
+					lte: eDate,
+				},
+			}
+		}
+
+		const user = await this.#_prisma.users.findFirst({
+			where: { id, deletedAt: null, type: 'supplier' },
+			select: {
+				id: true,
+				name: true,
+				phone: true,
+				debt: true,
+				incomingOrder: {
+					where: { ...dateOption, deletedAt: null },
+					select: {
+						id: true,
+						sum: true,
+						debt: true,
+						createdAt: true,
+						updatedAt: true,
+						sellingDate: true,
+					},
+				},
+				incomingOrderPayment: {
+					where: { ...dateOption, deletedAt: null },
+					select: {
+						id: true,
+						card: true,
+						cash: true,
+						other: true,
+						transfer: true,
+						totalPay: true,
+						description: true,
+						createdAt: true,
+						updatedAt: true,
+					},
+				},
+			},
+		})
+
+		if (!user) {
+			throw new NotFoundException('Client topilmadi')
+		}
+
+		const orders = user?.incomingOrder?.map((order) => ({ ...order, type: 'order' })) || []
+		const payments = user.incomingOrderPayment.map((payment) => ({ ...payment, type: 'payment' })) || []
+		const combined = [...orders, ...payments]
+
+		// Sort combined array
+		const sorted = combined.sort((a, b) => {
+			const dateA = a.type === 'order' ? a.createdAt : a.updatedAt
+			const dateB = b.type === 'order' ? b.createdAt : b.updatedAt
+			return new Date(dateA).getTime() - new Date(dateB).getTime()
+		})
+
+		return {
+			id: id,
+			name: user.name,
+			phone: user.phone,
+			debt: user.debt,
+			data: sorted,
+		}
+	}
+
+	async supplierDeedRetrieveUpload(payload: UserDeedRetrieveRequest): Promise<any> {
 		const { id, startDate, endDate, type } = payload
 		let dateOption = {}
 		if (startDate || endDate) {
@@ -328,7 +469,7 @@ export class UserService {
 				},
 				payload,
 			)
-		} else if (type === 'product') {
+		} else {
 			await SupplierDeedUploadWithProduct(
 				{
 					id: id,
@@ -339,14 +480,6 @@ export class UserService {
 				},
 				payload,
 			)
-		} else {
-			return {
-				id: id,
-				name: user.name,
-				phone: user.phone,
-				debt: user.debt,
-				data: sorted,
-			}
 		}
 	}
 

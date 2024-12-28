@@ -56,7 +56,7 @@ export class IncomingOrderController {
 	@Get(':id')
 	@ApiOkResponse({ type: IncomingOrderRetrieveResponseDto })
 	IncomingOrderRetrieve(@Param() payload: IncomingOrderRetrieveRequestDto): Promise<IncomingOrderRetriveResponse> {
-		return this.#_service.incomingOrderRetrieve({ ...payload})
+		return this.#_service.incomingOrderRetrieve({ ...payload })
 	}
 
 	@Get('upload/:id')

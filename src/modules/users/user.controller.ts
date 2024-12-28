@@ -53,10 +53,32 @@ export class UserController {
 
 	@Get('client/deed')
 	@ApiOkResponse({ type: UserRetrieveAllResponseDto })
-	ClientDeedRetrieve(@Query() payload: UserDeedRetrieveRequestDto, @Res() res: Response): Promise<any> {
+	ClientDeedRetrieve(@Query() payload: UserDeedRetrieveRequestDto): Promise<any> {
 		return this.#_service.clientDeedRetrieve({
 			...payload,
+			startDate: payload.startDate ? payload.startDate : new Date().toDateString(),
+			endDate: payload.endDate ? payload.endDate : new Date().toDateString(),
+		})
+	}
+
+	@Get('client/deed/upload')
+	@ApiOkResponse({ type: UserRetrieveAllResponseDto })
+	ClientDeedRetrieveUpload(@Query() payload: UserDeedRetrieveRequestDto, @Res() res: Response) {
+		const result = this.#_service.clientDeedRetrieveUpload({
+			...payload,
 			res,
+			startDate: payload.startDate ? payload.startDate : new Date().toDateString(),
+			endDate: payload.endDate ? payload.endDate : new Date().toDateString(),
+		})
+
+		res.json(result)
+	}
+
+	@Get('supplier/deed')
+	@ApiOkResponse({ type: UserRetrieveAllResponseDto })
+	SupplierDeedRetrieve(@Query() payload: UserDeedRetrieveRequestDto): Promise<any> {
+		return this.#_service.supplierDeedRetrieve({
+			...payload,
 			startDate: payload.startDate ? payload.startDate : new Date().toDateString(),
 			endDate: payload.endDate ? payload.endDate : new Date().toDateString(),
 		})
@@ -64,13 +86,15 @@ export class UserController {
 
 	@Get('supplier/deed')
 	@ApiOkResponse({ type: UserRetrieveAllResponseDto })
-	SupplierDeedRetrieve(@Query() payload: UserDeedRetrieveRequestDto, @Res() res: Response): Promise<any> {
-		return this.#_service.supplierDeedRetrieve({
+	SupplierDeedRetrieveUpload(@Query() payload: UserDeedRetrieveRequestDto, @Res() res: Response) {
+		const result = this.#_service.supplierDeedRetrieveUpload({
 			...payload,
 			res,
 			startDate: payload.startDate ? payload.startDate : new Date().toDateString(),
 			endDate: payload.endDate ? payload.endDate : new Date().toDateString(),
 		})
+
+		res.json(result)
 	}
 
 	@Get(':id')
