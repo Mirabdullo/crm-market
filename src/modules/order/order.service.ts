@@ -26,196 +26,201 @@ export class OrderService {
 	}
 
 	async OrderRetrieveAll(payload: OrderRetriveAllRequest): Promise<OrderRetriveAllResponse | void> {
-		let paginationOptions = {}
-		if (payload.pagination) {
-			paginationOptions = {
-				take: payload.pageSize,
-				skip: (payload.pageNumber - 1) * payload.pageSize,
+		try {
+			let paginationOptions = {}
+			if (payload.pagination) {
+				paginationOptions = {
+					take: payload.pageSize,
+					skip: (payload.pageNumber - 1) * payload.pageSize,
+				}
 			}
-		}
 
-		let sellerOption = {}
-		if (payload.sellerId) {
-			sellerOption = {
-				adminId: payload.sellerId,
+			let sellerOption = {}
+			if (payload.sellerId) {
+				sellerOption = {
+					adminId: payload.sellerId,
+				}
 			}
-		}
 
-		let searchOption = {}
-		if (payload.search) {
-			searchOption = {
-				client: {
-					OR: [{ name: { contains: payload.search, mode: 'insensitive' } }, { phone: { contains: payload.search, mode: 'insensitive' } }],
-				},
-			}
-		}
-
-		let clientOption = {}
-		if (payload.clientId) {
-			clientOption = {
-				clientId: payload.clientId,
-			}
-		}
-
-		let dateOption = {}
-		if (payload.startDate || payload.endDate) {
-			const sDate = new Date(format(payload.startDate, 'yyyy-MM-dd'))
-			const eDate = addHours(new Date(endOfDay(payload.endDate)), 3)
-			dateOption = {
-				createdAt: {
-					...(payload.startDate ? { gte: sDate } : {}),
-					...(payload.endDate ? { lte: eDate } : {}),
-				},
-			}
-		}
-
-		let acceptedOption = {}
-		if (payload.accepted) {
-			acceptedOption = {
-				accepted: payload.accepted,
-			}
-		}
-
-		const OrderList = await this.#_prisma.order.findMany({
-			where: {
-				deletedAt: null,
-				...sellerOption,
-				...searchOption,
-				...dateOption,
-				...clientOption,
-				...acceptedOption,
-			},
-			select: {
-				id: true,
-				articl: true,
-				sum: true,
-				debt: true,
-				accepted: true,
-				createdAt: true,
-				sellingDate: true,
-				client: {
-					select: {
-						id: true,
-						name: true,
-						phone: true,
-						createdAt: true,
+			let searchOption = {}
+			if (payload.search) {
+				searchOption = {
+					client: {
+						OR: [{ name: { contains: payload.search, mode: 'insensitive' } }, { phone: { contains: payload.search, mode: 'insensitive' } }],
 					},
-				},
-				admin: {
-					select: {
-						id: true,
-						name: true,
-						phone: true,
+				}
+			}
+
+			let clientOption = {}
+			if (payload.clientId) {
+				clientOption = {
+					clientId: payload.clientId,
+				}
+			}
+
+			let dateOption = {}
+			if (payload.startDate || payload.endDate) {
+				const sDate = new Date(format(payload.startDate, 'yyyy-MM-dd'))
+				const eDate = addHours(new Date(endOfDay(payload.endDate)), 3)
+				dateOption = {
+					createdAt: {
+						...(payload.startDate ? { gte: sDate } : {}),
+						...(payload.endDate ? { lte: eDate } : {}),
 					},
+				}
+			}
+
+			let acceptedOption = {}
+			if (payload.accepted) {
+				acceptedOption = {
+					accepted: payload.accepted,
+				}
+			}
+
+			const OrderList = await this.#_prisma.order.findMany({
+				where: {
+					deletedAt: null,
+					...sellerOption,
+					...searchOption,
+					...dateOption,
+					...clientOption,
+					...acceptedOption,
 				},
-				payment: {
-					where: { deletedAt: null },
-					select: {
-						id: true,
-						totalPay: true,
-						debt: true,
-						card: true,
-						cash: true,
-						transfer: true,
-						other: true,
-						createdAt: true,
-						description: true,
-					},
-				},
-				products: {
-					where: { deletedAt: null },
-					select: {
-						id: true,
-						cost: true,
-						count: true,
-						price: true,
-						createdAt: true,
-						product: {
-							select: {
-								id: true,
-								name: true,
-								count: true,
-							},
+				select: {
+					id: true,
+					articl: true,
+					sum: true,
+					debt: true,
+					accepted: true,
+					createdAt: true,
+					sellingDate: true,
+					client: {
+						select: {
+							id: true,
+							name: true,
+							phone: true,
+							createdAt: true,
 						},
 					},
-					orderBy: { createdAt: 'desc' },
+					admin: {
+						select: {
+							id: true,
+							name: true,
+							phone: true,
+						},
+					},
+					payment: {
+						where: { deletedAt: null },
+						select: {
+							id: true,
+							totalPay: true,
+							debt: true,
+							card: true,
+							cash: true,
+							transfer: true,
+							other: true,
+							createdAt: true,
+							description: true,
+						},
+					},
+					products: {
+						where: { deletedAt: null },
+						select: {
+							id: true,
+							cost: true,
+							count: true,
+							price: true,
+							createdAt: true,
+							product: {
+								select: {
+									id: true,
+									name: true,
+									count: true,
+								},
+							},
+						},
+						orderBy: { createdAt: 'desc' },
+					},
 				},
-			},
-			orderBy: { createdAt: 'desc' },
-			...paginationOptions,
-		})
+				orderBy: { createdAt: 'desc' },
+				...paginationOptions,
+			})
 
-		const formattedData = OrderList.map((order) => ({
-			id: order.id,
-			articl: order.articl,
-			client: order.client,
-			sum: order.sum.toNumber(),
-			debt: order.debt.toNumber(),
-			accepted: order.accepted,
-			createdAt: order.createdAt,
-			sellingDate: order.sellingDate,
-			seller: order.admin,
-			payment: order.payment.map((pay) => {
-				return {
-					...pay,
-					totalPay: pay?.totalPay?.toNumber() || 0,
-					debt: pay?.debt?.toNumber() || 0,
-					cash: pay?.cash?.toNumber() || 0,
-					card: pay?.card?.toNumber() || 0,
-					transfer: pay?.transfer?.toNumber() || 0,
-					other: pay?.other?.toNumber() || 0,
-				}
-			})[0],
-			products: order.products.map((prod) => ({
-				...prod,
-				id: prod.id,
-				cost: (prod.cost as Decimal).toNumber(),
-				price: (prod.price as Decimal).toNumber(),
-				count: prod.count,
-			})),
-		}))
+			const formattedData = OrderList.map((order) => ({
+				id: order.id,
+				articl: order.articl,
+				client: order.client,
+				sum: order.sum.toNumber(),
+				debt: order.debt.toNumber(),
+				accepted: order.accepted,
+				createdAt: order.createdAt,
+				sellingDate: order.sellingDate,
+				seller: order.admin,
+				payment: order.payment.map((pay) => {
+					return {
+						...pay,
+						totalPay: pay?.totalPay?.toNumber() || 0,
+						debt: pay?.debt?.toNumber() || 0,
+						cash: pay?.cash?.toNumber() || 0,
+						card: pay?.card?.toNumber() || 0,
+						transfer: pay?.transfer?.toNumber() || 0,
+						other: pay?.other?.toNumber() || 0,
+					}
+				})[0],
+				products: order.products.map((prod) => ({
+					...prod,
+					id: prod.id,
+					cost: (prod.cost as Decimal).toNumber(),
+					price: (prod.price as Decimal).toNumber(),
+					count: prod.count,
+				})),
+			}))
 
-		const totalCalc = {
-			totalSum: 0,
-			totalDebt: 0,
-			totalPay: 0,
-			totalCard: 0,
-			totalCash: 0,
-			totalTransfer: 0,
-			totalOther: 0,
-		}
-
-		formattedData.forEach((order) => {
-			totalCalc.totalSum += order.sum
-			totalCalc.totalDebt += order.debt
-			totalCalc.totalPay += order?.payment?.totalPay || 0
-			totalCalc.totalCard += order?.payment?.card || 0
-			totalCalc.totalCash += order?.payment?.cash || 0
-			totalCalc.totalTransfer += order?.payment?.transfer || 0
-			totalCalc.totalOther += order?.payment?.other || 0
-		})
-
-		const totalCount = await this.#_prisma.order.count({
-			where: {
-				deletedAt: null,
-				...sellerOption,
-				...searchOption,
-				...dateOption,
-				...clientOption,
-			},
-		})
-
-		if (payload.type === 'excel') {
-			await OrderUpload(formattedData, payload.res)
-		} else {
-			return {
-				totalCount: totalCount,
-				pageNumber: payload.pageNumber,
-				pageSize: payload.pageSize,
-				pageCount: Math.ceil(totalCount / payload.pageSize),
-				data: formattedData,
-				totalCalc,
+			const totalCalc = {
+				totalSum: 0,
+				totalDebt: 0,
+				totalPay: 0,
+				totalCard: 0,
+				totalCash: 0,
+				totalTransfer: 0,
+				totalOther: 0,
 			}
+
+			formattedData.forEach((order) => {
+				totalCalc.totalSum += order.sum
+				totalCalc.totalDebt += order.debt
+				totalCalc.totalPay += order?.payment?.totalPay || 0
+				totalCalc.totalCard += order?.payment?.card || 0
+				totalCalc.totalCash += order?.payment?.cash || 0
+				totalCalc.totalTransfer += order?.payment?.transfer || 0
+				totalCalc.totalOther += order?.payment?.other || 0
+			})
+
+			const totalCount = await this.#_prisma.order.count({
+				where: {
+					deletedAt: null,
+					...sellerOption,
+					...searchOption,
+					...dateOption,
+					...clientOption,
+				},
+			})
+
+			console.log(payload)
+			if (payload.type && payload.type === 'excel') {
+				await OrderUpload(formattedData, payload.res)
+			} else {
+				return {
+					totalCount: totalCount,
+					pageNumber: payload.pageNumber,
+					pageSize: payload.pageSize,
+					pageCount: Math.ceil(totalCount / payload.pageSize),
+					data: formattedData,
+					totalCalc,
+				}
+			}
+		} catch (error) {
+			console.log(error)
 		}
 	}
 
