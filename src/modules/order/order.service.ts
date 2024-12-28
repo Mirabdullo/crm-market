@@ -25,7 +25,7 @@ export class OrderService {
 		this.#_prisma = prisma
 	}
 
-	async OrderRetrieveAll(payload: OrderRetriveAllRequest): Promise<OrderRetriveAllResponse | void> {
+	async OrderRetrieveAll(payload: OrderRetriveAllRequest): Promise<OrderRetriveAllResponse> {
 		try {
 			let paginationOptions = {}
 			if (payload.pagination) {
@@ -210,7 +210,7 @@ export class OrderService {
 				console.log('excel')
 				await OrderUpload(formattedData, payload.res)
 			} else {
-				console.log(payload)
+				console.log('unknown')
 				return {
 					totalCount: totalCount,
 					pageNumber: payload.pageNumber,
