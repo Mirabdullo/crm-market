@@ -32,11 +32,10 @@ export class OrderController {
 
 	@Get()
 	@ApiOkResponse({ type: [OrderRetrieveAllResponseDto] })
-	async OrderRetrieveAll(@Query() payload: OrderRetrieveAllRequestDto, @Res() res: Response): Promise<OrderRetriveAllResponse> {
+	OrderRetrieveAll(@Query() payload: OrderRetrieveAllRequestDto): Promise<OrderRetriveAllResponse> {
 		try {
-			return await this.#_service.OrderRetrieveAll({
+			return this.#_service.OrderRetrieveAll({
 				...payload,
-				res,
 				pageNumber: payload.pageNumber ?? PAGE_NUMBER,
 				pageSize: payload.pageSize ?? PAGE_SIZE,
 				accepted: ['true', true].includes(payload.accepted) ? true : false,
