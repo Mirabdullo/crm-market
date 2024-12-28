@@ -27,6 +27,7 @@ export class OrderService {
 
 	async OrderRetrieveAll(payload: OrderRetriveAllRequest): Promise<OrderRetriveAllResponse> {
 		try {
+			console.log(payload.pageSize, payload.pagination)
 			let paginationOptions = {}
 			if (payload.pagination) {
 				paginationOptions = {
@@ -186,6 +187,7 @@ export class OrderService {
 				totalOther: 0,
 			}
 
+			console.log(totalCalc)
 			formattedData.forEach((order) => {
 				totalCalc.totalSum += order.sum
 				totalCalc.totalDebt += order.debt
@@ -205,9 +207,9 @@ export class OrderService {
 					...clientOption,
 				},
 			})
-			console.time('Process')
-			// Kodning muhim qismi
 
+			// Kodning muhim qismi
+			console.log(totalCalc)
 			// if (payload.type && payload.type === 'excel') {
 			// 	console.log('excel')
 			// 	await OrderUpload(formattedData, payload.res)
@@ -223,7 +225,7 @@ export class OrderService {
 			// 		totalCalc,
 			// 	}
 			// }
-
+			console.log(new Date())
 			return {
 				totalCount: totalCount,
 				pageNumber: payload.pageNumber,
