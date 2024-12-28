@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post, Query, UseInterceptors } from '@nestjs/common'
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post, Query, Res, UseInterceptors } from '@nestjs/common'
 import { IncomingOrderService } from './incoming-order.service'
 import { PAGE_NUMBER, PAGE_SIZE } from './constants'
 import {
@@ -15,6 +15,7 @@ import { IncomingOrderRetriveAllResponse, IncomingOrderRetriveResponse } from '.
 import { PassUserIdInterceptor } from '../../interceptors'
 import { Permission } from '@decorators'
 import { Permissions } from '@enums'
+import { Response } from 'express'
 
 @ApiTags('IncomingOrder')
 @UseInterceptors(PassUserIdInterceptor)
@@ -29,9 +30,10 @@ export class IncomingOrderController {
 
 	@Get()
 	@ApiOkResponse({ type: [IncomingOrderRetrieveAllResponseDto] })
-	IncomingOrderRetrieveAll(@Query() payload: IncomingOrderRetrieveAllRequestDto): Promise<IncomingOrderRetriveAllResponse> {
+	IncomingOrderRetrieveAll(@Query() payload: IncomingOrderRetrieveAllRequestDto, @Res() res: Response): Promise<IncomingOrderRetriveAllResponse> {
 		return this.#_service.incomingOrderRetrieveAll({
 			...payload,
+			res,
 			pageNumber: payload.pageNumber ?? PAGE_NUMBER,
 			pageSize: payload.pageSize ?? PAGE_SIZE,
 			pagination: [true, 'true'].includes(payload.pagination) ? false : true,
@@ -40,8 +42,8 @@ export class IncomingOrderController {
 
 	@Get(':id')
 	@ApiOkResponse({ type: IncomingOrderRetrieveResponseDto })
-	IncomingOrderRetrieve(@Param() payload: IncomingOrderRetrieveRequestDto): Promise<IncomingOrderRetriveResponse> {
-		return this.#_service.incomingOrderRetrieve(payload)
+	IncomingOrderRetrieve(@Param() payload: IncomingOrderRetrieveRequestDto, @Res() res: Response): Promise<IncomingOrderRetriveResponse> {
+		return this.#_service.incomingOrderRetrieve({ ...payload, res })
 	}
 
 	@Permission(Permissions.INCOMING_ORDER_CREATE)

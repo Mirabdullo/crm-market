@@ -12,6 +12,7 @@ import {
 import { Decimal } from '../../types'
 import { addHours, endOfDay, format } from 'date-fns'
 import { Cron, CronExpression } from '@nestjs/schedule'
+import { IncomingOrderUpload, IncomingOrderUploadWithProduct } from './excel'
 
 @Injectable()
 export class IncomingOrderService {
@@ -160,12 +161,16 @@ export class IncomingOrderService {
 			},
 		})
 
-		return {
-			totalCount: totalCount,
-			pageNumber: payload.pageNumber,
-			pageSize: payload.pageSize,
-			pageCount: Math.ceil(totalCount / payload.pageSize),
-			data: formattedData,
+		if (payload.type === 'excel') {
+			await IncomingOrderUpload(formattedData, payload.res)
+		} else {
+			return {
+				totalCount: totalCount,
+				pageNumber: payload.pageNumber,
+				pageSize: payload.pageSize,
+				pageCount: Math.ceil(totalCount / payload.pageSize),
+				data: formattedData,
+			}
 		}
 	}
 
@@ -233,27 +238,55 @@ export class IncomingOrderService {
 			throw new NotFoundException('IncomingOrder not found')
 		}
 
-		return {
-			...incomingOrder,
-			sum: incomingOrder.sum?.toNumber(),
-			debt: incomingOrder.debt?.toNumber(),
-			payment: incomingOrder.payment.map((payment) => {
-				return {
-					...payment,
-					totalPay: (payment.totalPay as Decimal).toNumber() || 0,
-					debt: (payment.debt as Decimal).toNumber() || 0,
-					cash: (payment.cash as Decimal)?.toNumber(),
-					card: (payment.card as Decimal)?.toNumber(),
-					transfer: (payment.transfer as Decimal)?.toNumber(),
-					other: (payment.other as Decimal)?.toNumber(),
-				}
-			})[0],
-			incomingProducts: incomingOrder.incomingProducts.map((incomingProduct) => ({
-				...incomingProduct,
-				cost: incomingProduct.cost?.toNumber(),
-				selling_price: incomingProduct.selling_price?.toNumber(),
-				wholesale_price: incomingProduct.wholesale_price?.toNumber(),
-			})),
+		if (payload.type === 'excel') {
+			await IncomingOrderUploadWithProduct(
+				{
+					...incomingOrder,
+					sum: incomingOrder.sum?.toNumber(),
+					debt: incomingOrder.debt?.toNumber(),
+					payment: incomingOrder.payment.map((payment) => {
+						return {
+							...payment,
+							totalPay: (payment.totalPay as Decimal).toNumber() || 0,
+							debt: (payment.debt as Decimal).toNumber() || 0,
+							cash: (payment.cash as Decimal)?.toNumber(),
+							card: (payment.card as Decimal)?.toNumber(),
+							transfer: (payment.transfer as Decimal)?.toNumber(),
+							other: (payment.other as Decimal)?.toNumber(),
+						}
+					})[0],
+					incomingProducts: incomingOrder.incomingProducts.map((incomingProduct) => ({
+						...incomingProduct,
+						cost: incomingProduct.cost?.toNumber(),
+						selling_price: incomingProduct.selling_price?.toNumber(),
+						wholesale_price: incomingProduct.wholesale_price?.toNumber(),
+					})),
+				},
+				payload.res,
+			)
+		} else {
+			return {
+				...incomingOrder,
+				sum: incomingOrder.sum?.toNumber(),
+				debt: incomingOrder.debt?.toNumber(),
+				payment: incomingOrder.payment.map((payment) => {
+					return {
+						...payment,
+						totalPay: (payment.totalPay as Decimal).toNumber() || 0,
+						debt: (payment.debt as Decimal).toNumber() || 0,
+						cash: (payment.cash as Decimal)?.toNumber(),
+						card: (payment.card as Decimal)?.toNumber(),
+						transfer: (payment.transfer as Decimal)?.toNumber(),
+						other: (payment.other as Decimal)?.toNumber(),
+					}
+				})[0],
+				incomingProducts: incomingOrder.incomingProducts.map((incomingProduct) => ({
+					...incomingProduct,
+					cost: incomingProduct.cost?.toNumber(),
+					selling_price: incomingProduct.selling_price?.toNumber(),
+					wholesale_price: incomingProduct.wholesale_price?.toNumber(),
+				})),
+			}
 		}
 	}
 
@@ -346,39 +379,60 @@ export class IncomingOrderService {
 
 	@Cron(CronExpression.EVERY_2_HOURS)
 	async acceptIncomingOrders() {
+		const todayEnd = endOfDay(new Date())
+
 		const incomingOrders = await this.#_prisma.incomingOrder.findMany({
-			where: { createdAt: { lte: endOfDay(new Date()) }, deletedAt: null, accepted: false },
-			include: { incomingProducts: true, supplier: true, payment: true },
+			where: {
+				sellingDate: { lte: todayEnd },
+				deletedAt: null,
+				accepted: false,
+			},
+			include: {
+				incomingProducts: true,
+				supplier: true,
+				payment: true,
+			},
 		})
 
-		if (incomingOrders.length) {
-			const transactions = incomingOrders.map((order) => {
-				const products = order.incomingProducts.map((p) =>
-					this.#_prisma.products.update({
-						where: { id: p.productId },
-						data: {
-							cost: p.cost,
-							count: { increment: p.count },
-							...(p.selling_price !== null && { selling_price: p.selling_price }),
-							...(p.wholesale_price !== null && { wholesale_price: p.wholesale_price }),
-						},
-					}),
-				)
-
-				const userUpdate = this.#_prisma.users.update({
-					where: { id: order.supplierId },
-					data: { debt: { increment: (order?.payment[0]?.totalPay?.toNumber() || 0) - order.sum.toNumber() } },
-				})
-
-				return this.#_prisma.$transaction([...products, userUpdate])
-			})
-
-			console.log('Cron job ishladi malumot bor', new Date())
-
-			await Promise.all(transactions)
+		if (incomingOrders.length === 0) {
+			console.log('No incoming orders to process', new Date())
+			return
 		}
 
-		console.log('cron job')
+		const transactions = incomingOrders.map((order) => {
+			const productUpdates = order.incomingProducts.map((product) =>
+				this.#_prisma.products.update({
+					where: { id: product.productId },
+					data: {
+						cost: product.cost,
+						count: { increment: product.count },
+						...(product.selling_price && { selling_price: product.selling_price }),
+						...(product.wholesale_price && { wholesale_price: product.wholesale_price }),
+					},
+				}),
+			)
+
+			const updateUserDebt = this.#_prisma.users.update({
+				where: { id: order.supplierId },
+				data: {
+					debt: { increment: (order.payment?.[0]?.totalPay?.toNumber() || 0) - order.sum.toNumber() },
+				},
+			})
+
+			const markOrderAccepted = this.#_prisma.incomingOrder.update({
+				where: { id: order.id },
+				data: { accepted: true },
+			})
+
+			return this.#_prisma.$transaction([...productUpdates, updateUserDebt, markOrderAccepted])
+		})
+
+		try {
+			await Promise.all(transactions)
+			console.log('Cron job executed successfully', new Date())
+		} catch (error) {
+			console.error('Error processing incoming orders:', error)
+		}
 	}
 
 	async incomingOrderDelete(payload: IncomingOrderDeleteRequest): Promise<null> {

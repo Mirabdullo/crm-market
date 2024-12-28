@@ -4,6 +4,7 @@ import { IncomingOrderCreateRequest, IncomingOrderDeleteRequest, IncomingOrderRe
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
 import { IncomingProductCreateRequest, IncomingProductCreateRequestDto } from '../../incoming-products'
 import { IncomingOrderPaymentRequest, IncomingOrderPaymentRequestDto } from '../../incoming-order-payment'
+import { Response } from 'express'
 
 export class IncomingOrderRetrieveAllRequestDto implements IncomingOrderRetriveAllRequest {
 	@ApiPropertyOptional({ type: Number })
@@ -24,6 +25,13 @@ export class IncomingOrderRetrieveAllRequestDto implements IncomingOrderRetriveA
 	@IsString()
 	@IsOptional()
 	search?: string
+
+	@ApiPropertyOptional({ type: String, example: 'excel' })
+	@IsString()
+	@IsOptional()
+	type?: string
+
+	res: Response
 
 	@ApiPropertyOptional({ type: String })
 	@IsUUID('4')
@@ -51,6 +59,13 @@ export class IncomingOrderRetrieveRequestDto implements IncomingOrderRetriveRequ
 	@IsUUID('4')
 	@IsNotEmpty()
 	id: string
+
+	@ApiPropertyOptional({ type: String, example: 'excel' })
+	@IsString()
+	@IsOptional()
+	type?: string
+
+	res: Response
 }
 
 export class IncomingOrderCreateRequestDto implements IncomingOrderCreateRequest {
