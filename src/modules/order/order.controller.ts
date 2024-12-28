@@ -33,14 +33,28 @@ export class OrderController {
 	@Get()
 	@ApiOkResponse({ type: [OrderRetrieveAllResponseDto] })
 	OrderRetrieveAll(@Query() payload: OrderRetrieveAllRequestDto, @Res() res: Response): Promise<OrderRetriveAllResponse> {
-		return this.#_service.OrderRetrieveAll({
-			...payload,
-			res,
-			pageNumber: payload.pageNumber ?? PAGE_NUMBER,
-			pageSize: payload.pageSize ?? PAGE_SIZE,
-			accepted: ['true', true].includes(payload.accepted) ? true : false,
-			pagination: [true, 'true'].includes(payload.pagination) ? false : true,
-		})
+		try {
+			console.log(
+				this.#_service.OrderRetrieveAll({
+					...payload,
+					res,
+					pageNumber: payload.pageNumber ?? PAGE_NUMBER,
+					pageSize: payload.pageSize ?? PAGE_SIZE,
+					accepted: ['true', true].includes(payload.accepted) ? true : false,
+					pagination: [true, 'true'].includes(payload.pagination) ? false : true,
+				}),
+			)
+			return this.#_service.OrderRetrieveAll({
+				...payload,
+				res,
+				pageNumber: payload.pageNumber ?? PAGE_NUMBER,
+				pageSize: payload.pageSize ?? PAGE_SIZE,
+				accepted: ['true', true].includes(payload.accepted) ? true : false,
+				pagination: [true, 'true'].includes(payload.pagination) ? false : true,
+			})
+		} catch (error) {
+			console.log(error)
+		}
 	}
 
 	@Get('statistica')
