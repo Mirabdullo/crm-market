@@ -30,20 +30,40 @@ export class IncomingOrderController {
 
 	@Get()
 	@ApiOkResponse({ type: [IncomingOrderRetrieveAllResponseDto] })
-	IncomingOrderRetrieveAll(@Query() payload: IncomingOrderRetrieveAllRequestDto, @Res() res: Response): Promise<IncomingOrderRetriveAllResponse> {
+	IncomingOrderRetrieveAll(@Query() payload: IncomingOrderRetrieveAllRequestDto): Promise<IncomingOrderRetriveAllResponse> {
 		return this.#_service.incomingOrderRetrieveAll({
 			...payload,
-			res,
 			pageNumber: payload.pageNumber ?? PAGE_NUMBER,
 			pageSize: payload.pageSize ?? PAGE_SIZE,
 			pagination: [true, 'true'].includes(payload.pagination) ? false : true,
 		})
 	}
 
+	@Get('upload')
+	@ApiOkResponse({ type: [IncomingOrderRetrieveAllResponseDto] })
+	IncomingOrderRetrieveAllUpload(@Query() payload: IncomingOrderRetrieveAllRequestDto, @Res() res: Response) {
+		const result = this.#_service.incomingOrderRetrieveAll({
+			...payload,
+			res,
+			pageNumber: payload.pageNumber ?? PAGE_NUMBER,
+			pageSize: payload.pageSize ?? PAGE_SIZE,
+			pagination: [true, 'true'].includes(payload.pagination) ? false : true,
+		})
+
+		res.json(result)
+	}
+
 	@Get(':id')
 	@ApiOkResponse({ type: IncomingOrderRetrieveResponseDto })
-	IncomingOrderRetrieve(@Param() payload: IncomingOrderRetrieveRequestDto, @Res() res: Response): Promise<IncomingOrderRetriveResponse> {
-		return this.#_service.incomingOrderRetrieve({ ...payload, res })
+	IncomingOrderRetrieve(@Param() payload: IncomingOrderRetrieveRequestDto): Promise<IncomingOrderRetriveResponse> {
+		return this.#_service.incomingOrderRetrieve({ ...payload})
+	}
+
+	@Get('upload/:id')
+	@ApiOkResponse({ type: IncomingOrderRetrieveResponseDto })
+	IncomingOrderRetrieveUpload(@Param() payload: IncomingOrderRetrieveRequestDto, @Res() res: Response) {
+		const result = this.#_service.incomingOrderRetrieve({ ...payload, res })
+		res.json(result)
 	}
 
 	@Permission(Permissions.INCOMING_ORDER_CREATE)

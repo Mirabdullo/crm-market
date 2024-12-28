@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post, Query, Res, UseInterceptors } from '@nestjs/common'
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post, Query, Res, StreamableFile, UseInterceptors } from '@nestjs/common'
 import { OrderService } from './order.service'
 import { PAGE_NUMBER, PAGE_SIZE } from './constants'
 import {
@@ -33,17 +33,28 @@ export class OrderController {
 	@Get()
 	@ApiOkResponse({ type: [OrderRetrieveAllResponseDto] })
 	OrderRetrieveAll(@Query() payload: OrderRetrieveAllRequestDto): Promise<OrderRetriveAllResponse> {
-		try {
-			return this.#_service.OrderRetrieveAll({
-				...payload,
-				pageNumber: payload.pageNumber ?? PAGE_NUMBER,
-				pageSize: payload.pageSize ?? PAGE_SIZE,
-				accepted: ['true', true].includes(payload.accepted) ? true : false,
-				pagination: [true, 'true'].includes(payload.pagination) ? false : true,
-			})
-		} catch (error) {
-			console.log(error)
-		}
+		return this.#_service.OrderRetrieveAll({
+			...payload,
+			pageNumber: payload.pageNumber ?? PAGE_NUMBER,
+			pageSize: payload.pageSize ?? PAGE_SIZE,
+			accepted: ['true', true].includes(payload.accepted) ? true : false,
+			pagination: [true, 'true'].includes(payload.pagination) ? false : true,
+		})
+	}
+
+	@Get('upload')
+	@ApiOkResponse({})
+	OrderRetrieveAllUpload(@Query() payload: OrderRetrieveAllRequestDto, @Res() res: Response) {
+		const result = this.#_service.OrderRetrieveAllUpload({
+			...payload,
+			res,
+			pageNumber: payload.pageNumber ?? PAGE_NUMBER,
+			pageSize: payload.pageSize ?? PAGE_SIZE,
+			accepted: ['true', true].includes(payload.accepted) ? true : false,
+			pagination: [true, 'true'].includes(payload.pagination) ? false : true,
+		})
+
+		res.status(200).json(result)
 	}
 
 	@Get('statistica')

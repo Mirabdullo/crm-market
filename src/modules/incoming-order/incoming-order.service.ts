@@ -174,6 +174,139 @@ export class IncomingOrderService {
 		}
 	}
 
+	async incomingOrderRetrieveAllUpload(payload: IncomingOrderRetriveAllRequest): Promise<void> {
+		let paginationOptions = {}
+		if (payload.pagination) {
+			paginationOptions = {
+				take: payload.pageSize,
+				skip: (payload.pageNumber - 1) * payload.pageSize,
+			}
+		}
+
+		let sellerOption = {}
+		if (payload.sellerId) {
+			sellerOption = {
+				admin: { id: payload.sellerId },
+			}
+		}
+
+		let searchOption = {}
+		if (payload.search) {
+			searchOption = {
+				OR: [
+					{
+						supplier: {
+							OR: [{ name: { contains: payload.search, mode: 'insensitive' } }, { phone: { contains: payload.search, mode: 'insensitive' } }],
+						},
+					},
+				],
+			}
+		}
+
+		let dateOption = {}
+		if (payload.startDate || payload.endDate) {
+			const sDate = new Date(format(payload.startDate, 'yyyy-MM-dd'))
+			const eDate = addHours(new Date(endOfDay(payload.endDate)), 3)
+			dateOption = {
+				createdAt: {
+					...(payload.startDate ? { gte: sDate } : {}),
+					...(payload.endDate ? { lte: eDate } : {}),
+				},
+			}
+		}
+
+		const incomingOrderList = await this.#_prisma.incomingOrder.findMany({
+			where: {
+				deletedAt: null,
+				...sellerOption,
+				...searchOption,
+				...dateOption,
+			},
+			select: {
+				id: true,
+				sum: true,
+				debt: true,
+				accepted: true,
+				createdAt: true,
+				sellingDate: true,
+				supplier: {
+					select: {
+						id: true,
+						name: true,
+						phone: true,
+						createdAt: true,
+					},
+				},
+				admin: {
+					select: {
+						id: true,
+						name: true,
+						phone: true,
+					},
+				},
+				payment: {
+					select: {
+						id: true,
+						totalPay: true,
+						debt: true,
+						card: true,
+						cash: true,
+						transfer: true,
+						other: true,
+						createdAt: true,
+						description: true,
+					},
+				},
+				incomingProducts: {
+					where: { deletedAt: null },
+					select: {
+						id: true,
+						cost: true,
+						count: true,
+						createdAt: true,
+						selling_price: true,
+						wholesale_price: true,
+						product: {
+							select: {
+								id: true,
+								name: true,
+								count: true,
+							},
+						},
+					},
+					orderBy: { createdAt: 'desc' },
+				},
+			},
+			orderBy: { createdAt: 'desc' },
+			...paginationOptions,
+		})
+
+		const formattedData = incomingOrderList.map((order) => ({
+			...order,
+			sum: order.sum?.toNumber(),
+			debt: order.debt?.toNumber(),
+			payment: order.payment.map((pay) => {
+				return {
+					...pay,
+					totalPay: (pay.totalPay as Decimal).toNumber() || 0,
+					debt: (pay.debt as Decimal).toNumber() || 0,
+					cash: (pay.cash as Decimal)?.toNumber(),
+					card: (pay.card as Decimal)?.toNumber(),
+					transfer: (pay.transfer as Decimal)?.toNumber(),
+					other: (pay.other as Decimal)?.toNumber(),
+				}
+			})[0],
+			incomingProducts: order.incomingProducts.map((incomingProduct) => ({
+				...incomingProduct,
+				cost: incomingProduct.cost?.toNumber(),
+				selling_price: incomingProduct.selling_price?.toNumber(),
+				wholesale_price: incomingProduct.wholesale_price?.toNumber(),
+			})),
+		}))
+
+		await IncomingOrderUpload(formattedData, payload.res)
+	}
+
 	async incomingOrderRetrieve(payload: IncomingOrderRetriveRequest): Promise<IncomingOrderRetriveResponse> {
 		const incomingOrder = await this.#_prisma.incomingOrder.findUnique({
 			where: { id: payload.id },
@@ -238,34 +371,96 @@ export class IncomingOrderService {
 			throw new NotFoundException('IncomingOrder not found')
 		}
 
-		if (payload.type === 'excel') {
-			await IncomingOrderUploadWithProduct(
-				{
-					...incomingOrder,
-					sum: incomingOrder.sum?.toNumber(),
-					debt: incomingOrder.debt?.toNumber(),
-					payment: incomingOrder.payment.map((payment) => {
-						return {
-							...payment,
-							totalPay: (payment.totalPay as Decimal).toNumber() || 0,
-							debt: (payment.debt as Decimal).toNumber() || 0,
-							cash: (payment.cash as Decimal)?.toNumber(),
-							card: (payment.card as Decimal)?.toNumber(),
-							transfer: (payment.transfer as Decimal)?.toNumber(),
-							other: (payment.other as Decimal)?.toNumber(),
-						}
-					})[0],
-					incomingProducts: incomingOrder.incomingProducts.map((incomingProduct) => ({
-						...incomingProduct,
-						cost: incomingProduct.cost?.toNumber(),
-						selling_price: incomingProduct.selling_price?.toNumber(),
-						wholesale_price: incomingProduct.wholesale_price?.toNumber(),
-					})),
+		return {
+			...incomingOrder,
+			sum: incomingOrder.sum?.toNumber(),
+			debt: incomingOrder.debt?.toNumber(),
+			payment: incomingOrder.payment.map((payment) => {
+				return {
+					...payment,
+					totalPay: (payment.totalPay as Decimal).toNumber() || 0,
+					debt: (payment.debt as Decimal).toNumber() || 0,
+					cash: (payment.cash as Decimal)?.toNumber(),
+					card: (payment.card as Decimal)?.toNumber(),
+					transfer: (payment.transfer as Decimal)?.toNumber(),
+					other: (payment.other as Decimal)?.toNumber(),
+				}
+			})[0],
+			incomingProducts: incomingOrder.incomingProducts.map((incomingProduct) => ({
+				...incomingProduct,
+				cost: incomingProduct.cost?.toNumber(),
+				selling_price: incomingProduct.selling_price?.toNumber(),
+				wholesale_price: incomingProduct.wholesale_price?.toNumber(),
+			})),
+		}
+	}
+
+	async incomingOrderRetrieveUpload(payload: IncomingOrderRetriveRequest): Promise<void> {
+		const incomingOrder = await this.#_prisma.incomingOrder.findUnique({
+			where: { id: payload.id },
+			select: {
+				id: true,
+				sum: true,
+				debt: true,
+				accepted: true,
+				createdAt: true,
+				sellingDate: true,
+				supplier: {
+					select: {
+						id: true,
+						name: true,
+						phone: true,
+						createdAt: true,
+					},
 				},
-				payload.res,
-			)
-		} else {
-			return {
+				admin: {
+					select: {
+						id: true,
+						name: true,
+						phone: true,
+					},
+				},
+				payment: {
+					select: {
+						id: true,
+						totalPay: true,
+						debt: true,
+						card: true,
+						cash: true,
+						transfer: true,
+						other: true,
+						createdAt: true,
+						description: true,
+					},
+				},
+				incomingProducts: {
+					where: { deletedAt: null },
+					select: {
+						id: true,
+						cost: true,
+						count: true,
+						createdAt: true,
+						selling_price: true,
+						wholesale_price: true,
+						product: {
+							select: {
+								id: true,
+								name: true,
+								count: true,
+							},
+						},
+					},
+					orderBy: { createdAt: 'desc' },
+				},
+			},
+		})
+
+		if (!incomingOrder) {
+			throw new NotFoundException('IncomingOrder not found')
+		}
+
+		await IncomingOrderUploadWithProduct(
+			{
 				...incomingOrder,
 				sum: incomingOrder.sum?.toNumber(),
 				debt: incomingOrder.debt?.toNumber(),
@@ -286,8 +481,9 @@ export class IncomingOrderService {
 					selling_price: incomingProduct.selling_price?.toNumber(),
 					wholesale_price: incomingProduct.wholesale_price?.toNumber(),
 				})),
-			}
-		}
+			},
+			payload.res,
+		)
 	}
 
 	async incomingOrderCreate(payload: IncomingOrderCreateRequest): Promise<null | any> {
