@@ -56,7 +56,7 @@ export class IncomingOrderPaymentRetrieveRequestDto implements IncomingOrderPaym
 export class IncomingOrderPaymentCreateRequestDto implements IncomingOrderPaymentCreateRequest {
 	@ApiProperty({ type: String, example: 'uuid' })
 	@IsUUID('4')
-	@IsNotEmpty()
+	@IsOptional()
 	orderId: string
 
 	@ApiProperty({ type: String, example: 'uuid' })

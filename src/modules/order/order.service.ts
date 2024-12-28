@@ -205,12 +205,15 @@ export class OrderService {
 					...clientOption,
 				},
 			})
+			console.time('Process')
+			// Kodning muhim qismi
 
 			if (payload.type && payload.type === 'excel') {
 				console.log('excel')
 				await OrderUpload(formattedData, payload.res)
 			} else {
-				console.log('unknown')
+				console.log('unknown', totalCalc, formattedData[0])
+				console.timeEnd('Process')
 				return {
 					totalCount: totalCount,
 					pageNumber: payload.pageNumber,
