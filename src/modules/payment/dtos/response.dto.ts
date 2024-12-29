@@ -28,6 +28,9 @@ export class PaymentRetrieveResponseDto implements PaymentRetriveResponse {
 	id: string
 
 	@ApiProperty({ type: Number })
+	totalPay: number
+
+	@ApiProperty({ type: Number })
 	cash: number
 
 	@ApiProperty({ type: Number })
