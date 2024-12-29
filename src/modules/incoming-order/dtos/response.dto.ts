@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { IncomingOrderRetriveAllResponse, IncomingOrderRetriveResponse } from '../interfaces'
+import { IncomingOrderCreateResponse, IncomingOrderRetriveAllResponse, IncomingOrderRetriveResponse } from '../interfaces'
 import { UserRetrieveResponseDto, UserRetriveResponse } from '../../users'
 import { IncomingProductRetrieveResponseDto, IncomingProductRetriveResponse } from '../../incoming-products'
 import { AdminResponse } from '../../admins'
@@ -52,4 +52,30 @@ export class IncomingOrderRetrieveAllResponseDto implements IncomingOrderRetrive
 
 	@ApiProperty({ type: [IncomingOrderRetrieveResponseDto] })
 	data: IncomingOrderRetriveResponse[]
+}
+
+export class IncomingOrderCreateResponseDto implements IncomingOrderCreateResponse {
+	@ApiProperty({ type: String })
+	id: string
+
+	@ApiProperty({ type: Number })
+	sum: number
+
+	@ApiProperty({ type: Number })
+	debt: number
+
+	@ApiProperty({ type: Boolean })
+	accepted: boolean
+
+	@ApiProperty({ type: Date })
+	createdAt: Date
+
+	@ApiProperty({ type: Date })
+	sellingDate: Date
+
+	@ApiProperty({ type: UserRetrieveResponseDto })
+	supplier: UserRetriveResponse
+
+	@ApiProperty({ type: UserRetrieveResponseDto })
+	admin: AdminResponse
 }

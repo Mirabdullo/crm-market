@@ -9,9 +9,10 @@ import {
 	IncomingOrderRetrieveResponseDto,
 	IncomingOrderRetrieveAllRequestDto,
 	IncomingOrderRetrieveAllResponseDto,
+	IncomingOrderCreateResponseDto,
 } from './dtos'
 import { ApiBearerAuth, ApiNoContentResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger'
-import { IncomingOrderRetriveAllResponse, IncomingOrderRetriveResponse } from './interfaces'
+import { IncomingOrderCreateResponse, IncomingOrderRetriveAllResponse, IncomingOrderRetriveResponse } from './interfaces'
 import { PassUserIdInterceptor } from '../../interceptors'
 import { Permission } from '@decorators'
 import { Permissions } from '@enums'
@@ -41,16 +42,14 @@ export class IncomingOrderController {
 
 	@Get('upload')
 	@ApiOkResponse({ type: [IncomingOrderRetrieveAllResponseDto] })
-	IncomingOrderRetrieveAllUpload(@Query() payload: IncomingOrderRetrieveAllRequestDto, @Res() res: Response) {
-		const result = this.#_service.incomingOrderRetrieveAll({
+	IncomingOrderRetrieveAllUpload(@Query() payload: IncomingOrderRetrieveAllRequestDto, @Res() res: Response): Promise<void> {
+		return this.#_service.incomingOrderRetrieveAllUpload({
 			...payload,
 			res,
 			pageNumber: payload.pageNumber ?? PAGE_NUMBER,
 			pageSize: payload.pageSize ?? PAGE_SIZE,
 			pagination: [true, 'true'].includes(payload.pagination) ? false : true,
 		})
-
-		res.json(result)
 	}
 
 	@Get(':id')
@@ -61,16 +60,17 @@ export class IncomingOrderController {
 
 	@Get('upload/:id')
 	@ApiOkResponse({ type: IncomingOrderRetrieveResponseDto })
-	IncomingOrderRetrieveUpload(@Param() payload: IncomingOrderRetrieveRequestDto, @Res() res: Response) {
-		const result = this.#_service.incomingOrderRetrieve({ ...payload, res })
-		res.json(result)
+	IncomingOrderRetrieveUpload(@Param() payload: IncomingOrderRetrieveRequestDto, @Res() res: Response): Promise<void> {
+		return this.#_service.incomingOrderRetrieveUpload({ ...payload, res })
 	}
 
 	@Permission(Permissions.INCOMING_ORDER_CREATE)
 	@Post()
 	@HttpCode(HttpStatus.NO_CONTENT)
+	@HttpCode(HttpStatus.OK)
 	@ApiNoContentResponse()
-	IncomingOrderCreate(@Body() payload: IncomingOrderCreateRequestDto): Promise<null> {
+	@ApiOkResponse({ type: IncomingOrderCreateResponseDto })
+	IncomingOrderCreate(@Body() payload: IncomingOrderCreateRequestDto): Promise<null | IncomingOrderCreateResponse> {
 		return this.#_service.incomingOrderCreate({
 			...payload,
 			accepted: [true, 'true'].includes(payload.accepted) ? true : false,

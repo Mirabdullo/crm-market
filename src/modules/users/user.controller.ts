@@ -63,15 +63,13 @@ export class UserController {
 
 	@Get('client/deed/upload')
 	@ApiOkResponse({ type: UserRetrieveAllResponseDto })
-	ClientDeedRetrieveUpload(@Query() payload: UserDeedRetrieveRequestDto, @Res() res: Response) {
-		const result = this.#_service.clientDeedRetrieveUpload({
+	ClientDeedRetrieveUpload(@Query() payload: UserDeedRetrieveRequestDto, @Res() res: Response): Promise<void> {
+		return this.#_service.clientDeedRetrieveUpload({
 			...payload,
 			res,
 			startDate: payload.startDate ? payload.startDate : new Date().toDateString(),
 			endDate: payload.endDate ? payload.endDate : new Date().toDateString(),
 		})
-
-		res.json(result)
 	}
 
 	@Get('supplier/deed')
@@ -84,17 +82,15 @@ export class UserController {
 		})
 	}
 
-	@Get('supplier/deed')
+	@Get('supplier/deed/upload')
 	@ApiOkResponse({ type: UserRetrieveAllResponseDto })
-	SupplierDeedRetrieveUpload(@Query() payload: UserDeedRetrieveRequestDto, @Res() res: Response) {
-		const result = this.#_service.supplierDeedRetrieveUpload({
+	SupplierDeedRetrieveUpload(@Query() payload: UserDeedRetrieveRequestDto, @Res() res: Response): Promise<void> {
+		return this.#_service.supplierDeedRetrieveUpload({
 			...payload,
 			res,
 			startDate: payload.startDate ? payload.startDate : new Date().toDateString(),
 			endDate: payload.endDate ? payload.endDate : new Date().toDateString(),
 		})
-
-		res.json(result)
 	}
 
 	@Get(':id')

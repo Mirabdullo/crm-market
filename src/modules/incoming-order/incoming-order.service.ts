@@ -2,6 +2,7 @@ import { Injectable, InternalServerErrorException, NotFoundException } from '@ne
 import { PrismaService } from '@prisma'
 import {
 	IncomingOrderCreateRequest,
+	IncomingOrderCreateResponse,
 	IncomingOrderDeleteRequest,
 	IncomingOrderRetriveAllRequest,
 	IncomingOrderRetriveAllResponse,
@@ -160,17 +161,12 @@ export class IncomingOrderService {
 				...dateOption,
 			},
 		})
-
-		if (payload.type === 'excel') {
-			await IncomingOrderUpload(formattedData, payload.res)
-		} else {
-			return {
-				totalCount: totalCount,
-				pageNumber: payload.pageNumber,
-				pageSize: payload.pageSize,
-				pageCount: Math.ceil(totalCount / payload.pageSize),
-				data: formattedData,
-			}
+		return {
+			totalCount: totalCount,
+			pageNumber: payload.pageNumber,
+			pageSize: payload.pageSize,
+			pageCount: Math.ceil(totalCount / payload.pageSize),
+			data: formattedData,
 		}
 	}
 
@@ -486,7 +482,7 @@ export class IncomingOrderService {
 		)
 	}
 
-	async incomingOrderCreate(payload: IncomingOrderCreateRequest): Promise<null | any> {
+	async incomingOrderCreate(payload: IncomingOrderCreateRequest): Promise<null | IncomingOrderCreateResponse> {
 		try {
 			const { supplierId, userId, accepted, sellingDate, products } = payload
 			const user = await this.#_prisma.users.findFirst({
@@ -505,6 +501,29 @@ export class IncomingOrderService {
 					accepted: accepted,
 					sellingDate,
 				},
+				select: {
+					id: true,
+					sum: true,
+					debt: true,
+					accepted: true,
+					createdAt: true,
+					sellingDate: true,
+					supplier: {
+						select: {
+							id: true,
+							name: true,
+							phone: true,
+							createdAt: true,
+						},
+					},
+					admin: {
+						select: {
+							id: true,
+							name: true,
+							phone: true,
+						},
+					},
+				},
 			})
 
 			const mappedProducts = products.map((product) => {
@@ -522,7 +541,11 @@ export class IncomingOrderService {
 				data: mappedProducts,
 			})
 
-			return order
+			return {
+				...order,
+				sum: order.sum?.toNumber(),
+				debt: order.debt?.toNumber(),
+			}
 		} catch (error) {
 			console.log(error)
 			throw new InternalServerErrorException('Kutilmagan xatolik')

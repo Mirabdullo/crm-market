@@ -23,3 +23,14 @@ export declare interface IncomingOrderRetriveResponse {
 	payment: PaymentResponse
 	incomingProducts: IncomingProductRetriveResponse[]
 }
+
+export declare interface IncomingOrderCreateResponse {
+	id: string
+	sum: number
+	debt: number
+	accepted: boolean
+	createdAt: Date
+	sellingDate: Date
+	supplier: UserResponse
+	admin: AdminResponse
+}

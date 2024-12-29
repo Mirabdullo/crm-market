@@ -44,8 +44,8 @@ export class OrderController {
 
 	@Get('upload')
 	@ApiOkResponse({})
-	OrderRetrieveAllUpload(@Query() payload: OrderRetrieveAllRequestDto, @Res() res: Response) {
-		const result = this.#_service.OrderRetrieveAllUpload({
+	OrderRetrieveAllUpload(@Query() payload: OrderRetrieveAllRequestDto, @Res() res: Response): Promise<void> {
+		return this.#_service.OrderRetrieveAllUpload({
 			...payload,
 			res,
 			pageNumber: payload.pageNumber ?? PAGE_NUMBER,
@@ -53,8 +53,6 @@ export class OrderController {
 			accepted: ['true', true].includes(payload.accepted) ? true : false,
 			pagination: [true, 'true'].includes(payload.pagination) ? false : true,
 		})
-
-		res.status(200).json(result)
 	}
 
 	@Get('statistica')
