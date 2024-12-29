@@ -172,6 +172,8 @@ export class UserService {
 		const payments = user.payments.map((payment) => ({ ...payment, type: 'payment' })) || []
 		const combined = [...orders, ...payments]
 
+		const totalDebt = user?.orders?.reduce((sum, order) => sum + order.debt.toNumber(), 0)
+		const totalCredit = user?.payments?.reduce((sum, payment) => sum + payment.totalPay.toNumber(), 0)
 		// Sort combined array
 		const sorted = combined.sort((a, b) => {
 			const dateA = a.type === 'order' ? a.createdAt : a.updatedAt
@@ -184,6 +186,8 @@ export class UserService {
 			name: user.name,
 			phone: user.phone,
 			debt: user.debt,
+			totalDebt,
+			totalCredit,
 			data: sorted,
 		}
 	}

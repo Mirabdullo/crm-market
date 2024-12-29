@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post, Query, UseInterceptors } from '@nestjs/common'
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post, Query, Res, UseInterceptors } from '@nestjs/common'
 import { PaymentService } from './payment.service'
 import { PAGE_NUMBER, PAGE_SIZE } from './constants'
 import {
@@ -15,6 +15,7 @@ import { PaymentRetriveAllResponse, PaymentRetriveResponse } from './interfaces'
 import { PassUserIdInterceptor } from '../../interceptors'
 import { Permissions } from '@enums'
 import { Permission } from '@decorators'
+import { Response } from 'express'
 
 @ApiTags('Payment')
 @UseInterceptors(PassUserIdInterceptor)
@@ -32,6 +33,18 @@ export class PaymentController {
 	PaymentRetrieveAll(@Query() payload: PaymentRetrieveAllRequestDto): Promise<PaymentRetriveAllResponse> {
 		return this.#_service.paymentRetrieveAll({
 			...payload,
+			pageNumber: payload.pageNumber ?? PAGE_NUMBER,
+			pageSize: payload.pageSize ?? PAGE_SIZE,
+			pagination: [true, 'true'].includes(payload.pagination) ? false : true,
+		})
+	}
+
+	@Get('upload')
+	@ApiOkResponse({ type: PaymentRetrieveAllResponseDto })
+	PaymentRetrieveAllUpload(@Query() payload: PaymentRetrieveAllRequestDto, @Res() res: Response): Promise<PaymentRetriveAllResponse> {
+		return this.#_service.paymentRetrieveAll({
+			...payload,
+			res,
 			pageNumber: payload.pageNumber ?? PAGE_NUMBER,
 			pageSize: payload.pageSize ?? PAGE_SIZE,
 			pagination: [true, 'true'].includes(payload.pagination) ? false : true,

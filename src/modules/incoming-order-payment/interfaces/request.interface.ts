@@ -1,3 +1,5 @@
+import { Response } from 'express'
+
 export interface IncomingOrderPaymentCreateRequest {
 	orderId: string
 	supplierId: string
@@ -33,6 +35,8 @@ export interface IncomingOrderPaymentRetriveAllRequest {
 	pageSize?: number
 	pageNumber?: number
 	search?: string
+	res: Response
+	supplierId?: string
 	pagination?: boolean
 	startDate?: string
 	endDate?: string

@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post, Query, UseInterceptors } from '@nestjs/common'
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post, Query, Res, UseInterceptors } from '@nestjs/common'
 import { PAGE_NUMBER, PAGE_SIZE } from './constants'
 import {
 	IncomingOrderPaymentCreateRequestDto,
@@ -15,6 +15,7 @@ import { PassUserIdInterceptor } from '../../interceptors'
 import { IncomingOrderPaymentService } from './incoming-order-payment.service'
 import { Permission } from '@decorators'
 import { Permissions } from '@enums'
+import { Response } from 'express'
 
 @ApiTags('IncomingOrderPayment')
 @UseInterceptors(PassUserIdInterceptor)
@@ -32,6 +33,18 @@ export class IncomingOrderPaymentController {
 	IncomingOrderPaymentRetrieveAll(@Query() payload: IncomingOrderPaymentRetrieveAllRequestDto): Promise<IncomingOrderPaymentRetriveAllResponse> {
 		return this.#_service.incomingOrderPaymentRetrieveAll({
 			...payload,
+			pageNumber: payload.pageNumber ?? PAGE_NUMBER,
+			pageSize: payload.pageSize ?? PAGE_SIZE,
+			pagination: [true, 'true'].includes(payload.pagination) ? false : true,
+		})
+	}
+
+	@Get('upload')
+	@ApiOkResponse({ type: IncomingOrderPaymentRetrieveAllResponseDto })
+	IncomingOrderPaymentRetrieveAllUpload(@Query() payload: IncomingOrderPaymentRetrieveAllRequestDto, @Res() res: Response): Promise<void> {
+		return this.#_service.paymentRetrieveAllUpload({
+			...payload,
+			res,
 			pageNumber: payload.pageNumber ?? PAGE_NUMBER,
 			pageSize: payload.pageSize ?? PAGE_SIZE,
 			pagination: [true, 'true'].includes(payload.pagination) ? false : true,

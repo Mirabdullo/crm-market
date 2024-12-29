@@ -504,19 +504,19 @@ export class OrderService {
 
 		const todaySales = await this.#_prisma.order.aggregate({
 			_sum: { sum: true },
-			where: { createdAt: { gte: today, lte: endDate } },
+			where: { createdAt: { gte: today, lte: endDate }, accepted: true },
 		})
 
 		const week = subDays(today, 7)
 		const weeklySales = await this.#_prisma.order.aggregate({
 			_sum: { sum: true },
-			where: { createdAt: { gte: startOfDay(week), lte: endDate } },
+			where: { createdAt: { gte: startOfDay(week), lte: endDate }, accepted: true },
 		})
 
 		const month = subMonths(today, 1)
 		const monthlySales = await this.#_prisma.order.aggregate({
 			_sum: { sum: true },
-			where: { createdAt: { gte: month, lte: endDate } },
+			where: { createdAt: { gte: month, lte: endDate }, accepted: true },
 		})
 
 		const ourDebt = await this.#_prisma.users.aggregate({
@@ -541,7 +541,7 @@ export class OrderService {
 
 		const weeklyChart = await this.#_prisma.$queryRaw`SELECT DATE_TRUNC('day', "created_at") AS date,
 		  SUM("sum") AS totalSum FROM "order"
-		WHERE "created_at" BETWEEN ${week} AND ${today}
+		WHERE "created_at" BETWEEN ${week} AND ${today} AND "accepted" = true
 		GROUP BY DATE_TRUNC('day', "created_at")
 		ORDER BY DATE_TRUNC('day', "created_at") ASC;
 	  `
@@ -783,6 +783,10 @@ export class OrderService {
 					this.#_prisma.users.update({
 						where: { id: order.clientId },
 						data: { debt: { increment: order.debt } },
+					}),
+					this.#_prisma.order.update({
+						where: { id },
+						data: { accepted: true },
 					}),
 				])
 			}

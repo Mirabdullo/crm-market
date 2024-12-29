@@ -9,8 +9,14 @@ import {
 	IncomingOrderPaymentUpdateRequest,
 } from '../interfaces'
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
+import { Response } from 'express'
 
 export class IncomingOrderPaymentRetrieveAllRequestDto implements IncomingOrderPaymentRetriveAllRequest {
+	@ApiPropertyOptional({ type: String })
+	@IsUUID('4')
+	@IsOptional()
+	supplierId?: string
+
 	@ApiPropertyOptional({ type: Number })
 	@IsPositive()
 	@IsInt()
@@ -24,6 +30,8 @@ export class IncomingOrderPaymentRetrieveAllRequestDto implements IncomingOrderP
 	@IsOptional()
 	@Type(() => Number)
 	pageSize?: number
+
+	res: Response
 
 	@ApiPropertyOptional({ type: String })
 	@IsString()

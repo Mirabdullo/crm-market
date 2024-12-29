@@ -44,12 +44,10 @@ export class OrderRetrieveAllRequestDto implements OrderRetriveAllRequest {
 	clientId?: string
 
 	@ApiPropertyOptional({ type: Boolean, example: false })
-	@IsBooleanString()
 	@IsOptional()
 	pagination?: boolean
 
 	@ApiPropertyOptional({ type: Boolean, example: true })
-	@IsBoolean()
 	@IsOptional()
 	accepted?: boolean
 
@@ -101,7 +99,6 @@ export class OrderCreateRequestDto implements OrderCreateRequest {
 	payment?: PaymentRequest
 
 	@ApiPropertyOptional({ type: Boolean, example: false })
-	@IsBoolean()
 	@IsOptional()
 	accepted?: boolean
 }
@@ -113,7 +110,6 @@ export class OrderUpdateRequestDto implements OrderUpdateRequest {
 	id: string
 
 	@ApiPropertyOptional({ type: Boolean, example: true })
-	@IsBoolean()
 	@IsOptional()
 	accepted?: boolean
 

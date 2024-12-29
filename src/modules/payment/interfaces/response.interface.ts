@@ -17,6 +17,7 @@ export declare interface PaymentTotalCalcResponse {
 
 export declare interface PaymentRetriveResponse {
 	id: string
+	totalPay: number
 	cash: number
 	transfer: number
 	card: number

@@ -2,6 +2,7 @@ import { IsBooleanString, IsInt, IsNotEmpty, IsNumber, IsOptional, IsPositive, I
 import { Type } from 'class-transformer'
 import { PaymentCreateRequest, PaymentDeleteRequest, PaymentRequest, PaymentRetriveAllRequest, PaymentRetriveRequest, PaymentUpdateRequest } from '../interfaces'
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
+import { Response } from 'express'
 
 export class PaymentRetrieveAllRequestDto implements PaymentRetriveAllRequest {
 	@ApiPropertyOptional({ type: Number })
@@ -22,6 +23,8 @@ export class PaymentRetrieveAllRequestDto implements PaymentRetriveAllRequest {
 	@IsString()
 	@IsOptional()
 	search?: string
+
+	res: Response
 
 	@ApiPropertyOptional({ type: Boolean, example: false })
 	@IsBooleanString()

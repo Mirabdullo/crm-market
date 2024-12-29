@@ -10,6 +10,7 @@ import {
 	IncomingOrderPaymentUpdateRequest,
 } from './interfaces'
 import { Decimal } from '../../types'
+import * as ExcelJS from 'exceljs'
 import { format } from 'date-fns'
 
 @Injectable()
@@ -30,7 +31,7 @@ export class IncomingOrderPaymentService {
 		}
 
 		const incomingOrderPaymentList = await this.#_prisma.incomingOrderPayment.findMany({
-			where: {},
+			where: { deletedAt: null },
 			select: {
 				id: true,
 				card: true,
@@ -55,6 +56,7 @@ export class IncomingOrderPaymentService {
 				},
 			},
 			...paginationOptions,
+			orderBy: { createdAt: 'desc' },
 		})
 
 		const transformedIncomingOrderPaymentList = incomingOrderPaymentList.map((incomingOrderPayment) => ({
@@ -77,6 +79,184 @@ export class IncomingOrderPaymentService {
 			pageCount: Math.ceil(totalCount / payload.pageSize),
 			data: transformedIncomingOrderPaymentList,
 		}
+	}
+
+	async paymentRetrieveAllUpload(payload: IncomingOrderPaymentRetriveAllRequest): Promise<void> {
+		let paginationOptions = {}
+		if (payload.pagination) {
+			paginationOptions = {
+				take: payload.pageSize,
+				skip: (payload.pageNumber - 1) * payload.pageSize,
+			}
+		}
+
+		let clientOption = {}
+		if (payload.supplierId) {
+			clientOption = {
+				supplierId: payload.supplierId,
+			}
+		}
+
+		let searchOption = {}
+		if (payload.search) {
+			searchOption = {
+				supplier: {
+					OR: [{ name: { contains: payload.search, mode: 'insensitive' } }, { phone: { contains: payload.search, mode: 'insensitive' } }],
+				},
+			}
+		}
+
+		const incomingOrderPaymentList = await this.#_prisma.incomingOrderPayment.findMany({
+			where: { deletedAt: null, ...clientOption, ...searchOption },
+			select: {
+				id: true,
+				card: true,
+				cash: true,
+				transfer: true,
+				other: true,
+				humo: true,
+				createdAt: true,
+				description: true,
+				order: {
+					select: {
+						id: true,
+						sum: true,
+						debt: true,
+						admin: {
+							select: {
+								phone: true,
+							},
+						},
+					},
+				},
+				supplier: {
+					select: {
+						id: true,
+						name: true,
+						phone: true,
+					},
+				},
+			},
+			...paginationOptions,
+			orderBy: { createdAt: 'desc' },
+		})
+
+		const totalCalc = {
+			totalPay: 0,
+			totalCard: 0,
+			totalCash: 0,
+			totalTransfer: 0,
+			totalOther: 0,
+		}
+
+		incomingOrderPaymentList.forEach((payment) => {
+			totalCalc.totalCard += payment.card.toNumber()
+			totalCalc.totalCash += payment.cash.toNumber()
+			totalCalc.totalTransfer += payment.transfer.toNumber()
+			totalCalc.totalOther += payment.other.toNumber()
+		})
+
+		const workbook = new ExcelJS.Workbook()
+		const worksheet = workbook.addWorksheet('Report')
+
+		worksheet.mergeCells('A1:C1')
+		worksheet.getCell('A1').value = 'Отчёт по по погашениям клиентов'
+		worksheet.getCell('A1').font = { bold: true }
+
+		worksheet.mergeCells('A2:C2')
+		worksheet.getCell('A2').value = `Начало: ${format(payload.startDate, 'dd/MM/yyyy')}`
+		worksheet.getCell('A2').font = { bold: true }
+
+		worksheet.mergeCells('A3:C3')
+		worksheet.getCell('A3').value = `Конец: ${format(payload.startDate, 'dd/MM/yyyy')}`
+		worksheet.getCell('A3').font = { bold: true }
+
+		const headerRow = worksheet.addRow([
+			'№',
+			'Клиент',
+			'Информация',
+			'Оплата наличными',
+			'Оплата с банковской карты',
+			'Оплата перечислением',
+			'Оплата другими способами',
+			'Оплата через карту Humo',
+			'Пользователь',
+			'Дата',
+		])
+		headerRow.font = { bold: true }
+		headerRow.alignment = { vertical: 'middle' }
+		headerRow.height = 24
+		headerRow.alignment = { wrapText: true, vertical: 'middle', horizontal: 'center' }
+
+		worksheet.getColumn(1).width = 5
+		worksheet.getColumn(2).width = 20
+		worksheet.getColumn(3).width = 16
+		worksheet.getColumn(4).width = 12
+		worksheet.getColumn(5).width = 12
+		worksheet.getColumn(6).width = 12
+		worksheet.getColumn(7).width = 12
+		worksheet.getColumn(8).width = 12
+		worksheet.getColumn(9).width = 16
+		worksheet.getColumn(10).width = 16
+
+		headerRow.eachCell((cell) => {
+			cell.border = {
+				top: { style: 'thin' },
+				left: { style: 'thin' },
+				bottom: { style: 'thin' },
+				right: { style: 'thin' },
+			}
+		})
+
+		// Ma'lumotlarni kiritish
+		incomingOrderPaymentList.forEach((payment, index: number) => {
+			const row = worksheet.addRow([
+				index + 1,
+				payment.supplier.name,
+				payment.description,
+				payment.cash.toNumber(),
+				payment.card.toNumber(),
+				payment.transfer.toNumber(),
+				payment.other.toNumber(),
+				0,
+				payment?.order?.admin?.phone || '',
+				format(payment.createdAt, 'dd.MM.yyyy HH:mm'),
+			])
+
+			row.eachCell((cell) => {
+				cell.alignment = { vertical: 'middle', horizontal: 'center' }
+				cell.border = {
+					top: { style: 'thin' },
+					left: { style: 'thin' },
+					bottom: { style: 'thin' },
+					right: { style: 'thin' },
+				}
+			})
+		})
+
+		const endRow = worksheet.addRow([
+			'№',
+			'Клиент',
+			'Информация',
+			`Сумма: ${totalCalc.totalCash}`,
+			`Сумма: ${totalCalc.totalCard}`,
+			`Сумма: ${totalCalc.totalTransfer}`,
+			`Сумма: ${totalCalc.totalOther}`,
+			`Сумма: 0`,
+			'',
+			'',
+		])
+
+		endRow.font = { bold: true }
+
+		payload.res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+		payload.res.setHeader(
+			'Content-Disposition',
+			`attachment; filename=отчёт по погашениям клиентов с ${format(new Date(payload.startDate), 'dd-MM-yyyy')} по ${format(new Date(payload.endDate), 'dd-MM-yyyy')}.xlsx`,
+		)
+
+		await workbook.xlsx.write(payload.res)
+		payload.res.end()
 	}
 
 	async incomingOrderPaymentRetrieve(payload: IncomingOrderPaymentRetriveRequest): Promise<IncomingOrderPaymentRetriveResponse> {

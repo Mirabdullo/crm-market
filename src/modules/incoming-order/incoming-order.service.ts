@@ -541,6 +541,24 @@ export class IncomingOrderService {
 				data: mappedProducts,
 			})
 
+			if (format(sellingDate, 'yyyy-MM-dd') === format(new Date(), 'yyyy-MM-dd')) {
+				if (mappedProducts.length) {
+					const updateProducts = mappedProducts.map((product) =>
+						this.#_prisma.products.update({
+							where: { id: product.productId },
+							data: {
+								cost: product.cost,
+								count: { increment: product.count },
+								...(product.selling_price && { selling_price: product.selling_price }),
+								...(product.wholesale_price && { wholesale_price: product.wholesale_price }),
+							},
+						}),
+					)
+
+					await Promise.all(updateProducts)
+				}
+			}
+
 			return {
 				...order,
 				sum: order.sum?.toNumber(),
