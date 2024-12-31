@@ -206,20 +206,13 @@ export class OrderService {
 				},
 			})
 
-			if (payload.type && payload.type === 'excel') {
-				console.log('excel')
-				await OrderUpload(formattedData, payload.res)
-			} else {
-				console.log('unknown', totalCalc, formattedData[0])
-				console.timeEnd('Process')
-				return {
-					totalCount: totalCount,
-					pageNumber: payload.pageNumber,
-					pageSize: payload.pageSize,
-					pageCount: Math.ceil(totalCount / payload.pageSize),
-					data: formattedData,
-					totalCalc,
-				}
+			return {
+				totalCount: totalCount,
+				pageNumber: payload.pageNumber,
+				pageSize: payload.pageSize,
+				pageCount: Math.ceil(totalCount / payload.pageSize),
+				data: formattedData,
+				totalCalc,
 			}
 		} catch (error) {
 			console.log(error)
