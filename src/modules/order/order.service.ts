@@ -501,6 +501,7 @@ export class OrderService {
 	async orderStatistics(): Promise<OrderStatisticsResponse> {
 		const today = new Date(format(new Date(), 'yyyy-MM-dd'))
 		const endDate = addHours(new Date(endOfDay(today)), 3)
+		console.log(today, endDate)
 
 		const todaySales = await this.#_prisma.order.aggregate({
 			_sum: { sum: true },

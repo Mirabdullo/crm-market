@@ -30,8 +30,15 @@ export class IncomingOrderPaymentService {
 			}
 		}
 
+		let clientOption = {}
+		if (payload.supplierId) {
+			clientOption = {
+				supplierId: payload.supplierId,
+			}
+		}
+
 		const incomingOrderPaymentList = await this.#_prisma.incomingOrderPayment.findMany({
-			where: { deletedAt: null },
+			where: { deletedAt: null, ...clientOption },
 			select: {
 				id: true,
 				card: true,

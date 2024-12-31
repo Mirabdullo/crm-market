@@ -35,7 +35,14 @@ export class IncomingOrderService {
 		let sellerOption = {}
 		if (payload.sellerId) {
 			sellerOption = {
-				admin: { id: payload.sellerId },
+				adminId: payload.sellerId,
+			}
+		}
+
+		let supplierOption = {}
+		if (payload.supplierId) {
+			supplierOption = {
+				supplierId: payload.supplierId,
 			}
 		}
 
@@ -70,6 +77,7 @@ export class IncomingOrderService {
 				...sellerOption,
 				...searchOption,
 				...dateOption,
+				...supplierOption,
 			},
 			select: {
 				id: true,

@@ -186,8 +186,8 @@ export class UserService {
 			name: user.name,
 			phone: user.phone,
 			debt: user.debt,
-			totalDebt,
-			totalCredit,
+			totalDebt: totalDebt | 0,
+			totalCredit: totalCredit | 0,
 			data: sorted,
 		}
 	}

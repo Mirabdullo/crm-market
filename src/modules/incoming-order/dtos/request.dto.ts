@@ -38,6 +38,11 @@ export class IncomingOrderRetrieveAllRequestDto implements IncomingOrderRetriveA
 	@IsOptional()
 	sellerId?: string
 
+	@ApiPropertyOptional({ type: String })
+	@IsUUID('4')
+	@IsOptional()
+	supplierId?: string
+
 	@ApiPropertyOptional({ type: Boolean, example: false })
 	@IsBooleanString()
 	@IsOptional()

@@ -66,11 +66,9 @@ export class IncomingOrderController {
 
 	@Permission(Permissions.INCOMING_ORDER_CREATE)
 	@Post()
-	@HttpCode(HttpStatus.NO_CONTENT)
-	@HttpCode(HttpStatus.OK)
-	@ApiNoContentResponse()
+	@HttpCode(HttpStatus.CREATED)
 	@ApiOkResponse({ type: IncomingOrderCreateResponseDto })
-	IncomingOrderCreate(@Body() payload: IncomingOrderCreateRequestDto): Promise<null | IncomingOrderCreateResponse> {
+	IncomingOrderCreate(@Body() payload: IncomingOrderCreateRequestDto): Promise<IncomingOrderCreateResponse> {
 		return this.#_service.incomingOrderCreate({
 			...payload,
 			accepted: [true, 'true'].includes(payload.accepted) ? true : false,

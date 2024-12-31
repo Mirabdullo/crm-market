@@ -26,6 +26,7 @@ export interface IncomingOrderRetriveAllRequest {
 	pageNumber?: number
 	search?: string
 	sellerId?: string
+	supplierId?: string
 	pagination?: boolean
 	startDate?: string
 	endDate?: string
