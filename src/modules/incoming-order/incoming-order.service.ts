@@ -490,7 +490,7 @@ export class IncomingOrderService {
 		)
 	}
 
-	async incomingOrderCreate(payload: IncomingOrderCreateRequest): Promise<null | IncomingOrderCreateResponse> {
+	async incomingOrderCreate(payload: IncomingOrderCreateRequest): Promise<IncomingOrderCreateResponse> {
 		try {
 			const { supplierId, userId, accepted, sellingDate, products } = payload
 			const user = await this.#_prisma.users.findFirst({

@@ -66,7 +66,7 @@ export class IncomingOrderController {
 
 	@Permission(Permissions.INCOMING_ORDER_CREATE)
 	@Post()
-	@HttpCode(HttpStatus.CREATED)
+	@HttpCode(HttpStatus.OK)
 	@ApiOkResponse({ type: IncomingOrderCreateResponseDto })
 	IncomingOrderCreate(@Body() payload: IncomingOrderCreateRequestDto): Promise<IncomingOrderCreateResponse> {
 		return this.#_service.incomingOrderCreate({
