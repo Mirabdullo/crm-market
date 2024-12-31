@@ -181,7 +181,6 @@ export class UserService {
 			return new Date(dateA).getTime() - new Date(dateB).getTime()
 		})
 
-		console.log({ id: id, name: user.name, phone: user.phone, debt: user.debt, totalDebt: totalDebt | 0, totalCredit: totalCredit | 0, data: sorted })
 		return {
 			id: id,
 			name: user.name,
@@ -369,18 +368,16 @@ export class UserService {
 			return new Date(dateA).getTime() - new Date(dateB).getTime()
 		})
 
-		console.log({
-			id: id,
-			name: user.name,
-			phone: user.phone,
-			debt: user.debt,
-			data: sorted,
-		})
+		const totalDebt = user?.incomingOrder?.reduce((sum, order) => sum + order.debt.toNumber(), 0)
+		const totalCredit = user?.incomingOrderPayment?.reduce((sum, payment) => sum + payment.totalPay.toNumber(), 0)
+
 		return {
 			id: id,
 			name: user.name,
 			phone: user.phone,
 			debt: user.debt,
+			totalDebt,
+			totalCredit,
 			data: sorted,
 		}
 	}
