@@ -16,13 +16,16 @@ import { addDays, addHours, endOfDay, format, startOfDay, subDays, subMonths } f
 import * as ExcelJS from 'exceljs'
 import { Response } from 'express'
 import { OrderUpload } from './excel'
+import { TelegramService } from '../telegram'
 
 @Injectable()
 export class OrderService {
 	readonly #_prisma: PrismaService
+	readonly #_telegram: TelegramService
 
-	constructor(prisma: PrismaService) {
+	constructor(prisma: PrismaService, telegram: TelegramService) {
 		this.#_prisma = prisma
+		this.#_telegram = telegram
 	}
 
 	async OrderRetrieveAll(payload: OrderRetriveAllRequest): Promise<OrderRetriveAllResponse> {
@@ -498,19 +501,19 @@ export class OrderService {
 
 		const todaySales = await this.#_prisma.order.aggregate({
 			_sum: { sum: true },
-			where: { updatedAt: { gte: today, lte: endDate }, accepted: true },
+			where: { sellingDate: { gte: today, lte: endDate }, accepted: true },
 		})
 
 		const week = subDays(endDate, 7)
 		const weeklySales = await this.#_prisma.order.aggregate({
 			_sum: { sum: true },
-			where: { updatedAt: { gte: startOfDay(week), lte: endDate }, accepted: true },
+			where: { sellingDate: { gte: startOfDay(week), lte: endDate }, accepted: true },
 		})
 
 		const month = subMonths(endDate, 1)
 		const monthlySales = await this.#_prisma.order.aggregate({
 			_sum: { sum: true },
-			where: { updatedAt: { gte: month, lte: endDate }, accepted: true },
+			where: { sellingDate: { gte: month, lte: endDate }, accepted: true },
 		})
 
 		const ourDebt = await this.#_prisma.users.aggregate({
@@ -535,7 +538,7 @@ export class OrderService {
 
 		const weeklyChart = await this.#_prisma.$queryRaw`SELECT DATE_TRUNC('day', "created_at") AS date,
 		  SUM("sum") AS totalSum FROM "order"
-		WHERE "updated_at" BETWEEN ${week} AND ${endDate} AND "accepted" = true
+		WHERE "selling_date" BETWEEN ${week} AND ${endDate} AND "accepted" = true
 		GROUP BY DATE_TRUNC('day', "created_at")
 		ORDER BY DATE_TRUNC('day', "created_at") ASC;
 	  `
@@ -760,7 +763,31 @@ export class OrderService {
 
 			const order = await this.#_prisma.order.findUnique({
 				where: { id },
-				include: { payment: true, products: true },
+				select: {
+					id: true,
+					sellingDate: true,
+					accepted: true,
+					articl: true,
+					client: true,
+					payment: true,
+					debt: true,
+					sum: true,
+					clientId: true,
+					products: {
+						select: {
+							id: true,
+							cost: true,
+							count: true,
+							price: true,
+							productId: true,
+							product: {
+								select: {
+									name: true,
+								},
+							},
+						},
+					},
+				},
 			})
 			if (!order) throw new NotFoundException("Ma'lumot topilmadi")
 
@@ -783,6 +810,13 @@ export class OrderService {
 						data: { accepted: true },
 					}),
 				])
+
+				const text = `продажа\nид: ${order.articl}\nсумма: ${order.sum}\nдолг: ${order.debt}\nклиент: ${order.client.name}\n\n`
+				order.products.forEach((product) => {
+					text + `продукт: ${product.product.name}\nцена: ${product.price}\nкол-ва: ${product.count}\n\n`
+				})
+
+				await this.#_telegram.sendMessage(parseInt(process.env.ORDER_CHANEL_ID), text)
 			}
 
 			return null
@@ -795,7 +829,31 @@ export class OrderService {
 	async OrderDelete(payload: OrderDeleteRequest): Promise<null> {
 		const order = await this.#_prisma.order.findUnique({
 			where: { id: payload.id, deletedAt: null },
-			include: { products: true, payment: true },
+			select: {
+				id: true,
+				sellingDate: true,
+				accepted: true,
+				articl: true,
+				client: true,
+				payment: true,
+				debt: true,
+				sum: true,
+				clientId: true,
+				products: {
+					select: {
+						id: true,
+						cost: true,
+						count: true,
+						price: true,
+						productId: true,
+						product: {
+							select: {
+								name: true,
+							},
+						},
+					},
+				},
+			},
 		})
 
 		if (!order) throw new NotFoundException('maxsulot topilmadi')
@@ -824,6 +882,13 @@ export class OrderService {
 					data: { debt: { decrement: order.sum.toNumber() - order.debt.toNumber() } },
 				}),
 			)
+
+			const text = `продажа удалена\nид: ${order.articl}\nсумма: ${order.sum}\nдолг: ${order.debt}\nклиент: ${order.client.name}\n\n`
+			order.products.forEach((product) => {
+				text + `продукт: ${product.product.name}\nцена: ${product.price}\nкол-ва: ${product.count}\n\n`
+			})
+
+			await this.#_telegram.sendMessage(parseInt(process.env.ORDER_CHANEL_ID), text)
 		}
 
 		if (order.payment?.length) {

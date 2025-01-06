@@ -8,6 +8,7 @@ export interface IncomingOrderPaymentCreateRequest {
 	card?: number
 	other?: number
 	humo?: number
+	description?: string
 }
 
 export interface IncomingOrderPaymentRequest {
@@ -25,6 +26,7 @@ export interface IncomingOrderPaymentUpdateRequest {
 	card?: number
 	other?: number
 	humo?: number
+	description?: string
 }
 
 export interface IncomingOrderPaymentDeleteRequest {

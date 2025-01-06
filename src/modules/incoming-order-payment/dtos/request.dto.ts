@@ -91,6 +91,11 @@ export class IncomingOrderPaymentCreateRequestDto implements IncomingOrderPaymen
 	@IsNumber()
 	@IsOptional()
 	other?: number
+
+	@ApiPropertyOptional({ type: String })
+	@IsString()
+	@IsOptional()
+	description?: string
 }
 
 export class IncomingOrderPaymentRequestDto implements IncomingOrderPaymentRequest {
@@ -145,6 +150,11 @@ export class IncomingOrderPaymentUpdateRequestDto implements IncomingOrderPaymen
 	@IsNumber()
 	@IsOptional()
 	other?: number
+
+	@ApiPropertyOptional({ type: String })
+	@IsString()
+	@IsOptional()
+	description?: string
 }
 
 export class IncomingOrderPaymentDeleteRequestDto implements IncomingOrderPaymentDeleteRequest {

@@ -10,13 +10,16 @@ import {
 	OrderProductUpdateRequest,
 } from './interfaces'
 import { Decimal } from '../../types'
+import { TelegramService } from '../telegram'
 
 @Injectable()
 export class OrderProductService {
 	readonly #_prisma: PrismaService
+	readonly #_telegram: TelegramService
 
-	constructor(prisma: PrismaService) {
+	constructor(prisma: PrismaService, telegram: TelegramService) {
 		this.#_prisma = prisma
+		this.#_telegram = telegram
 	}
 
 	async orderProductRetrieveAll(payload: OrderProductRetriveAllRequest): Promise<OrderProductRetriveAllResponse> {
@@ -115,7 +118,7 @@ export class OrderProductService {
 				where: { id: payload.product_id, deletedAt: null },
 			}),
 
-			this.#_prisma.order.findFirst({ where: { id: payload.order_id } }),
+			this.#_prisma.order.findFirst({ where: { id: payload.order_id }, include: { client: true } }),
 		])
 		if (!product || !order) throw new NotFoundException('Maxsulot yoki sotuv topilmadi')
 
@@ -151,6 +154,12 @@ export class OrderProductService {
 					data: { debt: { increment: payload.price * payload.count } },
 				}),
 			)
+
+			const text = `Товар добавлен\nид: ${order.articl}\nсумма: ${order.sum.toNumber() + payload.price * payload.count}\nдолг: ${
+				order.debt.toNumber() + payload.price * payload.count
+			}\nклиент: ${order.client.name}\n\nпродукт: ${product.name}\nцена: ${payload.price}\nкол-ва: ${payload.count}`
+
+			await this.#_telegram.sendMessage(parseInt(process.env.ORDER_CHANEL_ID), text)
 		}
 
 		await Promise.all(promises)
@@ -229,7 +238,7 @@ export class OrderProductService {
 	async orderProductDelete(payload: OrderProductDeleteRequest): Promise<null> {
 		const orderProduct = await this.#_prisma.orderProducts.findUnique({
 			where: { id: payload.id, deletedAt: null },
-			include: { order: true },
+			include: { order: { include: { client: true } }, product: true },
 		})
 
 		if (!orderProduct) throw new NotFoundException('maxsulot topilmadi')
@@ -260,6 +269,10 @@ export class OrderProductService {
 					data: { debt: { decrement: sum } },
 				}),
 			])
+
+			const text = `Товар удалено\nид: ${orderProduct.order.articl}\nклиент: ${orderProduct.order.client.name}\n\nпродукт: ${orderProduct.product.name}\nцена: ${orderProduct.price}\nкол-ва: ${orderProduct.count}`
+
+			await this.#_telegram.sendMessage(parseInt(process.env.ORDER_CHANEL_ID), text)
 		}
 
 		return null

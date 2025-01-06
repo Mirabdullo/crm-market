@@ -14,13 +14,16 @@ import { Decimal } from '../../types'
 import { addHours, endOfDay, format } from 'date-fns'
 import { Cron, CronExpression } from '@nestjs/schedule'
 import { IncomingOrderUpload, IncomingOrderUploadWithProduct } from './excel'
+import { TelegramService } from '../telegram'
 
 @Injectable()
 export class IncomingOrderService {
 	readonly #_prisma: PrismaService
+	readonly #_telegram: TelegramService
 
-	constructor(prisma: PrismaService) {
+	constructor(prisma: PrismaService, telegram: TelegramService) {
 		this.#_prisma = prisma
+		this.#_telegram = telegram
 	}
 
 	async incomingOrderRetrieveAll(payload: IncomingOrderRetriveAllRequest): Promise<IncomingOrderRetriveAllResponse> {
@@ -633,7 +636,7 @@ export class IncomingOrderService {
 				accepted: false,
 			},
 			include: {
-				incomingProducts: true,
+				incomingProducts: { include: { product: true } },
 				supplier: true,
 				payment: true,
 			},
@@ -674,6 +677,18 @@ export class IncomingOrderService {
 
 		try {
 			await Promise.all(transactions)
+
+			if (incomingOrders.length) {
+				incomingOrders.forEach(async (order) => {
+					const text = `новые продукты\nсумма: ${order.sum}\nдолг: ${order.debt}\nклиент: ${order.supplier.name}\n\n`
+					order.incomingProducts.forEach((product) => {
+						text + `продукт: ${product.product.name}\nцена: ${product.cost}\nкол-ва: ${product.count}\n\n`
+					})
+
+					await this.#_telegram.sendMessage(parseInt(process.env.ORDER_CHANEL_ID), text)
+				})
+			}
+
 			console.log('Cron job executed successfully', new Date())
 		} catch (error) {
 			console.error('Error processing incoming orders:', error)
@@ -690,7 +705,7 @@ export class IncomingOrderService {
 
 		const promises: any[] = []
 		const iProductIds = incomingOrder.incomingProducts.map((p) => p.id)
-		if (format(incomingOrder.sellingDate, 'yyyy-MM-dd') <= format(new Date(), 'yyyy-MM-dd')) {
+		if (incomingOrder.accepted) {
 			const products = incomingOrder.incomingProducts.map((product) =>
 				this.#_prisma.products.update({
 					where: { id: product.productId },

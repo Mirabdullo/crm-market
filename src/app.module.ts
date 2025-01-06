@@ -17,6 +17,7 @@ import {
 	RoleModule,
 	UserModule,
 } from './modules'
+import { TelegramModule } from './modules/telegram'
 
 @Module({
 	imports: [
@@ -35,6 +36,7 @@ import {
 		OrderModule,
 		OrderProductModule,
 		PaymentModule,
+		TelegramModule,
 	],
 })
 export class AppModule {}

@@ -12,13 +12,16 @@ import {
 import { Decimal } from '../../types'
 import * as ExcelJS from 'exceljs'
 import { format } from 'date-fns'
+import { TelegramService } from '../telegram/telegram.service'
 
 @Injectable()
 export class PaymentService {
 	readonly #_prisma: PrismaService
+	readonly #_telegram: TelegramService
 
-	constructor(prisma: PrismaService) {
+	constructor(prisma: PrismaService, telegramService: TelegramService) {
 		this.#_prisma = prisma
+		this.#_telegram = telegramService
 	}
 
 	async paymentRetrieveAll(payload: PaymentRetriveAllRequest): Promise<PaymentRetriveAllResponse> {
@@ -310,9 +313,9 @@ export class PaymentService {
 
 		const sum = (card || 0) + (transfer || 0) + (other || 0) + (cash || 0)
 
-		await this.#_prisma.$transaction(async (prisma) => {
+		const payment = await this.#_prisma.$transaction(async (prisma) => {
 			if (sum > 0) {
-				await prisma.payment.create({
+				const paymentData = await prisma.payment.create({
 					data: {
 						orderId: orderId,
 						clientId: clientId,
@@ -323,7 +326,22 @@ export class PaymentService {
 						other: other,
 						description: description,
 					},
+					select: {
+						id: true,
+						totalPay: true,
+						card: true,
+						cash: true,
+						transfer: true,
+						other: true,
+						description: true,
+						client: {
+							select: {
+								name: true,
+							},
+						},
+					},
 				})
+				return paymentData
 			}
 
 			if (orderId && order) {
@@ -351,6 +369,14 @@ export class PaymentService {
 			})
 		})
 
+		if (payment) {
+			const message = `${order ? 'тип: для продажи\n' : 'тип: для клиента\n'}Клиент: ${payment.client.name}\nСумма: ${payment.totalPay}\n\nналичными: ${
+				payment.cash
+			}\nкарты: ${payment.card}\nперечислением: ${payment.transfer}\nдруги: ${payment.other}\nДата: ${format(new Date(), 'yyyy-MM-dd HH:mm')}\nИнфо: ${
+				payment.description
+			}\nid: ${payment.id}`
+			await this.#_telegram.sendMessage(parseInt(process.env.PAYMENT_CHANEL_ID), message)
+		}
 		return null
 	}
 
@@ -396,13 +422,20 @@ export class PaymentService {
 			}
 		}
 
+		const message = `обновлено\n\n${payment.order ? 'тип: для продажи\n' : 'тип: для клиента\n'}Клиент: ${payment.client.name}\nСумма: ${payment.totalPay}\n\nналичными: ${
+			payment.cash
+		}\nкарты: ${payment.card}\nперечислением: ${payment.transfer}\nдруги: ${payment.other}\nДата: ${format(new Date(), 'yyyy-MM-dd HH:mm')}\nИнфо: ${
+			payment.description
+		}\nid: ${payment.id}`
+		await this.#_telegram.sendMessage(parseInt(process.env.PAYMENT_CHANEL_ID), message)
+
 		return null
 	}
 
 	async paymentDelete(payload: PaymentDeleteRequest): Promise<null> {
 		const payment = await this.#_prisma.payment.findUnique({
 			where: { id: payload.id, deletedAt: null },
-			include: { order: true },
+			include: { order: true, client: true },
 		})
 
 		if (!payment) throw new NotFoundException('payment not found')
@@ -423,6 +456,13 @@ export class PaymentService {
 				data: { debt: { increment: payment.totalPay } },
 			})
 		}
+
+		const message = `удалено\n\n${payment.order ? 'тип: для продажи\n' : 'тип: для клиента\n'}Клиент: ${payment.client.name}\nСумма: ${payment.totalPay}\n\nналичными: ${
+			payment.cash
+		}\nкарты: ${payment.card}\nперечислением: ${payment.transfer}\nдруги: ${payment.other}\nДата: ${format(new Date(), 'yyyy-MM-dd HH:mm')}\nИнфо: ${
+			payment.description
+		}\nid: ${payment.id}`
+		await this.#_telegram.sendMessage(parseInt(process.env.PAYMENT_CHANEL_ID), message)
 
 		return null
 	}

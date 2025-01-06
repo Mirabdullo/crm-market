@@ -12,13 +12,16 @@ import {
 import { Decimal } from '../../types'
 import * as ExcelJS from 'exceljs'
 import { format } from 'date-fns'
+import { TelegramService } from '../telegram'
 
 @Injectable()
 export class IncomingOrderPaymentService {
 	readonly #_prisma: PrismaService
+	readonly #_telegram: TelegramService
 
-	constructor(prisma: PrismaService) {
+	constructor(prisma: PrismaService, telegram: TelegramService) {
 		this.#_prisma = prisma
+		this.#_telegram = telegram
 	}
 
 	async incomingOrderPaymentRetrieveAll(payload: IncomingOrderPaymentRetriveAllRequest): Promise<IncomingOrderPaymentRetriveAllResponse> {
@@ -322,17 +325,32 @@ export class IncomingOrderPaymentService {
 		if (orderId && !order) throw new ForbiddenException('Mahsulot tushiruvi topilmadi')
 
 		const sum = (cash || 0) + (card || 0) + (transfer || 0) + (other || 0)
-		await this.#_prisma.incomingOrderPayment.create({
-			data: {
-				orderId: orderId || null, // Order bo‘lmasa null
-				supplierId,
-				totalPay: sum,
-				cash: cash || 0,
-				transfer: transfer || 0,
-				card: card || 0,
-				other: other || 0,
-			},
-		})
+
+		if (sum > 0) {
+			const payment = await this.#_prisma.incomingOrderPayment.create({
+				data: {
+					orderId: orderId || null, // Order bo‘lmasa null
+					supplierId,
+					totalPay: sum,
+					cash: cash || 0,
+					transfer: transfer || 0,
+					card: card || 0,
+					other: other || 0,
+				},
+				include: { order: true, supplier: true },
+			})
+
+			try {
+				const message = `${order ? 'тип: для новых продуктов\n' : 'тип: для поставщика\n'}Поставщик: ${payment.supplier.name}\nСумма: ${payment.totalPay}\n\nналичными: ${
+					payment.cash
+				}\nкарты: ${payment.card}\nперечислением: ${payment.transfer}\nдруги: ${payment.other}\nДата: ${format(new Date(), 'yyyy-MM-dd HH:mm')}\nИнфо: ${
+					payment.description
+				}\nid: ${payment.id}`
+				await this.#_telegram.sendMessage(parseInt(process.env.PAYMENT_CHANEL_ID), message)
+			} catch (error) {
+				console.log(error)
+			}
+		}
 
 		const promises = []
 
@@ -377,10 +395,11 @@ export class IncomingOrderPaymentService {
 	}
 
 	async incomingOrderPaymentUpdate(payload: IncomingOrderPaymentUpdateRequest): Promise<null> {
-		const { id, cash, transfer, card, other } = payload
+		const { id, cash, transfer, card, other, description } = payload
 
 		const payment = await this.#_prisma.incomingOrderPayment.findFirst({
 			where: { id },
+			include: { order: true, supplier: true },
 		})
 		if (!payment) throw new NotFoundException("To'lov topilmadi")
 
@@ -452,6 +471,18 @@ export class IncomingOrderPaymentService {
 			)
 		}
 
+		try {
+			const message = `обновлено\n\n${order ? 'тип: для новых продуктов\n' : 'тип: для поставщика\n'}Поставщик: ${payment.supplier.name}\nСумма: ${newSum}\n\nналичными: ${
+				cash || payment.cash
+			}\nкарты: ${card || payment.card}\nперечислением: ${transfer || payment.transfer}\nдруги: ${other || payment.other}\nДата: ${format(
+				new Date(),
+				'yyyy-MM-dd HH:mm',
+			)}\nИнфо: ${description || payment.description}\nid: ${payment.id}`
+			await this.#_telegram.sendMessage(parseInt(process.env.PAYMENT_CHANEL_ID), message)
+		} catch (error) {
+			console.log(error)
+		}
+
 		await Promise.all(promises)
 		return null
 	}
@@ -459,6 +490,7 @@ export class IncomingOrderPaymentService {
 	async incomingOrderPaymentDelete(payload: IncomingOrderPaymentDeleteRequest): Promise<null> {
 		const payment = await this.#_prisma.incomingOrderPayment.findFirst({
 			where: { id: payload.id },
+			include: { supplier: true, order: true },
 		})
 
 		if (!payment) throw new NotFoundException("To'lov topilmadi")
@@ -520,6 +552,17 @@ export class IncomingOrderPaymentService {
 
 		await Promise.all(promises)
 
+		try {
+			const message = `удалено\n\n${order ? 'тип: для новых продуктов\n' : 'тип: для поставщика\n'}Поставщик: ${payment.supplier.name}\nСумма: ${
+				payment.totalPay
+			}\n\nналичными: ${payment.cash}\nкарты: ${payment.card}\nперечислением: ${payment.transfer}\nдруги: ${payment.other}\nДата: ${format(
+				new Date(),
+				'yyyy-MM-dd HH:mm',
+			)}\nИнфо: ${payment.description}\nid: ${payment.id}`
+			await this.#_telegram.sendMessage(parseInt(process.env.PAYMENT_CHANEL_ID), message)
+		} catch (error) {
+			console.log(error)
+		}
 		return null
 	}
 }

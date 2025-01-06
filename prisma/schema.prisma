@@ -64,6 +64,7 @@ model Users {
   phone      String         @map("phone")       @db.VarChar()
   type       UserTypeEnum
   debt       Decimal        @map("debt")        @db.Decimal(10,3)  @default(0)
+  chatId     BigInt?       @map("chat_id")      @db.BigInt  
   createdAt  DateTime       @map("created_at")  @db.Timestamp      @default(now())
   updatedAt  DateTime       @map("updated_at")  @db.Timestamp      @updatedAt
   deletedAt  DateTime?      @map("deleted_at")  @db.Timestamp

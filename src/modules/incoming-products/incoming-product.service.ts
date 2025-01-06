@@ -11,13 +11,16 @@ import {
 } from './interfaces'
 import { Decimal } from '../../types'
 import { format } from 'date-fns'
+import { TelegramService } from '../telegram'
 
 @Injectable()
 export class IncomingProductService {
 	readonly #_prisma: PrismaService
+	readonly #_telegram: TelegramService
 
-	constructor(prisma: PrismaService) {
+	constructor(prisma: PrismaService, telegram: TelegramService) {
 		this.#_prisma = prisma
+		this.#_telegram = telegram
 	}
 
 	async incomingProductRetrieveAll(payload: IncomingProductRetriveAllRequest): Promise<IncomingProductRetriveAllResponse> {
@@ -118,6 +121,7 @@ export class IncomingProductService {
 		const [order, product] = await Promise.all([
 			this.#_prisma.incomingOrder.findFirst({
 				where: { id: payload.incomingOrderId },
+				include: { supplier: true },
 			}),
 			this.#_prisma.products.findFirst({
 				where: { id: payload.product_id, deletedAt: null },
@@ -144,7 +148,7 @@ export class IncomingProductService {
 			},
 		})
 
-		if (format(order.sellingDate, 'yyyy-MM-dd') <= format(new Date(), 'yyyy-MM-dd')) {
+		if (order.accepted) {
 			await this.#_prisma.products.update({
 				where: { id: payload.product_id },
 				data: {
@@ -159,6 +163,9 @@ export class IncomingProductService {
 				where: { id: order.supplierId },
 				data: { debt: { increment: payload.cost * payload.count } },
 			})
+
+			const text = `добавлен новый продукт\nсумма: ${order.sum}\nдолг: ${order.debt}\nклиент: ${order.supplier.name}\n\nпродукт: ${product.name}\nцена: ${payload.cost}\nкол-ва: ${payload.count}`
+			await this.#_telegram.sendMessage(parseInt(process.env.ORDER_CHANEL_ID), text)
 		}
 
 		return null
@@ -226,7 +233,7 @@ export class IncomingProductService {
 			},
 		})
 
-		if (format(incomingProduct.incomingOrder.sellingDate, 'yyyy-MM-dd') <= format(new Date(), 'yyyy-MM-dd')) {
+		if (incomingProduct.incomingOrder.accepted) {
 			await this.#_prisma.users.update({
 				where: { id: incomingProduct.incomingOrder.supplierId },
 				data: {
