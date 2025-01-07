@@ -1,9 +1,8 @@
-import { IsArray, IsBoolean, IsBooleanString, IsInt, IsNotEmpty, IsNumber, IsOptional, IsPositive, IsString, IsUUID } from 'class-validator'
+import { IsArray, IsInt, IsNotEmpty, IsNumber, IsOptional, IsPositive, IsString, IsUUID } from 'class-validator'
 import { Type } from 'class-transformer'
 import { OrderCreateRequest, OrderDeleteRequest, OrderRetriveAllRequest, OrderRetriveRequest, OrderUpdateRequest } from '../interfaces'
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
 import { OrderProductRequest, OrderProductRequestDto } from '../../order-products'
-import { PaymentRequest, PaymentRequestDto } from '../../payment'
 import { Response } from 'express'
 
 export class OrderRetrieveAllRequestDto implements OrderRetriveAllRequest {

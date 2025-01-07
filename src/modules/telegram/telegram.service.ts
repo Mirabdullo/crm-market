@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import { Telegraf, Markup } from 'telegraf'
+import { Telegraf } from 'telegraf'
 import { PrismaService } from '@prisma'
 import axios from 'axios'
 
@@ -69,7 +69,6 @@ export class TelegramService {
 			await axios.post(`${this.telegramApiUrl}/sendMessage`, {
 				chat_id: chatId,
 				text,
-				// reply_markup: replyMarkup,
 			})
 		} catch (error) {
 			console.error(error)

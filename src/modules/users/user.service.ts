@@ -113,7 +113,7 @@ export class UserService {
 	}
 
 	async clientDeedRetrieve(payload: UserDeedRetrieveRequest): Promise<any> {
-		const { id, startDate, endDate, type } = payload
+		const { id, startDate, endDate } = payload
 		let dateOption = {}
 		if (startDate || endDate) {
 			const sDate = new Date(format(startDate, 'yyyy-MM-dd'))
@@ -303,7 +303,7 @@ export class UserService {
 	}
 
 	async supplierDeedRetrieve(payload: UserDeedRetrieveRequest): Promise<any> {
-		const { id, startDate, endDate, type } = payload
+		const { id, startDate, endDate } = payload
 		let dateOption = {}
 		if (startDate || endDate) {
 			const sDate = new Date(format(startDate, 'yyyy-MM-dd'))

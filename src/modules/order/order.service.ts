@@ -1,4 +1,4 @@
-import { Injectable, InternalServerErrorException, NotFoundException, StreamableFile } from '@nestjs/common'
+import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common'
 import { PrismaService } from '@prisma'
 import {
 	OrderCreateRequest,
