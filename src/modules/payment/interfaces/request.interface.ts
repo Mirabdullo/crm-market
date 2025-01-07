@@ -8,6 +8,7 @@ export interface PaymentCreateRequest {
 	card?: number
 	other?: number
 	description?: string
+	sendUser?: boolean
 }
 
 export interface PaymentRequest {

@@ -94,10 +94,6 @@ export class OrderCreateRequestDto implements OrderCreateRequest {
 	@IsNotEmpty()
 	products: OrderProductRequest[]
 
-	@ApiPropertyOptional({ type: PaymentRequestDto })
-	@IsOptional()
-	payment?: PaymentRequest
-
 	@ApiPropertyOptional({ type: Boolean, example: false })
 	@IsOptional()
 	accepted?: boolean
@@ -117,6 +113,10 @@ export class OrderUpdateRequestDto implements OrderUpdateRequest {
 	@IsString()
 	@IsOptional()
 	sellingDate?: string
+
+	@ApiPropertyOptional({ type: Boolean, example: false })
+	@IsOptional()
+	sendUser?: boolean
 }
 
 export class OrderDeleteRequestDto implements OrderDeleteRequest {
@@ -124,4 +124,8 @@ export class OrderDeleteRequestDto implements OrderDeleteRequest {
 	@IsUUID('4')
 	@IsNotEmpty()
 	id: string
+
+	@ApiPropertyOptional({ type: Boolean, example: false })
+	@IsOptional()
+	sendUser?: boolean
 }

@@ -18,10 +18,12 @@ export interface OrderUpdateRequest {
 	id: string
 	accepted?: boolean
 	sellingDate?: string
+	sendUser?: boolean
 }
 
 export interface OrderDeleteRequest {
 	id: string
+	sendUser?: boolean
 }
 
 export interface OrderRetriveAllRequest {

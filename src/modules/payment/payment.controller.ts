@@ -18,7 +18,7 @@ import { Permission } from '@decorators'
 import { Response } from 'express'
 
 @ApiTags('Payment')
-// @UseInterceptors(PassUserIdInterceptor)
+@UseInterceptors(PassUserIdInterceptor)
 @ApiBearerAuth()
 @Controller('payment')
 export class PaymentController {
@@ -57,12 +57,13 @@ export class PaymentController {
 		return this.#_service.paymentRetrieve(payload)
 	}
 
-	// @Permission(Permissions.PAYMENT_CREATE)
+	@Permission(Permissions.PAYMENT_CREATE)
 	@Post()
 	@HttpCode(HttpStatus.NO_CONTENT)
 	@ApiNoContentResponse()
 	PaymentCreate(@Body() payload: PaymentCreateRequestDto): Promise<null> {
-		return this.#_service.paymentCreate(payload)
+		const sendUser = [true, 'true'].includes(payload.sendUser) ? true : false
+		return this.#_service.paymentCreate({ sendUser, ...payload })
 	}
 
 	@Permission(Permissions.PAYMENT_UPDATE)

@@ -89,7 +89,8 @@ export class OrderController {
 	@ApiNoContentResponse()
 	OrderUpdate(@Param() id: OrderUpdateRequestDto, @Body() payload: OrderUpdateRequestDto): Promise<null> {
 		const accepted = ['true', true].includes(payload.accepted) ? true : false
-		return this.#_service.OrderUpdate({ id, accepted, ...payload })
+		const sendUser = ['true', true].includes(payload.sendUser) ? true : false
+		return this.#_service.OrderUpdate({ id, accepted, sendUser, ...payload })
 	}
 
 	@Permission(Permissions.ORDER_DELETE)

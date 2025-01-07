@@ -1,4 +1,4 @@
-import { IsBooleanString, IsInt, IsNotEmpty, IsNumber, IsOptional, IsPositive, IsString, IsUUID } from 'class-validator'
+import { IsBoolean, IsInt, IsNotEmpty, IsNumber, IsOptional, IsPositive, IsString, IsUUID } from 'class-validator'
 import { Type } from 'class-transformer'
 import {
 	OrderProductCreateRequest,
@@ -7,7 +7,6 @@ import {
 	OrderProductRetriveAllRequest,
 	OrderProductRetriveRequest,
 	OrderProductUpdateRequest,
-	RemoveOrderProductsRequest,
 } from '../interfaces'
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
 
@@ -32,7 +31,7 @@ export class OrderProductRetrieveAllRequestDto implements OrderProductRetriveAll
 	search?: string
 
 	@ApiPropertyOptional({ type: Boolean, example: false })
-	@IsBooleanString()
+	@IsBoolean()
 	@IsOptional()
 	pagination?: boolean
 
@@ -79,6 +78,11 @@ export class OrderProductCreateRequestDto implements OrderProductCreateRequest {
 	@IsNumber()
 	@IsNotEmpty()
 	price: number
+
+	@ApiPropertyOptional({ type: Boolean })
+	@IsBoolean()
+	@IsOptional()
+	sendUser?: boolean
 }
 
 export class OrderProductRequestDto implements OrderProductRequest {
@@ -96,28 +100,6 @@ export class OrderProductRequestDto implements OrderProductRequest {
 	@IsNumber()
 	@IsOptional()
 	cost: number
-
-	@ApiPropertyOptional({ type: Number })
-	@IsNumber()
-	@IsNotEmpty()
-	price: number
-}
-
-export class RemoveOrderProductsRequestDto implements RemoveOrderProductsRequest {
-	@ApiProperty({ type: String })
-	@IsUUID('4')
-	@IsNotEmpty()
-	id: string
-
-	@ApiProperty({ type: String })
-	@IsUUID('4')
-	@IsNotEmpty()
-	product_id: string
-
-	@ApiProperty({ type: Number })
-	@IsNumber()
-	@IsNotEmpty()
-	count: number
 
 	@ApiPropertyOptional({ type: Number })
 	@IsNumber()
@@ -145,6 +127,11 @@ export class OrderProductUpdateRequestDto implements OrderProductUpdateRequest {
 	@IsNumber()
 	@IsOptional()
 	price?: number
+
+	@ApiPropertyOptional({ type: Boolean })
+	@IsBoolean()
+	@IsOptional()
+	sendUser?: boolean
 }
 
 export class OrderProductDeleteRequestDto implements OrderProductDeleteRequest {
@@ -152,4 +139,9 @@ export class OrderProductDeleteRequestDto implements OrderProductDeleteRequest {
 	@IsUUID('4')
 	@IsNotEmpty()
 	id: string
+
+	@ApiPropertyOptional({ type: Boolean })
+	@IsBoolean()
+	@IsOptional()
+	sendUser?: boolean
 }

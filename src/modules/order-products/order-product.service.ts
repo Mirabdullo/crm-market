@@ -155,11 +155,15 @@ export class OrderProductService {
 				}),
 			)
 
-			const text = `Товар добавлен\nид: ${order.articl}\nсумма: ${order.sum.toNumber() + payload.price * payload.count}\nдолг: ${
+			const text = `Товар добавлен\nид заказа: ${order.articl}\nсумма: ${order.sum.toNumber() + payload.price * payload.count}\nдолг: ${
 				order.debt.toNumber() + payload.price * payload.count
 			}\nклиент: ${order.client.name}\n\nпродукт: ${product.name}\nцена: ${payload.price}\nкол-ва: ${payload.count}`
 
 			await this.#_telegram.sendMessage(parseInt(process.env.ORDER_CHANEL_ID), text)
+
+			if (payload.sendUser && order.client.chatId) {
+				await this.#_telegram.sendMessage(Number(order.client.chatId), text)
+			}
 		}
 
 		await Promise.all(promises)
@@ -177,7 +181,8 @@ export class OrderProductService {
 				price: true,
 				orderId: true,
 				productId: true,
-				order: { select: { clientId: true, accepted: true } },
+				order: { include: { client: true } },
+				product: true,
 			},
 		})
 		if (!orderProduct) throw new NotFoundException("Ma'lumot topilmadi")
@@ -228,6 +233,16 @@ export class OrderProductService {
 						where: { id: orderProduct.order.clientId },
 						data: { debt: { increment: orderDifference } },
 					})
+
+					const text = `Товар обновлено\nид заказа: ${orderProduct.order.articl}\nсумма: ${orderProduct.order.sum.toNumber() + orderDifference}\nдолг: ${
+						orderProduct.order.debt.toNumber() + orderDifference
+					}\nклиент: ${orderProduct.order.client.name}\n\nпродукт: ${orderProduct.product.name}\nцена: ${newPrice}\nкол-ва: ${newCount}`
+
+					await this.#_telegram.sendMessage(parseInt(process.env.ORDER_CHANEL_ID), text)
+
+					if (payload.sendUser && orderProduct.order.client.chatId) {
+						await this.#_telegram.sendMessage(Number(orderProduct.order.client.chatId), text)
+					}
 				}
 			})
 		}
@@ -270,9 +285,13 @@ export class OrderProductService {
 				}),
 			])
 
-			const text = `Товар удалено\nид: ${orderProduct.order.articl}\nклиент: ${orderProduct.order.client.name}\n\nпродукт: ${orderProduct.product.name}\nцена: ${orderProduct.price}\nкол-ва: ${orderProduct.count}`
+			const text = `Товар удалено\nид заказа: ${orderProduct.order.articl}\nклиент: ${orderProduct.order.client.name}\n\nпродукт: ${orderProduct.product.name}\nцена: ${orderProduct.price}\nкол-ва: ${orderProduct.count}`
 
 			await this.#_telegram.sendMessage(parseInt(process.env.ORDER_CHANEL_ID), text)
+
+			if (payload.sendUser && orderProduct.order.client.chatId) {
+				await this.#_telegram.sendMessage(Number(orderProduct.order.client.chatId), text)
+			}
 		}
 
 		return null

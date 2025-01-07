@@ -1,4 +1,4 @@
-import { IsBooleanString, IsInt, IsNotEmpty, IsNumber, IsOptional, IsPositive, IsString, IsUUID } from 'class-validator'
+import { IsBoolean, IsInt, IsNotEmpty, IsNumber, IsOptional, IsPositive, IsString, IsUUID } from 'class-validator'
 import { Type } from 'class-transformer'
 import { PaymentCreateRequest, PaymentDeleteRequest, PaymentRequest, PaymentRetriveAllRequest, PaymentRetriveRequest, PaymentUpdateRequest } from '../interfaces'
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
@@ -27,7 +27,7 @@ export class PaymentRetrieveAllRequestDto implements PaymentRetriveAllRequest {
 	res: Response
 
 	@ApiPropertyOptional({ type: Boolean, example: false })
-	@IsBooleanString()
+	@IsBoolean()
 	@IsOptional()
 	pagination?: boolean
 
@@ -94,6 +94,11 @@ export class PaymentCreateRequestDto implements PaymentCreateRequest {
 	@IsNumber()
 	@IsOptional()
 	other?: number
+
+	@ApiPropertyOptional({ type: Boolean })
+	@IsBoolean()
+	@IsOptional()
+	sendUser?: boolean
 }
 
 export class PaymentRequestDto implements PaymentRequest {

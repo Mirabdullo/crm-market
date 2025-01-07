@@ -4,6 +4,7 @@ export interface OrderProductCreateRequest {
 	price: number
 	cost?: number
 	count: number
+	sendUser?: boolean
 }
 
 export interface OrderProductRequest {
@@ -18,17 +19,12 @@ export interface OrderProductUpdateRequest {
 	cost?: number
 	count?: number
 	price?: number
-}
-
-export interface RemoveOrderProductsRequest {
-	id: string
-	product_id: string
-	count: number
-	price: number
+	sendUser?: boolean
 }
 
 export interface OrderProductDeleteRequest {
 	id: string
+	sendUser?: boolean
 }
 
 export interface OrderProductRetriveAllRequest {

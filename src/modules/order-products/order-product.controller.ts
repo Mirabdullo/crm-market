@@ -49,7 +49,8 @@ export class OrderProductController {
 	@HttpCode(HttpStatus.NO_CONTENT)
 	@ApiNoContentResponse()
 	OrderProductCreate(@Body() payload: OrderProductCreateRequestDto): Promise<null> {
-		return this.#_service.orderProductCreate(payload)
+		const sendUser = [true, 'true'].includes(payload.sendUser) ? true : false
+		return this.#_service.orderProductCreate({ sendUser, ...payload })
 	}
 
 	@Permission(Permissions.ORDER_PRODUCT_UPDATE)
@@ -57,7 +58,8 @@ export class OrderProductController {
 	@HttpCode(HttpStatus.NO_CONTENT)
 	@ApiNoContentResponse()
 	OrderProductUpdate(@Param() id: OrderProductUpdateRequestDto, @Body() payload: OrderProductUpdateRequestDto): Promise<null> {
-		return this.#_service.orderProductUpdate({ id, ...payload })
+		const sendUser = [true, 'true'].includes(payload.sendUser) ? true : false
+		return this.#_service.orderProductUpdate({ id, sendUser, ...payload })
 	}
 
 	@Permission(Permissions.ORDER_PRODUCT_DELETE)
@@ -65,6 +67,7 @@ export class OrderProductController {
 	@HttpCode(HttpStatus.NO_CONTENT)
 	@ApiNoContentResponse()
 	OrderProductDelete(@Param() payload: OrderProductDeleteRequestDto): Promise<null> {
-		return this.#_service.orderProductDelete(payload)
+		const sendUser = [true, 'true'].includes(payload.sendUser) ? true : false
+		return this.#_service.orderProductDelete({ sendUser, ...payload })
 	}
 }

@@ -307,7 +307,7 @@ export class PaymentService {
 		const order = orderId
 			? await this.#_prisma.order.findFirst({
 					where: { id: orderId },
-					include: { products: true },
+					include: { products: { include: { product: true } }, client: true },
 			  })
 			: null
 
@@ -368,6 +368,15 @@ export class PaymentService {
 				data: { debt: { increment: sum } },
 			})
 		})
+
+		if (order && order.accepted === false && payload.sendUser && order.client.chatId) {
+			const text = `продажа\nид заказа: ${order.articl}\nсумма: ${order.sum}\nдолг: ${order.debt}\nклиент: ${order.client.name}\n\n`
+			order.products.forEach((product) => {
+				text + `продукт: ${product.product.name}\nцена: ${product.price}\nкол-ва: ${product.count}\n\n`
+			})
+
+			await this.#_telegram.sendMessage(Number(order.client.chatId), text)
+		}
 
 		if (payment) {
 			const message = `${order ? 'тип: для продажи\n' : 'тип: для клиента\n'}Клиент: ${payment.client.name}\nСумма: ${payment.totalPay}\n\nналичными: ${
