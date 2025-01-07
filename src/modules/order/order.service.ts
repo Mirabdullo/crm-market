@@ -811,10 +811,10 @@ export class OrderService {
 					}),
 				])
 
-				const text = `продажа\nид заказа: ${order.articl}\nсумма: ${order.sum}\nдолг: ${order.debt}\nклиент: ${order.client.name}\n\n`
+				let text = `продажа\nид заказа: ${order.articl}\nсумма: ${order.sum}\nдолг: ${order.debt}\nклиент: ${order.client.name}\n\n`
 				order.products.forEach((product) => {
 					console.log(product)
-					text + `продукт: ${product.product.name}\nцена: ${product.price}\nкол-ва: ${product.count}\n\n`
+					text += `продукт: ${product.product.name}\nцена: ${product.price}\nкол-ва: ${product.count}\n\n`
 				})
 
 				await this.#_telegram.sendMessage(parseInt(process.env.ORDER_CHANEL_ID), text)
@@ -888,9 +888,9 @@ export class OrderService {
 				}),
 			)
 
-			const text = `продажа удалена\nид заказа: ${order.articl}\nсумма: ${order.sum}\nдолг: ${order.debt}\nклиент: ${order.client.name}\n\n`
+			let text = `продажа удалена\nид заказа: ${order.articl}\nсумма: ${order.sum}\nдолг: ${order.debt}\nклиент: ${order.client.name}\n\n`
 			order.products.forEach((product) => {
-				text + `продукт: ${product.product.name}\nцена: ${product.price}\nкол-ва: ${product.count}\n\n`
+				text += `продукт: ${product.product.name}\nцена: ${product.price}\nкол-ва: ${product.count}\n\n`
 			})
 
 			await this.#_telegram.sendMessage(parseInt(process.env.ORDER_CHANEL_ID), text)
