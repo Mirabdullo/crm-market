@@ -813,6 +813,7 @@ export class OrderService {
 
 				const text = `продажа\nид заказа: ${order.articl}\nсумма: ${order.sum}\nдолг: ${order.debt}\nклиент: ${order.client.name}\n\n`
 				order.products.forEach((product) => {
+					console.log(product)
 					text + `продукт: ${product.product.name}\nцена: ${product.price}\nкол-ва: ${product.count}\n\n`
 				})
 

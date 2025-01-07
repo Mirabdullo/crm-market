@@ -372,6 +372,7 @@ export class PaymentService {
 		if (order && order.accepted === false && payload.sendUser && order.client.chatId) {
 			const text = `продажа\nид заказа: ${order.articl}\nсумма: ${order.sum}\nдолг: ${order.debt}\nклиент: ${order.client.name}\n\n`
 			order.products.forEach((product) => {
+				console.log(product)
 				text + `продукт: ${product.product.name}\nцена: ${product.price}\nкол-ва: ${product.count}\n\n`
 			})
 
