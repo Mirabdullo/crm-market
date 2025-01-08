@@ -313,7 +313,7 @@ export class PaymentService {
 			: null
 
 		const sum = (card || 0) + (transfer || 0) + (other || 0) + (cash || 0)
-
+		console.log(orderId, order)
 		const payment = await this.#_prisma.$transaction(async (prisma) => {
 			if (sum > 0) {
 				const paymentData = await prisma.payment.create({
