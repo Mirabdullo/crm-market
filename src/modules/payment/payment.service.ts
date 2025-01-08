@@ -303,6 +303,7 @@ export class PaymentService {
 	}
 
 	async paymentCreate(payload: PaymentCreateRequest): Promise<null> {
+		console.log(payload)
 		const { card, transfer, other, cash, orderId, clientId, description } = payload
 		const order = orderId
 			? await this.#_prisma.order.findFirst({
@@ -354,6 +355,7 @@ export class PaymentService {
 				await Promise.all(updatedProducts)
 
 				const orderSum = sum > order.debt.toNumber() ? 0 : { decrement: sum }
+				console.log('orderSum: ', orderSum)
 				await prisma.order.update({
 					where: { id: orderId },
 					data: {
