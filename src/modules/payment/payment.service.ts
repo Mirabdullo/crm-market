@@ -303,8 +303,8 @@ export class PaymentService {
 	}
 
 	async paymentCreate(payload: PaymentCreateRequest): Promise<null> {
-		console.log(payload)
 		const { card = 0, transfer = 0, other = 0, cash = 0, orderId, clientId, description } = payload
+
 		const order = orderId
 			? await this.#_prisma.order.findFirst({
 					where: { id: orderId },
@@ -313,10 +313,11 @@ export class PaymentService {
 			: null
 
 		const sum = card + transfer + other + cash
-		console.log(orderId, order)
+
 		const payment = await this.#_prisma.$transaction(async (prisma) => {
+			let paymentData = null
 			if (sum > 0) {
-				const paymentData = await prisma.payment.create({
+				paymentData = await prisma.payment.create({
 					data: {
 						orderId: orderId,
 						clientId: clientId,
@@ -342,11 +343,9 @@ export class PaymentService {
 						},
 					},
 				})
-				return paymentData
 			}
 
 			if (orderId && order) {
-				console.log('order updatega kirdi')
 				const updatedProducts = await Promise.all(
 					order.products.map((pro) =>
 						prisma.products.update({
@@ -355,10 +354,10 @@ export class PaymentService {
 						}),
 					),
 				)
-				console.log(updatedProducts)
+
 				const currentDebt = order.debt.toNumber()
 				const newDebt = Math.max(0, currentDebt - sum)
-				console.log(newDebt)
+
 				await prisma.order.update({
 					where: { id: orderId },
 					data: {
@@ -372,6 +371,8 @@ export class PaymentService {
 				where: { id: clientId },
 				data: { debt: { increment: sum } },
 			})
+
+			return paymentData
 		})
 
 		if (order && order.accepted === false) {
