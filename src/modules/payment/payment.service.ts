@@ -304,7 +304,7 @@ export class PaymentService {
 
 	async paymentCreate(payload: PaymentCreateRequest): Promise<null> {
 		console.log(payload)
-		const { card, transfer, other, cash, orderId, clientId, description } = payload
+		const { card = 0, transfer = 0, other = 0, cash = 0, orderId, clientId, description } = payload
 		const order = orderId
 			? await this.#_prisma.order.findFirst({
 					where: { id: orderId },
@@ -312,7 +312,7 @@ export class PaymentService {
 			  })
 			: null
 
-		const sum = (card || 0) + (transfer || 0) + (other || 0) + (cash || 0)
+		const sum = card + transfer + other + cash
 		console.log(orderId, order)
 		const payment = await this.#_prisma.$transaction(async (prisma) => {
 			if (sum > 0) {
@@ -346,20 +346,23 @@ export class PaymentService {
 			}
 
 			if (orderId && order) {
-				const updatedProducts = order.products.map((pro) =>
-					prisma.products.update({
-						where: { id: pro.productId },
-						data: { count: { decrement: pro.count } },
-					}),
+				console.log('order updatega kirdi')
+				const updatedProducts = await Promise.all(
+					order.products.map((pro) =>
+						prisma.products.update({
+							where: { id: pro.productId },
+							data: { count: { decrement: pro.count } },
+						}),
+					),
 				)
-				await Promise.all(updatedProducts)
-
-				const orderSum = sum > order.debt.toNumber() ? 0 : { decrement: sum }
-				console.log('orderSum: ', orderSum)
+				console.log(updatedProducts)
+				const currentDebt = order.debt.toNumber()
+				const newDebt = Math.max(0, currentDebt - sum)
+				console.log(newDebt)
 				await prisma.order.update({
 					where: { id: orderId },
 					data: {
-						debt: orderSum,
+						debt: newDebt,
 						accepted: true,
 					},
 				})
@@ -373,6 +376,7 @@ export class PaymentService {
 
 		if (order && order.accepted === false) {
 			let text = `продажа\nид заказа: ${order.articl}\nсумма: ${order.sum}\nдолг: ${order.debt}\nклиент: ${order.client.name}\n\n`
+
 			order.products.forEach((product) => {
 				text += `продукт: ${product.product.name}\nцена: ${product.price}\nкол-ва: ${product.count}\n\n`
 			})
@@ -385,18 +389,26 @@ export class PaymentService {
 		}
 
 		if (payment) {
-			const message = `${order ? 'тип: для продажи\n' : 'тип: для клиента\n'}Клиент: ${payment.client.name}\nСумма: ${payment.totalPay}\n\nналичными: ${
-				payment.cash
-			}\nкарты: ${payment.card}\nперечислением: ${payment.transfer}\nдруги: ${payment.other}\nДата: ${format(new Date(), 'yyyy-MM-dd HH:mm')}\nИнфо: ${
-				payment.description
-			}\nid: ${payment.id}`
+			const message =
+				`${order ? 'тип: для продажи\n' : 'тип: для клиента\n'}` +
+				`Клиент: ${payment.client.name}\n` +
+				`Сумма: ${payment.totalPay}\n\n` +
+				`наличными: ${payment.cash}\n` +
+				`карты: ${payment.card}\n` +
+				`перечислением: ${payment.transfer}\n` +
+				`други: ${payment.other}\n` +
+				`Дата: ${format(new Date(), 'yyyy-MM-dd HH:mm')}\n` +
+				`Инфо: ${payment.description}\n` +
+				`id: ${payment.id}`
+
 			await this.#_telegram.sendMessage(parseInt(process.env.PAYMENT_CHANEL_ID), message)
 		}
+
 		return null
 	}
 
 	async paymentUpdate(payload: PaymentUpdateRequest): Promise<null> {
-		const { id, card, transfer, other, cash, description } = payload
+		const { id, card = 0, transfer = 0, other = 0, cash = 0, description } = payload
 
 		const payment = await this.#_prisma.payment.findUnique({
 			where: { id },
@@ -404,7 +416,7 @@ export class PaymentService {
 		})
 		if (!payment) throw new NotFoundException('payment not found')
 
-		const sum = (card || 0) + (transfer || 0) + (other || 0) + (cash || 0)
+		const sum = card + transfer + other + cash
 
 		await this.#_prisma.payment.update({
 			where: { id: payload.id },
@@ -442,6 +454,7 @@ export class PaymentService {
 		}\nкарты: ${payment.card}\nперечислением: ${payment.transfer}\nдруги: ${payment.other}\nДата: ${format(new Date(), 'yyyy-MM-dd HH:mm')}\nИнфо: ${
 			payment.description
 		}\nid: ${payment.id}`
+
 		await this.#_telegram.sendMessage(parseInt(process.env.PAYMENT_CHANEL_ID), message)
 
 		return null
