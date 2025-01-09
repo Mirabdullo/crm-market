@@ -99,6 +99,11 @@ export class PaymentCreateRequestDto implements PaymentCreateRequest {
 	@IsBoolean()
 	@IsOptional()
 	sendUser?: boolean
+
+	@ApiProperty({ type: String })
+	@IsString()
+	@IsOptional()
+	description?: string
 }
 
 export class PaymentRequestDto implements PaymentRequest {
@@ -168,6 +173,11 @@ export class PaymentUpdateRequestDto implements PaymentUpdateRequest {
 	@IsNumber()
 	@IsOptional()
 	other?: number
+
+	@ApiProperty({ type: String })
+	@IsString()
+	@IsOptional()
+	description?: string
 }
 
 export class PaymentDeleteRequestDto implements PaymentDeleteRequest {
