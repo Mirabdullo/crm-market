@@ -12,7 +12,6 @@ export class TelegramService {
 	constructor(private readonly prisma: PrismaService) {
 		try {
 			this.bot = new Telegraf(this.token)
-			
 
 			// Start komandasi
 			this.bot.start(async (ctx) => {
@@ -20,12 +19,12 @@ export class TelegramService {
 				this.userSessions.set(chatId, {}) // Yangi sessiya yaratish
 				await ctx.reply('Assalomu alaykum!\nBotimizga xush kelibsiz!\nIltimos telefon raqamingizni kiriting:')
 			})
-
+			console.log(this.userSessions)
 			// Xabarlarni boshqarish
 			this.bot.on('text', async (ctx) => {
 				const chatId = ctx.chat.id
 				const userSession = this.userSessions.get(chatId)
-
+				console.log(chatId)
 				if (!userSession) {
 					await ctx.reply('Iltimos, /start buyruqni bosing.')
 					return
@@ -34,14 +33,14 @@ export class TelegramService {
 				if (!userSession.phone) {
 					// Telefon raqami kiritish jarayoni
 					userSession.phone = ctx.message.text
-
+					console.log(userSession, ctx.message)
 					// Foydalanuvchini bazada tekshirish
 					const user = await this.prisma.users.findFirst({
 						where: {
 							phone: userSession.phone,
 						},
 					})
-
+					console.log(user)
 					if (user) {
 						// Chat IDni saqlash
 						await this.prisma.users.update({
