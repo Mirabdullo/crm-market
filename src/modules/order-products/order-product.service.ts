@@ -145,7 +145,7 @@ export class OrderProductService {
 				this.#_prisma.products.update({
 					where: { id: payload.product_id },
 					data: {
-						count: {decrement: payload.count},
+						count: { decrement: payload.count },
 					},
 				}),
 				this.#_prisma.users.update({

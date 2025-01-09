@@ -73,7 +73,7 @@ export class OrderService {
 				}
 			}
 
-			let acceptedOption = { accepted: false }
+			const acceptedOption = { accepted: false }
 			if (payload.accepted) {
 				acceptedOption.accepted = true
 			}
@@ -725,6 +725,8 @@ export class OrderService {
 
 			const totalSum = products.reduce((sum, product) => sum + product.price * product.count, 0)
 
+			const now = this.adjustToTashkentTime()
+
 			const order = await this.#_prisma.order.create({
 				data: {
 					clientId: clientId,
@@ -732,6 +734,8 @@ export class OrderService {
 					sum: totalSum,
 					debt: totalSum,
 					sellingDate,
+					createdAt: now,
+					updatedAt: now,
 				},
 			})
 
@@ -916,5 +920,11 @@ export class OrderService {
 		])
 
 		return null
+	}
+
+	private adjustToTashkentTime(): Date {
+		const tashkentDate = new Date()
+		tashkentDate.setTime(tashkentDate.getTime() + 5 * 60 * 60 * 1000)
+		return tashkentDate
 	}
 }
