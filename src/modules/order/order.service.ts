@@ -73,11 +73,9 @@ export class OrderService {
 				}
 			}
 
-			let acceptedOption = {}
+			let acceptedOption = { accepted: false }
 			if (payload.accepted) {
-				acceptedOption = {
-					accepted: payload.accepted,
-				}
+				acceptedOption.accepted = true
 			}
 
 			const OrderList = await this.#_prisma.order.findMany({

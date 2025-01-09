@@ -303,6 +303,7 @@ export class PaymentService {
 	}
 
 	async paymentCreate(payload: PaymentCreateRequest): Promise<null> {
+		console.log(payload)
 		const { card = 0, transfer = 0, other = 0, cash = 0, orderId, clientId, description } = payload
 
 		const order = orderId
@@ -346,7 +347,7 @@ export class PaymentService {
 			}
 
 			if (orderId && order) {
-				const updatedProducts = await Promise.all(
+				await Promise.all(
 					order.products.map((pro) =>
 						prisma.products.update({
 							where: { id: pro.productId },
@@ -410,7 +411,7 @@ export class PaymentService {
 
 	async paymentUpdate(payload: PaymentUpdateRequest): Promise<null> {
 		const { id, card = 0, transfer = 0, other = 0, cash = 0, description } = payload
-
+		console.log('description:', description)
 		const payment = await this.#_prisma.payment.findUnique({
 			where: { id },
 			include: { client: true, order: true },

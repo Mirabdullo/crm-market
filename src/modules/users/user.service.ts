@@ -371,6 +371,7 @@ export class UserService {
 		const totalDebt = user?.incomingOrder?.reduce((sum, order) => sum + order.debt.toNumber(), 0)
 		const totalCredit = user?.incomingOrderPayment?.reduce((sum, payment) => sum + payment.totalPay.toNumber(), 0)
 
+		console.log('totalDebt: ', totalDebt, totalCredit)
 		return {
 			id: id,
 			name: user.name,
