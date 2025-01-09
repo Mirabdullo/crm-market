@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import { Telegraf } from 'telegraf'
+import { Telegraf, Markup } from 'telegraf'
 import { PrismaService } from '@prisma'
 import axios from 'axios'
 
@@ -15,47 +15,41 @@ export class TelegramService {
 
 			// Start komandasi
 			this.bot.start(async (ctx) => {
-				const chatId = ctx.chat.id
-				this.userSessions.set(chatId, {}) // Yangi sessiya yaratish
-				await ctx.reply('Assalomu alaykum!\nBotimizga xush kelibsiz!\nIltimos telefon raqamingizni kiriting:')
+				await ctx.reply(`Assalomu alaykum!`, {
+					parse_mode: 'HTML',
+				})
+				await ctx.reply(`Iltimos, botdan ro'yxatdan o'tish uchun <b>"📱 Raqamni yuborish"</b>, tugmasini bosing!`, {
+					parse_mode: 'HTML',
+					...Markup.keyboard([[Markup.button.contactRequest('📱 Raqamni yuborish')]])
+						.oneTime()
+						.resize(),
+				})
 			})
-			console.log(this.userSessions)
-			// Xabarlarni boshqarish
-			this.bot.on('text', async (ctx) => {
-				const chatId = ctx.chat.id
-				const userSession = this.userSessions.get(chatId)
-				console.log(chatId)
-				// if (!userSession) {
-				// 	await ctx.reply('Iltimos, /start buyruqni bosing.')
-				// 	return
-				// }
 
-				if (!userSession.phone) {
-					// Telefon raqami kiritish jarayoni
-					userSession.phone = ctx.message.text
-					console.log(userSession, ctx.message)
-					// Foydalanuvchini bazada tekshirish
-					const user = await this.prisma.users.findFirst({
-						where: {
-							phone: userSession.phone,
-						},
+			this.bot.on('message', async (ctx) => {
+				const telegramId = ctx.from.id
+				const text = 'text' in ctx.message ? ctx.message.text : ''
+
+				if (text) {
+					const checkUser = await this.prisma.users.findFirst({
+						where: { chatId: telegramId, deletedAt: null },
 					})
-					console.log(user)
+
+					const user = await this.prisma.users.findFirst({
+						where: { phone: text, deletedAt: null },
+					})
+
 					if (user) {
-						// Chat IDni saqlash
-						await this.prisma.users.update({
-							where: { id: user.id },
-							data: { chatId },
+						await ctx.reply(`Raqam qabul qilindi. Botimizga xush kelibsiz!\n\n<b>Siz bilan ishlashimizdan xursandmiz😊!</b>`, {
+							parse_mode: 'HTML',
 						})
-
-						await ctx.reply('Tizimga muvaffaqiyatli kirdingiz!')
-						console.log(`Chat ID ${chatId} foydalanuvchi ${user.id} uchun saqlandi.`)
 					} else {
-						await ctx.reply("Telefon raqami noto'g'ri. Qayta urinib ko‘ring.")
+						if (!checkUser) {
+							await ctx.reply(`Raqam noto'g'ri.\nIltimos qayta urinib ko'ring!`, {
+								parse_mode: 'HTML',
+							})
+						}
 					}
-
-					// Sessiyani tozalash
-					// this.userSessions.delete(chatId)
 				}
 			})
 
