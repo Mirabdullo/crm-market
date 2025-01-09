@@ -25,10 +25,10 @@ export class TelegramService {
 				const chatId = ctx.chat.id
 				const userSession = this.userSessions.get(chatId)
 				console.log(chatId)
-				if (!userSession) {
-					await ctx.reply('Iltimos, /start buyruqni bosing.')
-					return
-				}
+				// if (!userSession) {
+				// 	await ctx.reply('Iltimos, /start buyruqni bosing.')
+				// 	return
+				// }
 
 				if (!userSession.phone) {
 					// Telefon raqami kiritish jarayoni
@@ -55,7 +55,7 @@ export class TelegramService {
 					}
 
 					// Sessiyani tozalash
-					this.userSessions.delete(chatId)
+					// this.userSessions.delete(chatId)
 				}
 			})
 
