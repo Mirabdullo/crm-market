@@ -136,7 +136,7 @@ export class UserService {
 				phone: true,
 				debt: true,
 				orders: {
-					where: { ...dateOption, deletedAt: null },
+					where: { ...dateOption, accepted: true, deletedAt: null },
 					select: {
 						id: true,
 						sum: true,

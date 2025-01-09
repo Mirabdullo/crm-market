@@ -28,8 +28,8 @@ export class TelegramService {
 			this.bot.on('contact', async (ctx) => {
 				const contact = ctx.message.contact
 				const num = contact.phone_number.trim().replace(' ', '')
-				let telegramId = ctx.message.contact.user_id
-				console.log(contact, telegramId);
+				const telegramId = ctx.message.contact.user_id
+				console.log(contact, telegramId)
 				const user = await this.prisma.users.findFirst({
 					where: { phone: num, deletedAt: null },
 				})
@@ -43,15 +43,18 @@ export class TelegramService {
 
 						await ctx.reply(`Raqam qabul qilindi. Botimizga xush kelibsiz!\n\n<b>Siz bilan ishlashimizdan xursandmiz😊!</b>`, {
 							parse_mode: 'HTML',
+							reply_markup: { remove_keyboard: true },
 						})
 					} else {
 						await ctx.reply(`Siz avval ro'yxatdan o'tgansiz!\n\n<b>Siz bilan ishlayotganimizdan xursandmiz😊!</b>`, {
 							parse_mode: 'HTML',
+							reply_markup: { remove_keyboard: true },
 						})
 					}
 				} else {
 					await ctx.reply(`Raqam noto'g'ri.\nIltimos qayta urinib ko'ring!`, {
 						parse_mode: 'HTML',
+						reply_markup: { remove_keyboard: true },
 					})
 				}
 			})

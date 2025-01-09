@@ -33,11 +33,19 @@ export class OrderController {
 	@Get()
 	@ApiOkResponse({ type: [OrderRetrieveAllResponseDto] })
 	OrderRetrieveAll(@Query() payload: OrderRetrieveAllRequestDto): Promise<OrderRetriveAllResponse> {
+		let accepted = undefined
+		if (['true', true].includes(payload.accepted) || ['false', false].includes(payload.accepted)) {
+			if (['true', true].includes(payload.accepted)) {
+				accepted = true
+			} else {
+				accepted = false
+			}
+		}
 		return this.#_service.OrderRetrieveAll({
 			...payload,
 			pageNumber: payload.pageNumber ?? PAGE_NUMBER,
 			pageSize: payload.pageSize ?? PAGE_SIZE,
-			accepted: ['true', true].includes(payload.accepted) ? true : false,
+			accepted,
 			pagination: [true, 'true'].includes(payload.pagination) ? false : true,
 		})
 	}
