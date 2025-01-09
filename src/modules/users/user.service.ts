@@ -326,7 +326,7 @@ export class UserService {
 				phone: true,
 				debt: true,
 				incomingOrder: {
-					where: { ...dateOption, deletedAt: null },
+					where: { ...dateOption, accepted: true, deletedAt: null },
 					select: {
 						id: true,
 						sum: true,

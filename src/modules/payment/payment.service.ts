@@ -455,7 +455,7 @@ export class PaymentService {
 			payment.cash
 		}\nкарты: ${payment.card}\nперечислением: ${payment.transfer}\nдруги: ${payment.other}\nДата: ${format(new Date(), 'yyyy-MM-dd HH:mm')}\nИнфо: ${
 			payment.description
-		}\nid: ${payment.id}`
+		}\nid: #${payment.id}`
 
 		await this.#_telegram.sendMessage(parseInt(process.env.PAYMENT_CHANEL_ID), message)
 
@@ -491,7 +491,7 @@ export class PaymentService {
 			payment.cash
 		}\nкарты: ${payment.card}\nперечислением: ${payment.transfer}\nдруги: ${payment.other}\nДата: ${format(new Date(), 'yyyy-MM-dd HH:mm')}\nИнфо: ${
 			payment.description
-		}\nid: ${payment.id}`
+		}\nid: #${payment.id}`
 		await this.#_telegram.sendMessage(parseInt(process.env.PAYMENT_CHANEL_ID), message)
 
 		return null
