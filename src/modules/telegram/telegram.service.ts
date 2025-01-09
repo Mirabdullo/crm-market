@@ -7,7 +7,6 @@ import axios from 'axios'
 export class TelegramService {
 	private bot: Telegraf
 	private readonly token = process.env.BOT_TOKEN
-	private userSessions: Map<number, { phone?: string }> = new Map()
 	private readonly telegramApiUrl = `https://api.telegram.org/bot${this.token}`
 	constructor(private readonly prisma: PrismaService) {
 		try {
@@ -26,6 +25,37 @@ export class TelegramService {
 				})
 			})
 
+			this.bot.on('contact', async (ctx) => {
+				const contact = ctx.message.contact
+				const num = contact.phone_number.trim().replace(' ', '')
+				let telegramId = ctx.message.contact.user_id
+				console.log(contact, telegramId);
+				const user = await this.prisma.users.findFirst({
+					where: { phone: num, deletedAt: null },
+				})
+
+				if (user) {
+					if (!user.chatId) {
+						await this.prisma.users.update({
+							where: { id: user.id },
+							data: { chatId: telegramId },
+						})
+
+						await ctx.reply(`Raqam qabul qilindi. Botimizga xush kelibsiz!\n\n<b>Siz bilan ishlashimizdan xursandmiz😊!</b>`, {
+							parse_mode: 'HTML',
+						})
+					} else {
+						await ctx.reply(`Siz avval ro'yxatdan o'tgansiz!\n\n<b>Siz bilan ishlayotganimizdan xursandmiz😊!</b>`, {
+							parse_mode: 'HTML',
+						})
+					}
+				} else {
+					await ctx.reply(`Raqam noto'g'ri.\nIltimos qayta urinib ko'ring!`, {
+						parse_mode: 'HTML',
+					})
+				}
+			})
+
 			this.bot.on('message', async (ctx) => {
 				const telegramId = ctx.from.id
 				const text = 'text' in ctx.message ? ctx.message.text : ''
@@ -35,16 +65,25 @@ export class TelegramService {
 						where: { chatId: telegramId, deletedAt: null },
 					})
 
-					const user = await this.prisma.users.findFirst({
-						where: { phone: text, deletedAt: null },
-					})
-
-					if (user) {
-						await ctx.reply(`Raqam qabul qilindi. Botimizga xush kelibsiz!\n\n<b>Siz bilan ishlashimizdan xursandmiz😊!</b>`, {
+					if (checkUser) {
+						await ctx.reply(`Assalomu alaykum!\n\n<b>Siz bilan ishlayotganimizdan xursandmiz😊!</b>`, {
 							parse_mode: 'HTML',
 						})
 					} else {
-						if (!checkUser) {
+						const user = await this.prisma.users.findFirst({
+							where: { phone: text, deletedAt: null },
+						})
+
+						if (user) {
+							await this.prisma.users.update({
+								where: { id: user.id },
+								data: { chatId: telegramId },
+							})
+
+							await ctx.reply(`Raqam qabul qilindi. Botimizga xush kelibsiz!\n\n<b>Siz bilan ishlashimizdan xursandmiz😊!</b>`, {
+								parse_mode: 'HTML',
+							})
+						} else {
 							await ctx.reply(`Raqam noto'g'ri.\nIltimos qayta urinib ko'ring!`, {
 								parse_mode: 'HTML',
 							})
