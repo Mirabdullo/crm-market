@@ -27,7 +27,7 @@ export class TelegramService {
 
 			this.bot.on('contact', async (ctx) => {
 				const contact = ctx.message.contact
-				console.log(contact);
+				console.log(contact)
 				let num = contact.phone_number.trim().replace(' ', '')
 				num = num.replace('+', '')
 				const telegramId = ctx.message.contact.user_id

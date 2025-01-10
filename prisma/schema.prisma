@@ -30,6 +30,7 @@ model Admins {
   permissions    Permissions[]
   incomingOrders IncomingOrder[]
   orders         Order[] 
+  returnedOrders ReturnedOrder[]
 
   @@id([ id ])
   @@map("admins")
@@ -73,6 +74,7 @@ model Users {
   incomingOrder IncomingOrder[]
   payments   Payment[]
   incomingOrderPayment IncomingOrderPayment[]
+  returnedOrder ReturnedOrder[]
 
   @@id([ id ])
   @@map("users")
@@ -95,6 +97,7 @@ model Products {
 
   incomingProducts  IncomingProducts[]
   orderProducts     OrderProducts[]
+  returnedProducts  ReturnedProduct[]
 
   @@id([ id ])
   @@map("products")
@@ -223,4 +226,42 @@ model IncomingOrderPayment {
 
   @@id([ id ])
   @@map("incoming_order_payment")
+}
+
+model ReturnedOrder {
+  id           String       @map("id")            @db.Uuid       @default(dbgenerated("GEN_RANDOM_UUID()"))
+  clientId     String       @map("client_id")     @db.Uuid() 
+  sum          Decimal      @map("sum")           @db.Decimal(10,3)
+  fromClient   Decimal?      @map("from_client")   @db.Decimal(10,3)  @default(0)
+  cashPayment  Decimal?      @map("cash_payment")  @db.Decimal(10,3)  @default(0)
+  adminId      String       @map("admin_id")      @db.Uuid()
+  accepted     Boolean      @map("accepted")      @db.Boolean    @default(false)
+  description  String?      @map("description")   @db.VarChar()
+  createdAt    DateTime     @map("created_at")    @db.Timestamp  @default(now())
+  updatedAt    DateTime     @map("updated_at")    @db.Timestamp  @updatedAt
+  deletedAt    DateTime?    @map("deleted_at")    @db.Timestamp
+
+  products   ReturnedProduct[]
+  client     Users   @relation(fields: [clientId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  admin      Admins  @relation(fields: [adminId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([ id ])
+  @@map("returned_order")
+}
+
+model ReturnedProduct {
+  id               String         @map("id")               @db.Uuid       @default(dbgenerated("GEN_RANDOM_UUID()"))
+  orderId          String         @map("order_id")         @db.Uuid() 
+  productId        String         @map("product_id")       @db.Uuid() 
+  price            Decimal        @map("price")            @db.Decimal(10,3)
+  count            Int            @map("count")            @db.Integer()
+  createdAt        DateTime       @map("created_at")       @db.Timestamp  @default(now())
+  updatedAt        DateTime       @map("updated_at")       @db.Timestamp  @updatedAt
+  deletedAt        DateTime?      @map("deleted_at")       @db.Timestamp
+
+  order    ReturnedOrder     @relation(fields: [orderId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  product  Products  @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([ id ])
+  @@map("returned_products")
 }

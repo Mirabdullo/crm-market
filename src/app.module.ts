@@ -14,10 +14,12 @@ import {
 	PaymentModule,
 	PermissionModule,
 	ProductModule,
+	ReturnedProductModule,
 	RoleModule,
 	UserModule,
 } from './modules'
 import { TelegramModule } from './modules/telegram'
+import { ReturnedOrderModule } from './modules/returned-order/returned-order.module'
 
 @Module({
 	imports: [
@@ -25,6 +27,8 @@ import { TelegramModule } from './modules/telegram'
 		ConfigModule.forRoot({ isGlobal: true, load: [databaseConfig] }),
 		PrismaModule,
 		AuthModule,
+		ReturnedOrderModule,
+		ReturnedProductModule,
 		AdminModule,
 		UserModule,
 		RoleModule,
