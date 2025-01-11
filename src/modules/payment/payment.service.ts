@@ -11,7 +11,7 @@ import {
 } from './interfaces'
 import { Decimal } from '../../types'
 import * as ExcelJS from 'exceljs'
-import { format } from 'date-fns'
+import { addHours, endOfDay, format } from 'date-fns'
 import { TelegramService } from '../telegram/telegram.service'
 
 @Injectable()
@@ -49,8 +49,20 @@ export class PaymentService {
 			}
 		}
 
+		let dateOption = {}
+		if (payload.startDate || payload.endDate) {
+			const sDate = new Date(format(payload.startDate, 'yyyy-MM-dd'))
+			const eDate = addHours(new Date(endOfDay(payload.endDate)), 3)
+			dateOption = {
+				createdAt: {
+					...(payload.startDate ? { gte: sDate } : {}),
+					...(payload.endDate ? { lte: eDate } : {}),
+				},
+			}
+		}
+
 		const paymentList = await this.#_prisma.payment.findMany({
-			where: { deletedAt: null, ...clientOption, ...searchOption },
+			where: { deletedAt: null, ...clientOption, ...searchOption, ...dateOption },
 			select: {
 				id: true,
 				totalPay: true,
@@ -89,7 +101,7 @@ export class PaymentService {
 		}))
 
 		const totalCount = await this.#_prisma.payment.count({
-			where: { deletedAt: null, ...clientOption, ...searchOption },
+			where: { deletedAt: null, ...clientOption, ...searchOption, ...dateOption },
 		})
 
 		const totalCalc = {
