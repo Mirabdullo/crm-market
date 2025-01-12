@@ -28,6 +28,11 @@ export class UserRetrieveAllRequestDto implements UserRetriveAllRequest {
 	@IsBooleanString()
 	@IsOptional()
 	pagination?: boolean
+
+	@ApiPropertyOptional({ type: String, example: 'desc' })
+	@IsString()
+	@IsOptional()
+	orderBy?: string
 }
 
 export class UserRetrieveRequestDto implements UserRetriveRequest {

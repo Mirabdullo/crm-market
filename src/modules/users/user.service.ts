@@ -38,6 +38,15 @@ export class UserService {
 			}
 		}
 
+		let orderByOption = {}
+		if (payload.orderBy) {
+			if (payload.orderBy === 'desc') {
+				orderByOption = { debt: 'desc' }
+			} else {
+				orderByOption = {debt: 'asc' }
+			}
+		}
+
 		const userList = await this.#_prisma.users.findMany({
 			where: {
 				deletedAt: null,
@@ -66,7 +75,7 @@ export class UserService {
 					},
 				},
 			},
-			orderBy: [{ createdAt: 'desc', debt: 'asc' }],
+			orderBy: [{ createdAt: 'desc' }, orderByOption],
 		})
 
 		const totalCount = await this.#_prisma.users.count({
@@ -161,6 +170,20 @@ export class UserService {
 						updatedAt: true,
 					},
 				},
+				returnedOrder: {
+					where: { ...dateOption, deletedAt: null },
+					select: {
+						id: true,
+						accepted: true,
+						cashPayment: true,
+						fromClient: true,
+						createdAt: true,
+						returnedDate: true,
+						sum: true,
+						updatedAt: true,
+						description: true,
+					},
+				},
 			},
 		})
 
@@ -170,10 +193,13 @@ export class UserService {
 
 		const orders = user?.orders?.map((order) => ({ ...order, type: 'order' })) || []
 		const payments = user.payments.map((payment) => ({ ...payment, type: 'payment' })) || []
-		const combined = [...orders, ...payments]
+		const returnedOrders = user?.returnedOrder?.map((returnedOrder) => ({ ...returnedOrder, type: 'returned-order' }))
+		const combined = [...orders, ...payments, ...returnedOrders]
 
 		const totalDebt = user?.orders?.reduce((sum, order) => sum + order.sum.toNumber(), 0)
-		const totalCredit = user?.payments?.reduce((sum, payment) => sum + payment.totalPay.toNumber(), 0)
+		let totalCredit = user?.payments?.reduce((sum, payment) => sum + payment.totalPay.toNumber(), 0)
+
+		totalCredit += user.returnedOrder?.reduce((sum, order) => sum + order.sum.toNumber(), 0)
 		// Sort combined array
 		const sorted = combined.sort((a, b) => {
 			const dateA = a.type === 'order' ? a.createdAt : a.updatedAt

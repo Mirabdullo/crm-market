@@ -21,6 +21,7 @@ export declare interface UserRetriveAllRequest {
 	search?: string
 	type?: string
 	pagination?: boolean
+	orderBy?: string
 }
 
 export declare interface UserRetriveRequest {

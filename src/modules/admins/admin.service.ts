@@ -118,7 +118,10 @@ export class AdminService {
 		if (admin && admin.deletedAt === null) {
 			throw new ForbiddenException('This phone already exists')
 		} else if (admin && admin.createdAt !== null) {
-			throw new ForbiddenException('This user deleted')
+			await this.#_prisma.admins.update({
+				where: { id: admin.id },
+				data: { deletedAt: null },
+			})
 		}
 
 		const hashedPassword = await bcrypt.hash(payload.password, 7)
@@ -171,6 +174,10 @@ export class AdminService {
 
 		if (!admin) throw new NotFoundException('admin not found')
 
+		if (admin.role === 'super_admin') {
+			throw new ForbiddenException("Bu adminni o'chirib bo'lmaydi")
+		}
+		
 		await this.#_prisma.admins.update({
 			where: { id: payload.id, deletedAt: null },
 			data: { deletedAt: new Date() },
