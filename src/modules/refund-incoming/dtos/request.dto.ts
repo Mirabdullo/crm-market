@@ -1,10 +1,10 @@
 import { IsArray, IsInt, IsNotEmpty, IsNumber, IsOptional, IsPositive, IsString, IsUUID } from 'class-validator'
 import { Type } from 'class-transformer'
-import { ReturnedOrderCreateRequest, ReturnedOrderDeleteRequest, ReturnedOrderRetriveAllRequest, ReturnedOrderRetriveRequest, ReturnedOrderUpdateRequest } from '../interfaces'
+import { RefundIncomingCreateRequest, RefundIncomingDeleteRequest, RefundIncomingRetriveAllRequest, RefundIncomingRetriveRequest, RefundIncomingUpdateRequest } from '../interfaces'
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
 import { ReturnedProductRequest, ReturnedProductRequestDto } from '../../returned-products'
 
-export class ReturnedOrderRetrieveAllRequestDto implements ReturnedOrderRetriveAllRequest {
+export class RefundIncomingRetrieveAllRequestDto implements RefundIncomingRetriveAllRequest {
 	@ApiPropertyOptional({ type: Number })
 	@IsPositive()
 	@IsInt()
@@ -24,28 +24,14 @@ export class ReturnedOrderRetrieveAllRequestDto implements ReturnedOrderRetriveA
 	@IsOptional()
 	search?: string
 
-	@ApiPropertyOptional({ type: String, example: 'excel' })
-	@IsString()
-	@IsOptional()
-	type?: string
-
 	@ApiPropertyOptional({ type: String })
 	@IsUUID('4')
 	@IsOptional()
 	sellerId?: string
 
-	@ApiPropertyOptional({ type: String })
-	@IsUUID('4')
-	@IsOptional()
-	clientId?: string
-
 	@ApiPropertyOptional({ type: Boolean, example: false })
 	@IsOptional()
 	pagination?: boolean
-
-	@ApiPropertyOptional({ type: Boolean, example: true })
-	@IsOptional()
-	accepted?: boolean
 
 	@ApiPropertyOptional({ type: String })
 	@IsString()
@@ -58,37 +44,27 @@ export class ReturnedOrderRetrieveAllRequestDto implements ReturnedOrderRetriveA
 	endDate?: string
 }
 
-export class ReturnedOrderRetrieveRequestDto implements ReturnedOrderRetriveRequest {
+export class RefundIncomingRetrieveRequestDto implements RefundIncomingRetriveRequest {
 	@ApiProperty({ type: String })
 	@IsUUID('4')
 	@IsNotEmpty()
 	id: string
 }
 
-export class ReturnedOrderCreateRequestDto implements ReturnedOrderCreateRequest {
+export class RefundIncomingCreateRequestDto implements RefundIncomingCreateRequest {
 	@ApiProperty({ type: String })
 	@IsUUID('4')
 	@IsNotEmpty()
-	clientId: string
+	supplierId: string
 
 	@IsUUID('4')
 	@IsOptional()
 	userId: string
 
-	@ApiProperty({ type: Number })
-	@IsNumber()
-	@IsOptional()
-	sum?: number
-
 	@ApiProperty({ type: String })
 	@IsString()
 	@IsOptional()
 	description?: string
-
-	@ApiProperty({ type: String })
-	@IsString()
-	@IsOptional()
-	returnedDate?: string
 
 	@ApiProperty({ type: [ReturnedProductRequestDto] })
 	@IsArray()
@@ -96,37 +72,14 @@ export class ReturnedOrderCreateRequestDto implements ReturnedOrderCreateRequest
 	products: ReturnedProductRequest[]
 }
 
-export class ReturnedOrderUpdateRequestDto implements ReturnedOrderUpdateRequest {
+export class RefundIncomingUpdateRequestDto implements RefundIncomingUpdateRequest {
 	@ApiProperty({ type: String })
 	@IsUUID('4')
 	@IsNotEmpty()
 	id: string
-
-	@ApiPropertyOptional({ type: Boolean, example: true })
-	@IsOptional()
-	accepted?: boolean
-
-	@ApiProperty({ type: String })
-	@IsString()
-	@IsOptional()
-	description?: string
-
-	@ApiProperty({ type: Number })
-	@IsNumber()
-	@IsOptional()
-	cashPayment?: number
-
-	@ApiProperty({ type: Number })
-	@IsNumber()
-	@IsOptional()
-	fromClient?: number
-
-	@ApiPropertyOptional({ type: Boolean, example: false })
-	@IsOptional()
-	sendUser?: boolean
 }
 
-export class ReturnedOrderDeleteRequestDto implements ReturnedOrderDeleteRequest {
+export class RefundIncomingDeleteRequestDto implements RefundIncomingDeleteRequest {
 	@ApiProperty({ type: String })
 	@IsUUID('4')
 	@IsNotEmpty()

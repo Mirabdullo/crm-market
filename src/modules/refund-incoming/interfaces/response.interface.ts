@@ -2,24 +2,20 @@ import { AdminResponse } from '../../admins'
 import { ReturnedProductRetriveResponse } from '../../returned-products'
 import { UserResponse } from '../../users'
 
-export declare interface ReturnedOrderRetriveAllResponse {
+export declare interface RefundIncomingRetriveAllResponse {
 	pageSize: number
 	pageNumber: number
 	pageCount: number
 	totalCount: number
-	data: ReturnedOrderRetriveResponse[]
+	data: RefundIncomingRetriveResponse[]
 }
 
-export declare interface ReturnedOrderRetriveResponse {
+export declare interface RefundIncomingRetriveResponse {
 	id: string
 	sum: number
-	fromClient: number
-	cashPayment: number
-	accepted: boolean
 	createdAt: Date
 	description: string
-	returnedDate: Date
-	client: UserResponse
+	supplier: UserResponse
 	seller: AdminResponse
 	products: ReturnedProductRetriveResponse[]
 }

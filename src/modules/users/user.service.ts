@@ -66,7 +66,7 @@ export class UserService {
 					},
 				},
 			},
-			orderBy: [{ createdAt: 'desc' }],
+			orderBy: [{ createdAt: 'desc', debt: 'asc' }],
 		})
 
 		const totalCount = await this.#_prisma.users.count({

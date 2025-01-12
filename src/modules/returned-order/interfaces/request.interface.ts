@@ -7,6 +7,7 @@ export interface ReturnedOrderCreateRequest {
 	sum?: number
 	accepted?: boolean
 	products: ReturnedProductRequest[]
+	returnedDate?: string
 	userId: string
 }
 
@@ -20,6 +21,7 @@ export interface ReturnedOrderUpdateRequest {
 	fromClient?: number
 	cashPayment?: number
 	description?: string
+	returnedDate?: string
 }
 
 export interface ReturnedOrderDeleteRequest {

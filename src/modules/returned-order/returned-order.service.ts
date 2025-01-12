@@ -93,6 +93,7 @@ export class ReturnedOrderService {
 					description: true,
 					accepted: true,
 					createdAt: true,
+					returnedDate: true,
 					client: {
 						select: {
 							id: true,
@@ -174,6 +175,7 @@ export class ReturnedOrderService {
 				description: true,
 				accepted: true,
 				createdAt: true,
+				returnedDate: true,
 				client: {
 					select: {
 						id: true,
@@ -228,7 +230,7 @@ export class ReturnedOrderService {
 
 	async ReturnedOrderCreate(payload: ReturnedOrderCreateRequest): Promise<ReturnedOrderCreateResponse> {
 		try {
-			const { clientId, userId, products, accepted, description } = payload
+			const { clientId, userId, products, accepted, description, returnedDate } = payload
 
 			// Mijozni tekshirish
 			const user = await this.#_prisma.users.findFirst({
@@ -238,15 +240,17 @@ export class ReturnedOrderService {
 
 			const totalSum = products.reduce((sum, product) => sum + product.price * product.count, 0)
 
-			const now = this.adjustToTashkentTime()
+			const now = this.adjustToTashkentTime(returnedDate)
 
 			const returnedOrder = await this.#_prisma.returnedOrder.create({
 				data: {
 					clientId: clientId,
 					adminId: userId,
 					sum: totalSum,
+					description,
 					createdAt: now,
 					updatedAt: now,
+					returnedDate: now,
 				},
 			})
 
@@ -271,7 +275,7 @@ export class ReturnedOrderService {
 
 	async ReturnedOrderUpdate(payload: ReturnedOrderUpdateRequest): Promise<null> {
 		try {
-			const { id, accepted, cashPayment, description, fromClient } = payload
+			const { id, accepted, cashPayment, description, fromClient, returnedDate } = payload
 
 			const returnedOrder = await this.#_prisma.returnedOrder.findUnique({
 				where: { id },
@@ -301,6 +305,8 @@ export class ReturnedOrderService {
 			})
 			if (!returnedOrder) throw new NotFoundException("Ma'lumot topilmadi")
 
+			const now = returnedDate ? this.adjustToTashkentTime(returnedDate) : undefined
+
 			if (accepted) {
 				const updatedProducts = returnedOrder.products.map((pr) =>
 					this.#_prisma.products.update({
@@ -322,6 +328,7 @@ export class ReturnedOrderService {
 							cashPayment,
 							fromClient,
 							description,
+							returnedDate: now,
 						},
 					}),
 				])
@@ -332,6 +339,7 @@ export class ReturnedOrderService {
 						cashPayment,
 						fromClient,
 						description,
+						returnedDate: now,
 					},
 				})
 			}
@@ -408,9 +416,15 @@ export class ReturnedOrderService {
 		return null
 	}
 
-	private adjustToTashkentTime(): Date {
-		const tashkentDate = new Date()
-		tashkentDate.setTime(tashkentDate.getTime() + 5 * 60 * 60 * 1000)
-		return tashkentDate
+	private adjustToTashkentTime(date?: string): Date {
+		if (date) {
+			const tashkentDate = new Date(date)
+			tashkentDate.setTime(tashkentDate.getTime() + 5 * 60 * 60 * 1000)
+			return tashkentDate
+		} else {
+			const tashkentDate = new Date()
+			tashkentDate.setTime(tashkentDate.getTime() + 5 * 60 * 60 * 1000)
+			return tashkentDate
+		}
 	}
 }

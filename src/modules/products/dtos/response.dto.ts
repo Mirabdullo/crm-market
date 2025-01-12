@@ -46,6 +46,15 @@ export class ProductRetrieveAllResponseDto implements ProductRetriveAllResponse 
 	@ApiProperty({ type: Number })
 	totalCount: number
 
+	@ApiProperty({ type: Number })
+	totalProductCost: number
+
+	@ApiProperty({ type: Number })
+	totalProductCount: number
+
+	@ApiProperty({ type: Number })
+	totalProductPrice: number
+
 	@ApiProperty({ type: [ProductRetrieveResponseDto] })
 	data: ProductRetriveResponse[]
 }

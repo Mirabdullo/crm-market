@@ -1,10 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { ReturnedOrderCreateResponse, ReturnedOrderRetriveAllResponse, ReturnedOrderRetriveResponse } from '../interfaces'
+import { RefundIncomingCreateResponse, RefundIncomingRetriveAllResponse, RefundIncomingRetriveResponse } from '../interfaces'
 import { UserRetrieveResponseDto, UserRetriveResponse } from '../../users'
 import { AdminResponse } from '../../admins'
 import { ReturnedProductRetrieveResponseDto, ReturnedProductRetriveResponse } from '../../returned-products'
 
-export class ReturnedOrderRetrieveResponseDto implements ReturnedOrderRetriveResponse {
+export class RefundIncomingRetrieveResponseDto implements RefundIncomingRetriveResponse {
 	@ApiProperty({ type: String })
 	id: string
 
@@ -26,11 +26,8 @@ export class ReturnedOrderRetrieveResponseDto implements ReturnedOrderRetriveRes
 	@ApiProperty({ type: Date })
 	createdAt: Date
 
-	@ApiProperty({ type: Date })
-	returnedDate: Date
-
 	@ApiProperty({ type: UserRetrieveResponseDto })
-	client: UserRetriveResponse
+	supplier: UserRetriveResponse
 
 	@ApiProperty({ type: UserRetrieveResponseDto })
 	seller: AdminResponse
@@ -39,7 +36,7 @@ export class ReturnedOrderRetrieveResponseDto implements ReturnedOrderRetriveRes
 	products: ReturnedProductRetriveResponse[]
 }
 
-export class ReturnedOrderRetrieveAllResponseDto implements ReturnedOrderRetriveAllResponse {
+export class RefundIncomingRetrieveAllResponseDto implements RefundIncomingRetriveAllResponse {
 	@ApiProperty({ type: Number })
 	pageSize: number
 
@@ -52,11 +49,11 @@ export class ReturnedOrderRetrieveAllResponseDto implements ReturnedOrderRetrive
 	@ApiProperty({ type: Number })
 	totalCount: number
 
-	@ApiProperty({ type: [ReturnedOrderRetrieveResponseDto] })
-	data: ReturnedOrderRetriveResponse[]
+	@ApiProperty({ type: [RefundIncomingRetrieveResponseDto] })
+	data: RefundIncomingRetriveResponse[]
 }
 
-export class ReturnedOrderCreateResponseDto implements ReturnedOrderCreateResponse {
+export class RefundIncomingCreateResponseDto implements RefundIncomingCreateResponse {
 	@ApiProperty({ type: String })
 	id: string
 }

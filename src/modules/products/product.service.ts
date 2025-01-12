@@ -45,6 +45,15 @@ export class ProductService {
 				selling_price: true,
 				unit: true,
 				wholesale_price: true,
+				_count: true,
+				orderProducts: {
+					where: { order: { accepted: true } },
+					take: 1,
+					orderBy: { createdAt: 'desc' },
+					select: {
+						createdAt: true,
+					},
+				},
 			},
 			...paginationOptions,
 			orderBy: { createdAt: 'desc' },
@@ -55,20 +64,26 @@ export class ProductService {
 			cost: (product.cost as Decimal).toNumber(),
 			selling_price: (product.selling_price as Decimal).toNumber(),
 			wholesale_price: (product.wholesale_price as Decimal).toNumber(),
+			lastSale: product.orderProducts[0].createdAt,
 		}))
 
-		const totalCount = await this.#_prisma.products.count({
+		const totalCount = await this.#_prisma.products.aggregate({
 			where: {
 				deletedAt: null,
 				name: { contains: payload.search, mode: 'insensitive' },
 			},
+			_count: { id: true },
+			_sum: { count: true, cost: true, selling_price: true },
 		})
 
 		return {
-			totalCount: totalCount,
+			totalCount: totalCount._count.id || 0,
+			totalProductCount: totalCount._sum.count || 0,
+			totalProductCost: totalCount._sum.cost.toNumber() || 0,
+			totalProductPrice: totalCount._sum.selling_price.toNumber() || 0,
 			pageNumber: payload.pageNumber,
 			pageSize: payload.pageSize,
-			pageCount: Math.ceil(totalCount / payload.pageSize),
+			pageCount: Math.ceil(totalCount._count.id / payload.pageSize),
 			data: transformedProductList,
 		}
 	}
