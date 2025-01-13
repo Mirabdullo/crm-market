@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
-import { ProductRetriveAllResponse, ProductRetriveResponse } from '../interfaces'
+import { ProductRetriveAllResponse, ProductRetriveResponse, ProductTotalCalc } from '../interfaces'
 
 export class ProductRetrieveResponseDto implements ProductRetriveResponse {
 	@ApiProperty({ type: String })
@@ -33,6 +33,17 @@ export class ProductRetrieveResponseDto implements ProductRetriveResponse {
 	category?: string
 }
 
+export class ProductTotalCalcDto implements ProductTotalCalc {
+	@ApiProperty({ type: Number })
+	totalProductCost: number
+
+	@ApiProperty({ type: Number })
+	totalProductCount: number
+
+	@ApiProperty({ type: Number })
+	totalProductPrice: number
+}
+
 export class ProductRetrieveAllResponseDto implements ProductRetriveAllResponse {
 	@ApiProperty({ type: Number })
 	pageSize: number
@@ -46,14 +57,8 @@ export class ProductRetrieveAllResponseDto implements ProductRetriveAllResponse 
 	@ApiProperty({ type: Number })
 	totalCount: number
 
-	@ApiProperty({ type: Number })
-	totalProductCost: number
-
-	@ApiProperty({ type: Number })
-	totalProductCount: number
-
-	@ApiProperty({ type: Number })
-	totalProductPrice: number
+	@ApiProperty({ type: ProductTotalCalcDto })
+	totalCalc: ProductTotalCalc
 
 	@ApiProperty({ type: [ProductRetrieveResponseDto] })
 	data: ProductRetriveResponse[]

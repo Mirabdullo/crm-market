@@ -3,10 +3,14 @@ export declare interface ProductRetriveAllResponse {
 	pageNumber: number
 	pageCount: number
 	totalCount: number
+	totalCalc: ProductTotalCalc
+	data: ProductRetriveResponse[]
+}
+
+export declare interface ProductTotalCalc {
 	totalProductCount: number
 	totalProductCost: number
 	totalProductPrice: number
-	data: ProductRetriveResponse[]
 }
 
 export declare interface ProductRetriveResponse {

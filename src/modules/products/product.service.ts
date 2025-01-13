@@ -76,14 +76,18 @@ export class ProductService {
 			_sum: { count: true, cost: true, selling_price: true },
 		})
 
-		return {
-			totalCount: totalCount._count.id || 0,
+		const totalCalc = {
 			totalProductCount: totalCount._sum.count || 0,
 			totalProductCost: totalCount._sum.cost.toNumber() || 0,
 			totalProductPrice: totalCount._sum.selling_price.toNumber() || 0,
+		}
+
+		return {
+			totalCount: totalCount._count.id || 0,
 			pageNumber: payload.pageNumber,
 			pageSize: payload.pageSize,
 			pageCount: Math.ceil(totalCount._count.id / payload.pageSize),
+			totalCalc,
 			data: transformedProductList,
 		}
 	}
