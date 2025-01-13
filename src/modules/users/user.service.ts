@@ -636,7 +636,7 @@ export class UserService {
 		}
 	}
 
-	async supplierCreate(payload: UserCreateRequest): Promise<null> {
+	async supplierCreate(payload: UserCreateRequest): Promise<UserRetriveResponse> {
 		const user = await this.#_prisma.users.findFirst({
 			where: { phone: payload.phone },
 		})
@@ -647,19 +647,29 @@ export class UserService {
 			throw new ForbiddenException('This user deleted')
 		}
 
-		await this.#_prisma.users.create({
+		const condidate = await this.#_prisma.users.create({
 			data: {
 				name: payload.name,
 				phone: payload.phone,
 				type: 'supplier',
 				debt: 0,
 			},
+			select: {
+				id: true,
+				name: true,
+				phone: true,
+				debt: true,
+				createdAt: true,
+			},
 		})
 
-		return null
+		return {
+			...condidate,
+			debt: condidate.debt.toNumber(),
+		}
 	}
 
-	async clientCreate(payload: UserCreateRequest): Promise<null> {
+	async clientCreate(payload: UserCreateRequest): Promise<UserRetriveResponse> {
 		const user = await this.#_prisma.users.findFirst({
 			where: { phone: payload.phone },
 		})
@@ -670,16 +680,26 @@ export class UserService {
 			throw new ForbiddenException('This user deleted')
 		}
 
-		await this.#_prisma.users.create({
+		const condidate = await this.#_prisma.users.create({
 			data: {
 				name: payload.name,
 				phone: payload.phone,
 				type: 'client',
 				debt: 0,
 			},
+			select: {
+				id: true,
+				name: true,
+				phone: true,
+				debt: true,
+				createdAt: true,
+			},
 		})
 
-		return null
+		return {
+			...condidate,
+			debt: condidate.debt.toNumber(),
+		}
 	}
 
 	async userUpdate(payload: UserUpdateRequest): Promise<null> {
