@@ -68,9 +68,22 @@ export async function UserDeedUpload(data: any, payload: UserDeedRetrieveRequest
 					right: { style: 'thin' },
 				}
 			})
-		} else {
+		} else if(entry.type === 'order') {
 			totalSum += entry.sum.toNumber()
-			const row = worksheet.addRow([index + 1, format(entry.createdAt, 'dd.MM.yyyy HH:mm'), `Продажа: ${entry.articl}`, entry.sum.toNumber(), '', ''])
+			const row = worksheet.addRow([index + 1, format(entry.sellingDate, 'dd.MM.yyyy HH:mm'), `Продажа: ${entry.articl}`, entry.sum.toNumber(), '', ''])
+
+			row.eachCell((cell) => {
+				cell.alignment = { vertical: 'middle', horizontal: 'center' }
+				cell.border = {
+					top: { style: 'thin' },
+					left: { style: 'thin' },
+					bottom: { style: 'thin' },
+					right: { style: 'thin' },
+				}
+			})
+		} else {
+			totalPay += entry.sum.toNumber()
+			const row = worksheet.addRow([index + 1, format(entry.returnedDate, 'dd.MM.yyyy HH:mm'), `Возврат товара`, '', entry.sum.toNumber(), entry.description])
 
 			row.eachCell((cell) => {
 				cell.alignment = { vertical: 'middle', horizontal: 'center' }
@@ -175,7 +188,7 @@ export async function UserDeedUploadWithProduct(data: any, payload: UserDeedRetr
 					right: { style: 'thin' },
 				}
 			})
-		} else {
+		} else if(entry.type === 'order') {
 			totalSum += entry.sum.toNumber()
 			if (entry.products.length) {
 				entry.products.forEach((product: any) => {
@@ -187,6 +200,32 @@ export async function UserDeedUploadWithProduct(data: any, payload: UserDeedRetr
 						product.price.toNumber(),
 						product.count * product.price.toNumber(),
 						'Продажа',
+						format(entry.createdAt, 'dd.MM.yyyy HH:mm'),
+					])
+
+					row.eachCell((cell) => {
+						cell.alignment = { vertical: 'middle', horizontal: 'center' }
+						cell.border = {
+							top: { style: 'thin' },
+							left: { style: 'thin' },
+							bottom: { style: 'thin' },
+							right: { style: 'thin' },
+						}
+					})
+				})
+			}
+		} else {
+			totalPay += entry.sum.toNumber()
+			if (entry.products.length) {
+				entry.products.forEach((product: any) => {
+					index += 1
+					const row = worksheet.addRow([
+						index,
+						product.product.name,
+						product.count,
+						product.price.toNumber(),
+						product.count * product.price.toNumber(),
+						'Возврат товара',
 						format(entry.createdAt, 'dd.MM.yyyy HH:mm'),
 					])
 

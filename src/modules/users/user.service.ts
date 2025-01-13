@@ -13,6 +13,7 @@ import {
 import { UserTypeEnum } from '@prisma/client'
 import { addHours, endOfDay, format } from 'date-fns'
 import { SupplierDeedUpload, SupplierDeedUploadWithProduct, UserDeedUpload, UserDeedUploadWithProduct } from './excel'
+import { adjustToTashkentTime } from '../../helpers'
 
 @Injectable()
 export class UserService {
@@ -127,8 +128,7 @@ export class UserService {
 		if (startDate || endDate) {
 			const sDate = new Date(format(startDate, 'yyyy-MM-dd'))
 			const eDate = addHours(new Date(endOfDay(endDate)), 3)
-			console.log(startDate, endDate)
-			console.log(sDate, eDate)
+
 			dateOption = {
 				createdAt: {
 					gte: sDate,
@@ -171,7 +171,7 @@ export class UserService {
 					},
 				},
 				returnedOrder: {
-					where: { ...dateOption, deletedAt: null },
+					where: { ...dateOption, accepted: true, deletedAt: null },
 					select: {
 						id: true,
 						accepted: true,
@@ -268,6 +268,7 @@ export class UserService {
 						createdAt: true,
 						updatedAt: true,
 						accepted: true,
+						sellingDate: true,
 						...productOption,
 					},
 				},
@@ -283,6 +284,32 @@ export class UserService {
 						description: true,
 						createdAt: true,
 						updatedAt: true,
+					},
+				},
+				returnedOrder: {
+					where: { ...dateOption, accepted: true, deletedAt: null },
+					select: {
+						id: true,
+						accepted: true,
+						cashPayment: true,
+						fromClient: true,
+						createdAt: true,
+						returnedDate: true,
+						sum: true,
+						updatedAt: true,
+						description: true,
+						products: {
+							select: {
+								id: true,
+								count: true,
+								price: true,
+								product: {
+									select: {
+										name: true,
+									}
+								}
+							}
+						}
 					},
 				},
 			},
@@ -565,12 +592,16 @@ export class UserService {
 			throw new ForbiddenException('This user deleted')
 		}
 
+		const now = adjustToTashkentTime()
+
 		await this.#_prisma.users.create({
 			data: {
 				name: payload.name,
 				phone: payload.phone,
 				type: 'supplier',
 				debt: 0,
+				createdAt: now,
+				updatedAt: now
 			},
 		})
 
