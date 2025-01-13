@@ -43,7 +43,7 @@ export class UserService {
 			if (payload.orderBy === 'desc') {
 				orderByOption = { debt: 'desc' }
 			} else {
-				orderByOption = {debt: 'asc' }
+				orderByOption = { debt: 'asc' }
 			}
 		}
 
@@ -305,10 +305,10 @@ export class UserService {
 								product: {
 									select: {
 										name: true,
-									}
-								}
-							}
-						}
+									},
+								},
+							},
+						},
 					},
 				},
 			},
@@ -402,6 +402,30 @@ export class UserService {
 						updatedAt: true,
 					},
 				},
+				refundIncoming: {
+					where: { ...dateOption, deletedAt: null },
+					select: {
+						id: true,
+						sum: true,
+						description: true,
+						createdAt: true,
+						updatedAt: true,
+						products: {
+							where: { deletedAt: null },
+							select: {
+								id: true,
+								count: true,
+								price: true,
+								createdAt: true,
+								product: {
+									select: {
+										name: true,
+									},
+								},
+							},
+						},
+					},
+				},
 			},
 		})
 
@@ -411,7 +435,8 @@ export class UserService {
 
 		const orders = user?.incomingOrder?.map((order) => ({ ...order, type: 'order' })) || []
 		const payments = user.incomingOrderPayment.map((payment) => ({ ...payment, type: 'payment' })) || []
-		const combined = [...orders, ...payments]
+		const refundIncoming = user.refundIncoming?.map((item) => ({ ...item, type: 'refund' })) || []
+		const combined = [...orders, ...payments, ...refundIncoming]
 
 		// Sort combined array
 		const sorted = combined.sort((a, b) => {
@@ -421,7 +446,8 @@ export class UserService {
 		})
 
 		const totalDebt = user?.incomingOrder?.reduce((sum, order) => sum + order.debt.toNumber(), 0)
-		const totalCredit = user?.incomingOrderPayment?.reduce((sum, payment) => sum + payment.totalPay.toNumber(), 0)
+		let totalCredit = user?.incomingOrderPayment?.reduce((sum, payment) => sum + payment.totalPay.toNumber(), 0)
+		totalCredit += user.refundIncoming?.reduce((sum, item) => sum + item.sum.toNumber(), 0)
 
 		console.log('totalDebt: ', totalDebt, totalCredit)
 		return {
@@ -452,6 +478,7 @@ export class UserService {
 		}
 
 		let productOption = {}
+		let refundOption = {}
 		if (type === 'product') {
 			productOption = {
 				incomingProducts: {
@@ -459,6 +486,23 @@ export class UserService {
 						id: true,
 						cost: true,
 						count: true,
+						product: {
+							select: {
+								name: true,
+							},
+						},
+					},
+				},
+			}
+
+			refundOption = {
+				products: {
+					where: { deletedAt: null },
+					select: {
+						id: true,
+						count: true,
+						price: true,
+						createdAt: true,
 						product: {
 							select: {
 								name: true,
@@ -502,6 +546,17 @@ export class UserService {
 						updatedAt: true,
 					},
 				},
+				refundIncoming: {
+					where: { ...dateOption, deletedAt: null },
+					select: {
+						id: true,
+						sum: true,
+						description: true,
+						createdAt: true,
+						updatedAt: true,
+						...refundOption,
+					},
+				},
 			},
 		})
 
@@ -511,7 +566,8 @@ export class UserService {
 
 		const orders = user?.incomingOrder?.map((order) => ({ ...order, type: 'order' })) || []
 		const payments = user.incomingOrderPayment.map((payment) => ({ ...payment, type: 'payment' })) || []
-		const combined = [...orders, ...payments]
+		const refundIncoming = user.refundIncoming?.map((item) => ({ ...item, type: 'refund' })) || []
+		const combined = [...orders, ...payments, ...refundIncoming]
 
 		// Sort combined array
 		const sorted = combined.sort((a, b) => {

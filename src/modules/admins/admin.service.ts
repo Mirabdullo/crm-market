@@ -177,7 +177,7 @@ export class AdminService {
 		if (admin.role === 'super_admin') {
 			throw new ForbiddenException("Bu adminni o'chirib bo'lmaydi")
 		}
-		
+
 		await this.#_prisma.admins.update({
 			where: { id: payload.id, deletedAt: null },
 			data: { deletedAt: new Date() },
