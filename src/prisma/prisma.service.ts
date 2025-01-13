@@ -18,6 +18,23 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
 
 	async onModuleInit() {
 		await this.$connect()
+
+		this.$use(async (params, next) => {
+			if (params.action === 'create' || params.action === 'update') {
+				const uzbekistanTime = new Date()
+				uzbekistanTime.setHours(uzbekistanTime.getHours() + 5) // GMT+5
+				console.log(params, uzbekistanTime)
+
+				if (params.args.data) {
+					if (params.action === 'create') {
+						params.args.data.createdAt = uzbekistanTime
+					}
+					params.args.data.updatedAt = uzbekistanTime
+				}
+			}
+
+			return next(params)
+		})
 	}
 
 	async onModuleDestroy() {
