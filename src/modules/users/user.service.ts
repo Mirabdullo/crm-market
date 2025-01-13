@@ -13,7 +13,6 @@ import {
 import { UserTypeEnum } from '@prisma/client'
 import { addHours, endOfDay, format } from 'date-fns'
 import { SupplierDeedUpload, SupplierDeedUploadWithProduct, UserDeedUpload, UserDeedUploadWithProduct } from './excel'
-import { adjustToTashkentTime } from '../../helpers'
 
 @Injectable()
 export class UserService {
@@ -592,16 +591,12 @@ export class UserService {
 			throw new ForbiddenException('This user deleted')
 		}
 
-		const now = adjustToTashkentTime()
-
 		await this.#_prisma.users.create({
 			data: {
 				name: payload.name,
 				phone: payload.phone,
 				type: 'supplier',
 				debt: 0,
-				createdAt: now,
-				updatedAt: now
 			},
 		})
 
