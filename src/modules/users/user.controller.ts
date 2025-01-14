@@ -101,14 +101,14 @@ export class UserController {
 
 	@Permission(Permissions.SUPPLIER_CREATE)
 	@Post('supplier')
-	@ApiOkResponse({type: UserRetrieveResponseDto})
+	@ApiOkResponse({ type: UserRetrieveResponseDto })
 	SupplierCreate(@Body() payload: UserCreateRequestDto): Promise<UserRetriveResponse> {
 		return this.#_service.supplierCreate(payload)
 	}
 
 	@Permission(Permissions.CLIENT_CREATE)
 	@Post('client')
-	@ApiOkResponse({type: UserRetrieveResponseDto})
+	@ApiOkResponse({ type: UserRetrieveResponseDto })
 	ClientCreate(@Body() payload: UserCreateRequestDto): Promise<UserRetriveResponse> {
 		return this.#_service.clientCreate(payload)
 	}

@@ -17,6 +17,7 @@ import * as ExcelJS from 'exceljs'
 import { Response } from 'express'
 import { OrderUpload } from './excel'
 import { TelegramService } from '../telegram'
+import { generatePdfBuffer } from './format-to-pdf'
 
 @Injectable()
 export class OrderService {
@@ -777,6 +778,11 @@ export class OrderService {
 					debt: true,
 					sum: true,
 					clientId: true,
+					admin: {
+						select: {
+							name: true,
+						},
+					},
 					products: {
 						select: {
 							id: true,
@@ -821,10 +827,18 @@ export class OrderService {
 					text += `продукт: ${product.product.name}\nцена: ${product.price}\nкол-ва: ${product.count}\n\n`
 				})
 
-				await this.#_telegram.sendMessage(parseInt(process.env.ORDER_CHANEL_ID), text)
+				try {
+					await this.#_telegram.sendMessage(parseInt(process.env.ORDER_CHANEL_ID), text)
 
-				if (payload.sendUser && order.client.chatId) {
-					await this.#_telegram.sendMessage(Number(order.client.chatId), text)
+					const pdfBuffer = await generatePdfBuffer(order)
+
+					await this.#_telegram.sendDocument(parseInt(process.env.ORDER_CHANEL_ID), pdfBuffer, 'order-details.pdf')
+
+					if (payload.sendUser && order.client.chatId) {
+						await this.#_telegram.sendMessage(Number(order.client.chatId), text)
+					}
+				} catch (error) {
+					console.log(error)
 				}
 			}
 
