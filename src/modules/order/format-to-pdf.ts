@@ -2,8 +2,13 @@ import { format } from 'date-fns'
 import * as Puppeteer from 'puppeteer'
 export async function generatePdfBuffer(orderData: any) {
 	const browser = await Puppeteer.launch({
-    args: ['--no-sandbox', '--disable-setuid-sandbox'],
-    headless: true,
+		args: [
+			'--no-sandbox',
+			'--disable-setuid-sandbox',
+			'--disable-dev-shm-usage', // Bu muhim
+			'--disable-gpu', // Bu ham
+		],
+		headless: true,
 	})
 	const page = await browser.newPage()
 
