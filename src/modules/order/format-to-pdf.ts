@@ -1,7 +1,9 @@
 import { format } from 'date-fns'
 import * as Puppeteer from 'puppeteer'
 export async function generatePdfBuffer(orderData: any) {
-	const browser = await Puppeteer.launch()
+	const browser = await Puppeteer.launch({
+		executablePath: '/usr/bin/chromium-browser'
+	})
 	const page = await browser.newPage()
 
 	const htmlContent = `

@@ -23,7 +23,6 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
 			if (params.action === 'create' || params.action === 'update') {
 				const uzbekistanTime = new Date()
 				uzbekistanTime.setHours(uzbekistanTime.getHours() + 5) // GMT+5
-				console.log(params, uzbekistanTime)
 
 				if (params.args.data) {
 					if (params.action === 'create') {
