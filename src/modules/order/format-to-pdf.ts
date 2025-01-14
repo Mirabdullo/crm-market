@@ -157,7 +157,7 @@ export async function generatePdfBufferWithProduct(orderData: any, payload: any)
 
 		.new {
 			text-align: center;
-			margin-bottom: 5px;
+			margin-bottom: 10px;
 		}
 	  </style>
 	  <title>Order Details</title>
@@ -192,29 +192,32 @@ export async function generatePdfBufferWithProduct(orderData: any, payload: any)
 		  `,
 				)
 				.join('')}
-		</tbody>
-		<h3 class="new">Добавлены новые товары</h3>
-		<thead>
-		  <tr>
-			<th>№</th>
-			<th>Товар или услуга</th>
-			<th>Кол-во</th>
-			<th>Цена</th>
-			<th>Сумма</th>
-		  </tr>
-		</thead>
-		<tbody>
-
-		  <tr>
-			<td>1</td>
-			<td>${payload.name}</td>
-			<td>${payload.count}</td>
-			<td>${payload.price}</td>
-			<td>${payload.price * payload.count}</td>
-		  </tr>
-		  
-		</tbody>
 	  </table>
+
+	  <h3 class="new">Добавлены новые товары</h3>
+
+	  <table>
+	  <thead>
+		<tr>
+		  <th>№</th>
+		  <th>Товар или услуга</th>
+		  <th>Кол-во</th>
+		  <th>Цена</th>
+		  <th>Сумма</th>
+		</tr>
+	  </thead>
+	  <tbody>
+
+		<tr>
+		  <td>1</td>
+		  <td>${payload.name}</td>
+		  <td>${payload.count}</td>
+		  <td>${payload.price}</td>
+		  <td>${payload.price * payload.count}</td>
+		</tr>
+		
+	  </tbody>
+	</table>
 	
 	  <p class="total">Итого: ${orderData.sum.toNumber() + payload.price * payload.count}</p>
 	</body>
