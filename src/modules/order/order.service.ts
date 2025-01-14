@@ -801,7 +801,7 @@ export class OrderService {
 			})
 			if (!order) throw new NotFoundException("Ma'lumot topilmadi")
 
-			if (accepted) {
+			if (accepted && order.accepted !== true) {
 				const updatedProducts = order.products.map((pr) =>
 					this.#_prisma.products.update({
 						where: { id: pr.productId },
@@ -821,7 +821,7 @@ export class OrderService {
 					}),
 				])
 
-				let text = `💼 продажа\n✍️ ид заказа: ${order.articl}\n💵 сумма: ${order.sum}\n💳 долг: ${order.debt}\n👨‍💼 клиент: ${order.client.name}\n\n`
+				let text = `💼 продажа\n\n✍️ ид заказа: ${order.articl}\n\n💵 сумма: ${order.sum.toNumber()}\n\n💳 долг: ${order.debt}\n\n👨‍💼 клиент: ${order.client.name}`
 
 				try {
 					await this.#_telegram.sendMessage(parseInt(process.env.ORDER_CHANEL_ID), text)

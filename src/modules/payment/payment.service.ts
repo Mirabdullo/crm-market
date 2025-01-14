@@ -13,6 +13,7 @@ import { Decimal } from '../../types'
 import * as ExcelJS from 'exceljs'
 import { addHours, endOfDay, format } from 'date-fns'
 import { TelegramService } from '../telegram/telegram.service'
+import { generatePdfBuffer } from '../order/format-to-pdf'
 
 @Injectable()
 export class PaymentService {
@@ -389,13 +390,13 @@ export class PaymentService {
 		})
 
 		if (order && order.accepted === false) {
-			let text = `продажа\nид заказа: ${order.articl}\nсумма: ${order.sum}\nдолг: ${order.debt}\nклиент: ${order.client.name}\n\n`
-
-			order.products.forEach((product) => {
-				text += `продукт: ${product.product.name}\nцена: ${product.price}\nкол-ва: ${product.count}\n\n`
-			})
+			let text = `💼 продажа\n\n✍️ ид заказа: ${order.articl}\n\n💵 сумма: ${order.sum}\n\n💳 долг: ${order.debt}\n\n👨‍💼 клиент: ${order.client.name}`
 
 			await this.#_telegram.sendMessage(parseInt(process.env.ORDER_CHANEL_ID), text)
+
+			const pdfBuffer = await generatePdfBuffer(order)
+		
+			await this.#_telegram.sendDocument(parseInt(process.env.ORDER_CHANEL_ID), Buffer.from(pdfBuffer), 'order-details.pdf')
 
 			if (payload.sendUser && order.client.chatId) {
 				await this.#_telegram.sendMessage(Number(order.client.chatId), text)

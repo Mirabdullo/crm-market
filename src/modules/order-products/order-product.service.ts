@@ -11,6 +11,7 @@ import {
 } from './interfaces'
 import { Decimal } from '../../types'
 import { TelegramService } from '../telegram'
+import { generatePdfBuffer, generatePdfBufferWithProduct } from '../order/format-to-pdf'
 
 @Injectable()
 export class OrderProductService {
@@ -118,7 +119,38 @@ export class OrderProductService {
 				where: { id: payload.product_id, deletedAt: null },
 			}),
 
-			this.#_prisma.order.findFirst({ where: { id: payload.order_id }, include: { client: true } }),
+			this.#_prisma.order.findFirst({
+				where: { id: payload.order_id },
+				select: {
+					id: true,
+					sellingDate: true,
+					accepted: true,
+					articl: true,
+					debt: true,
+					sum: true,
+					clientId: true,
+					client: {
+						select: {
+							name: true,
+							chatId: true,
+						},
+					},
+					products: {
+						select: {
+							id: true,
+							cost: true,
+							count: true,
+							price: true,
+							productId: true,
+							product: {
+								select: {
+									name: true,
+								},
+							},
+						},
+					},
+				},
+			}),
 		])
 		if (!product || !order) throw new NotFoundException('Maxsulot yoki sotuv topilmadi')
 
@@ -154,11 +186,16 @@ export class OrderProductService {
 				}),
 			)
 
-			const text = `Товар добавлен\nид заказа: ${order.articl}\nсумма: ${order.sum.toNumber() + payload.price * payload.count}\nдолг: ${
-				order.debt.toNumber() + payload.price * payload.count
-			}\nклиент: ${order.client.name}\n\nпродукт: ${product.name}\nцена: ${payload.price}\nкол-ва: ${payload.count}`
-
+			let text = `📦 Товар добавлен\n\n✍️ ид заказа: ${order.articl}\n\n💵 сумма: ${order.sum.toNumber() + payload.price * payload.count}\n\n💳 долг: ${order.debt.toNumber()  + payload.price * payload.count}\n\n👨‍💼 клиент: ${order.client.name}`
 			await this.#_telegram.sendMessage(parseInt(process.env.ORDER_CHANEL_ID), text)
+
+			const pdfBuffer = await generatePdfBufferWithProduct(order, {
+				name: product.name,
+				price: payload.price,
+				count: payload.count,
+			})
+		
+			await this.#_telegram.sendDocument(parseInt(process.env.ORDER_CHANEL_ID), Buffer.from(pdfBuffer), 'order-details.pdf')
 
 			if (payload.sendUser && order.client.chatId) {
 				await this.#_telegram.sendMessage(Number(order.client.chatId), text)
