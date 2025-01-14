@@ -831,8 +831,8 @@ export class OrderService {
 					await this.#_telegram.sendMessage(parseInt(process.env.ORDER_CHANEL_ID), text)
 
 					const pdfBuffer = await generatePdfBuffer(order)
-
-					await this.#_telegram.sendDocument(parseInt(process.env.ORDER_CHANEL_ID), pdfBuffer, 'order-details.pdf')
+					console.log(pdfBuffer)
+					await this.#_telegram.sendDocument(parseInt(process.env.ORDER_CHANEL_ID), Buffer.from(pdfBuffer), 'order-details.pdf')
 
 					if (payload.sendUser && order.client.chatId) {
 						await this.#_telegram.sendMessage(Number(order.client.chatId), text)

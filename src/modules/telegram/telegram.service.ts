@@ -116,9 +116,9 @@ export class TelegramService {
 		}
 	}
 
-	async sendDocument(chatId: number, source: any, filename: string): Promise<void> {
+	async sendDocument(chatId: number, pdfBuffer: Buffer, filename: string): Promise<void> {
 		await this.bot.telegram.sendDocument(chatId, {
-			source,
+			source: pdfBuffer,
 			filename,
 		})
 	}
