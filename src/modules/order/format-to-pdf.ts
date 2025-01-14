@@ -210,7 +210,7 @@ export async function generatePdfBufferWithProduct(orderData: any, payload: any)
 			<td>${payload.name}</td>
 			<td>${payload.count}</td>
 			<td>${payload.price}</td>
-			<td>${payload.price.toNumber() * payload.count}</td>
+			<td>${payload.price * payload.count}</td>
 		  </tr>
 		  
 		</tbody>
