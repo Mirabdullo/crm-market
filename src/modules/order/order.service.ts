@@ -821,17 +821,13 @@ export class OrderService {
 					}),
 				])
 
-				let text = `продажа\nид заказа: ${order.articl}\nсумма: ${order.sum}\nдолг: ${order.debt}\nклиент: ${order.client.name}\n\n`
-				order.products.forEach((product) => {
-					console.log(product)
-					text += `продукт: ${product.product.name}\nцена: ${product.price}\nкол-ва: ${product.count}\n\n`
-				})
+				let text = `💼 продажа\n✍️ ид заказа: ${order.articl}\n💵 сумма: ${order.sum}\n💳 долг: ${order.debt}\n👨‍💼 клиент: ${order.client.name}\n\n`
 
 				try {
 					await this.#_telegram.sendMessage(parseInt(process.env.ORDER_CHANEL_ID), text)
 
 					const pdfBuffer = await generatePdfBuffer(order)
-					console.log(pdfBuffer)
+		
 					await this.#_telegram.sendDocument(parseInt(process.env.ORDER_CHANEL_ID), Buffer.from(pdfBuffer), 'order-details.pdf')
 
 					if (payload.sendUser && order.client.chatId) {
