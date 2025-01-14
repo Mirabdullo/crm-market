@@ -32,7 +32,7 @@ export async function generatePdfBuffer(orderData: any) {
       <p><strong>Клиент:</strong> ${orderData.client.name}</p>
       <p><strong>Оформил:</strong> ${orderData.admin.name}</p>
       <p><strong>Статус:</strong> Подтверджён</p>
-      <p><strong>Дата:</strong> ${format(orderData.createdAt, 'yyyy-MM-dd HH:mm:ss')}</p>
+      <p><strong>Дата:</strong> ${format(orderData.sellingDate, 'yyyy-MM-dd HH:mm:ss')}</p>
       
       <table>
         <thead>
