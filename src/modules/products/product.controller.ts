@@ -42,7 +42,7 @@ export class ProductController {
 		return this.#_service.productRetrieve(payload)
 	}
 
-	@Permission(Permissions.PRODUCT_CREATE)
+	// @Permission(Permissions.PRODUCT_CREATE)
 	@Post()
 	@HttpCode(HttpStatus.NO_CONTENT)
 	@ApiNoContentResponse()
