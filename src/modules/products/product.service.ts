@@ -68,26 +68,24 @@ export class ProductService {
 			lastSale: product?.orderProducts[0]?.createdAt,
 		}))
 
-		const totalCount = await this.#_prisma.products.aggregate({
+		const totalCount = await this.#_prisma.products.count({
 			where: {
 				deletedAt: null,
 				name: { contains: payload.search, mode: 'insensitive' },
 			},
-			_count: { id: true },
-			_sum: { count: true, cost: true, selling_price: true },
 		})
 
 		const totalCalc = {
-			totalProductCount: totalCount._sum.count || 0,
-			totalProductCost: totalCount._sum.cost.toNumber() || 0,
-			totalProductPrice: totalCount._sum.selling_price.toNumber() || 0,
+			totalProductCount: transformedProductList.reduce((sum, i) => sum + i.count, 0) || 0,
+			totalProductCost: transformedProductList.reduce((sum, i) => sum + i.cost, 0) || 0,
+			totalProductPrice: transformedProductList.reduce((sum, i) => sum + i.selling_price, 0) || 0,
 		}
 
 		return {
-			totalCount: totalCount._count.id || 0,
+			totalCount: totalCount,
 			pageNumber: payload.pageNumber,
 			pageSize: payload.pageSize,
-			pageCount: Math.ceil(totalCount._count.id / payload.pageSize),
+			pageCount: Math.ceil(totalCount / payload.pageSize),
 			totalCalc,
 			data: transformedProductList,
 		}
