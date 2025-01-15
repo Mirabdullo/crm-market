@@ -65,15 +65,13 @@ export class OrderService {
 
 			let dateOption = {}
 			if (payload.startDate || payload.endDate) {
-				const now = new Date(payload.startDate)
-				const eDate = new Date(payload.endDate)
-				const today = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0)
-				const endOfToday = new Date(eDate.getFullYear(), eDate.getMonth(), eDate.getDate(), 23, 59, 59, 999)
+				const today = new Date(format(payload.startDate, 'yyyy-MM-dd'))
+				const endDate = addHours(new Date(endOfDay(today)), 3)
 
 				dateOption = {
 					createdAt: {
 						...(payload.startDate ? { gte: today } : {}),
-						...(payload.endDate ? { lte: endOfToday } : {}),
+						...(payload.endDate ? { lte: endDate } : {}),
 					},
 				}
 			}
@@ -500,10 +498,8 @@ export class OrderService {
 	}
 
 	async orderStatistics(): Promise<OrderStatisticsResponse> {
-		const now = new Date()
-		const today = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0)
-		const endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999)
-
+		const today = new Date(format(new Date(), 'yyyy-MM-dd'))
+		const endDate = addHours(new Date(endOfDay(today)), 3)
 		console.log(today, endDate)
 
 		const todaySales = await this.#_prisma.order.aggregate({
@@ -512,20 +508,20 @@ export class OrderService {
 		})
 
 		// Haftalik sotuvlar uchun
-		const weekStart = new Date(today)
-		weekStart.setDate(weekStart.getDate() - 7)
+		const week = new Date()
+		const weekStart = addHours(new Date(week.setDate(today.getDate() - 7)), 3)
+
 		const weeklySales = await this.#_prisma.order.aggregate({
 			_sum: { sum: true },
 			where: { sellingDate: { gte: weekStart, lte: endDate }, accepted: true },
 		})
 
-		const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-		const startOfLastMonth = new Date(lastMonth.getFullYear(), lastMonth.getMonth(), 1, 0, 0, 0);
-		const endOfLastMonth = new Date(lastMonth.getFullYear(), lastMonth.getMonth() + 1, 0, 23, 59, 59, 999);
+		const lastMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1)
+		const startOfLastMonth = new Date(format(lastMonth, 'yyyy-MM-dd'))
 
 		const monthlySales = await this.#_prisma.order.aggregate({
 			_sum: { sum: true },
-			where: { sellingDate: { gte: startOfLastMonth, lte: endOfLastMonth }, accepted: true },
+			where: { sellingDate: { gte: startOfLastMonth, lte: endDate }, accepted: true },
 		})
 
 		const ourDebt = await this.#_prisma.users.aggregate({
