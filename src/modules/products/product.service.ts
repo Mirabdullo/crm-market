@@ -65,7 +65,7 @@ export class ProductService {
 			cost: (product.cost as Decimal).toNumber(),
 			selling_price: (product.selling_price as Decimal).toNumber(),
 			wholesale_price: (product.wholesale_price as Decimal).toNumber(),
-			lastSale: product.orderProducts[0].createdAt,
+			lastSale: product?.orderProducts[0]?.createdAt,
 		}))
 
 		const totalCount = await this.#_prisma.products.aggregate({
