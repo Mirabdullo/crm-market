@@ -65,25 +65,15 @@ export class OrderService {
 
 			let dateOption = {}
 			if (payload.startDate || payload.endDate) {
-				// Toshkent timezone
-				const TIMEZONE = 'Asia/Tashkent'
-
-				// Timezome offsetni olish (millisekundlarda)
-				const tzOffset = getTimezoneOffset(TIMEZONE)
-
-				// Bugungi kun
-
-				const today = startOfDay(payload.startDate)
-				const endOfToday = endOfDay(payload.endDate)
-
-				// Timezone hisobga olingan vaqtlar
-				const startDate = new Date(today.getTime() - tzOffset)
-				const endDate = new Date(endOfToday.getTime() - tzOffset)
+				const now = new Date(payload.startDate)
+				const eDate = new Date(payload.endDate)
+				const today = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0)
+				const endOfToday = new Date(eDate.getFullYear(), eDate.getMonth(), eDate.getDate(), 23, 59, 59, 999)
 
 				dateOption = {
 					createdAt: {
-						...(payload.startDate ? { gte: startDate } : {}),
-						...(payload.endDate ? { lte: endDate } : {}),
+						...(payload.startDate ? { gte: today } : {}),
+						...(payload.endDate ? { lte: endOfToday } : {}),
 					},
 				}
 			}
@@ -510,46 +500,32 @@ export class OrderService {
 	}
 
 	async orderStatistics(): Promise<OrderStatisticsResponse> {
-		// Toshkent timezone
-		const TIMEZONE = 'Asia/Tashkent'
-
-		// Timezome offsetni olish (millisekundlarda)
-		const tzOffset = getTimezoneOffset(TIMEZONE)
-
-		// Bugungi kun
 		const now = new Date()
-		const today = startOfDay(now)
-		const endOfToday = endOfDay(now)
-
-		// Timezone hisobga olingan vaqtlar
-		const startDate = new Date(today.getTime() - tzOffset)
-		const endDate = new Date(endOfToday.getTime() - tzOffset)
+		const today = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0)
+		const endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999)
 
 		console.log(today, endDate)
 
 		const todaySales = await this.#_prisma.order.aggregate({
 			_sum: { sum: true },
-			where: { sellingDate: { gte: startDate, lte: endDate }, accepted: true },
+			where: { sellingDate: { gte: today, lte: endDate }, accepted: true },
 		})
 
 		// Haftalik sotuvlar uchun
-		const weekStart = new Date(startOfDay(subDays(now, 7)).getTime() - tzOffset)
+		const weekStart = new Date(today)
+		weekStart.setDate(weekStart.getDate() - 7)
 		const weeklySales = await this.#_prisma.order.aggregate({
 			_sum: { sum: true },
 			where: { sellingDate: { gte: weekStart, lte: endDate }, accepted: true },
 		})
 
-		// O'tgan oy
-		const lastMonth = subMonths(now, 1)
-		const startOfLastMonth = startOfMonth(lastMonth)
-		const endOfLastMonth = endOfMonth(lastMonth)
-
-		const lastMonthStartDate = new Date(startOfDay(startOfLastMonth).getTime() - tzOffset)
-		const lastMonthEndDate = new Date(endOfDay(endOfLastMonth).getTime() - tzOffset)
+		const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+		const startOfLastMonth = new Date(lastMonth.getFullYear(), lastMonth.getMonth(), 1, 0, 0, 0);
+		const endOfLastMonth = new Date(lastMonth.getFullYear(), lastMonth.getMonth() + 1, 0, 23, 59, 59, 999);
 
 		const monthlySales = await this.#_prisma.order.aggregate({
 			_sum: { sum: true },
-			where: { sellingDate: { gte: lastMonthStartDate, lte: lastMonthEndDate }, accepted: true },
+			where: { sellingDate: { gte: startOfLastMonth, lte: endOfLastMonth }, accepted: true },
 		})
 
 		const ourDebt = await this.#_prisma.users.aggregate({
