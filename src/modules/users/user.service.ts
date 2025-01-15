@@ -150,6 +150,7 @@ export class UserService {
 						sum: true,
 						articl: true,
 						debt: true,
+						sellingDate: true,
 						createdAt: true,
 						updatedAt: true,
 						accepted: true,
