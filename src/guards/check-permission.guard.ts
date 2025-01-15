@@ -35,7 +35,7 @@ export class CheckPermissionGuard implements CanActivate {
 			throw new UnauthorizedException('Ruxsat etilmagan')
 		}
 
-		if (user.role !== 'super-admin') {
+		if (user.role !== 'super_admin') {
 			if (!user.permissions.includes(permission)) {
 				throw new ForbiddenException('Ruxsat etilmagan')
 			}

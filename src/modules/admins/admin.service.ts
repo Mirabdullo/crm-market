@@ -158,8 +158,8 @@ export class AdminService {
 				name: payload.name,
 				phone: payload.phone,
 				permissions: {
-					connect: payload.connectPermissions.map((id) => ({ id })),
-					disconnect: payload.disconnectPermissions.map((id) => ({ id })),
+					connect: payload.connectPermissions?.map((id) => ({ id })),
+					disconnect: payload.disconnectPermissions?.map((id) => ({ id })),
 				},
 			},
 		})
