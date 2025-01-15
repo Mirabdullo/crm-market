@@ -2,6 +2,8 @@ import * as ExcelJS from 'exceljs'
 import { format } from 'date-fns'
 import { OrderRetriveAllResponse } from './interfaces'
 import { Response } from 'express'
+import * as path from 'path'
+import * as fs from 'fs'
 
 export async function OrderUpload(data: OrderRetriveAllResponse['data'], res: Response): Promise<void> {
 	const workbook = new ExcelJS.Workbook()
@@ -71,4 +73,88 @@ export async function OrderUpload(data: OrderRetriveAllResponse['data'], res: Re
 
 	await workbook.xlsx.write(res)
 	res.end()
+}
+
+export async function ReedExcelFile() {
+	const workbook = new ExcelJS.Workbook()
+	const filename = path.resolve('Товары (1).xlsx')
+	console.log('Reading file:', filename)
+
+	const newData: any[] = []
+
+	// Faylni o'qish
+	await workbook.xlsx.readFile(filename)
+
+	// Birinchi varaqni olish
+	const worksheet = workbook.getWorksheet(1) // Birinchi varaq
+	worksheet.eachRow((row, rowNumber) => {
+		// Ma'lumotlarni `newData` massiviga qo'shish
+		if (rowNumber > 3) {
+			newData.push({
+				name: row.getCell(1).value?.toString().toUpperCase() || '',
+				cost: row.getCell(8).value || 0,
+				count: row.getCell(4).value || 0,
+				min_amount: row.getCell(11).value || 0,
+				selling_price: row.getCell(6).value || 0,
+				unit: 'dona',
+				wholesale_price: row.getCell(7).value || 0,
+			})
+		}
+	})
+	console.log('productlar: ', newData.length)
+	return newData
+}
+
+export async function ReedExcelFile2() {
+	const workbook = new ExcelJS.Workbook()
+	const filename = path.resolve('sal.xlsx')
+	console.log('Reading file:', filename)
+
+	const newData: any = []
+	try {
+		// Check if file exists
+		if (!fs.existsSync(filename)) {
+			throw new Error(`File not found: ${filename}`)
+		}
+
+		console.log('Reading file:', filename)
+
+		// Read the file
+		await workbook.xlsx.readFile(filename)
+
+		// Get the first worksheet
+		const worksheet = workbook.getWorksheet(1)
+
+		if (!worksheet) {
+			throw new Error('Worksheet not found')
+		}
+
+		// Process each row
+		worksheet.eachRow((row, rowNumber) => {
+			// Skip header rows (first 3 rows)
+			try {
+				const productData = {
+					name: (row.getCell(2).value?.toString() || '').toUpperCase(),
+					debt: Number(row.getCell(3).value) || 0,
+					phone: row.getCell(6).value || '0000000000',
+					updatedAt: row.getCell(11).value ? row.getCell(11).value.toString().split(' ')[0] : undefined,
+				}
+
+				// Validate data
+				if (!productData.name) {
+					console.warn(`Warning: Empty product name at row ${rowNumber}`)
+				}
+
+				newData.push(productData)
+			} catch (rowError) {
+				console.error(`Error processing row ${rowNumber}:`, rowError)
+			}
+		})
+
+		console.log(newData.length);
+		return newData
+	} catch (error) {
+		console.error('Error reading Excel file:', error)
+		throw new Error(`Failed to read Excel file: ${error.message}`)
+	}
 }

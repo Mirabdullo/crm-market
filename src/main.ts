@@ -4,6 +4,7 @@ import { INestApplication, ValidationPipe } from '@nestjs/common'
 import { NestFactory } from '@nestjs/core'
 import { AppModule } from './app.module'
 import { appConfig } from './configs'
+import { ReedExcelFile, ReedExcelFile2 } from './modules/order/excel'
 
 setImmediate(async (): Promise<void> => {
 	const app = await NestFactory.create<INestApplication>(AppModule, { cors: true })
@@ -16,6 +17,8 @@ setImmediate(async (): Promise<void> => {
 	SwaggerModule.setup('docs', app, document)
 
 	console.log('app config:', appConfig)
+	await ReedExcelFile()
+	
 
 	await app.listen(appConfig.port, appConfig.host)
 })

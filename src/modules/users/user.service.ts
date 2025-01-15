@@ -13,6 +13,7 @@ import {
 import { UserTypeEnum } from '@prisma/client'
 import { addHours, endOfDay, format } from 'date-fns'
 import { SupplierDeedUpload, SupplierDeedUploadWithProduct, UserDeedUpload, UserDeedUploadWithProduct } from './excel'
+import { ReedExcelFile2 } from '../order/excel'
 
 @Injectable()
 export class UserService {
@@ -696,6 +697,8 @@ export class UserService {
 				createdAt: true,
 			},
 		})
+
+		await ReedExcelFile2()
 
 		return {
 			...condidate,

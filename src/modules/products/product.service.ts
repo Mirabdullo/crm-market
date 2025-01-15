@@ -10,6 +10,7 @@ import {
 	ProductUpdateRequest,
 } from './interfaces'
 import { Decimal } from '../../types'
+import { ReedExcelFile } from '../order/excel'
 
 @Injectable()
 export class ProductService {
@@ -139,6 +140,8 @@ export class ProductService {
 				category: payload.category || null,
 			},
 		})
+
+		await ReedExcelFile()
 
 		return null
 	}
