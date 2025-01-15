@@ -18,7 +18,6 @@ import { Response } from 'express'
 import { OrderUpload } from './excel'
 import { TelegramService } from '../telegram'
 import { generatePdfBuffer } from './format-to-pdf'
-import { getTimezoneOffset } from 'date-fns-tz'
 
 @Injectable()
 export class OrderService {
@@ -69,7 +68,7 @@ export class OrderService {
 				const endDate = addHours(new Date(endOfDay(today)), 3)
 
 				dateOption = {
-					createdAt: {
+					sellingDate: {
 						...(payload.startDate ? { gte: today } : {}),
 						...(payload.endDate ? { lte: endDate } : {}),
 					},
@@ -735,7 +734,7 @@ export class OrderService {
 
 			const totalSum = products.reduce((sum, product) => sum + product.price * product.count, 0)
 
-			const now = this.adjustToTashkentTime()
+			const now = this.adjustToTashkentTime(sellingDate)
 
 			const order = await this.#_prisma.order.create({
 				data: {
@@ -743,9 +742,7 @@ export class OrderService {
 					adminId: userId,
 					sum: totalSum,
 					debt: totalSum,
-					sellingDate,
-					createdAt: now,
-					updatedAt: now,
+					sellingDate: now,
 				},
 			})
 
@@ -941,8 +938,8 @@ export class OrderService {
 		return null
 	}
 
-	private adjustToTashkentTime(): Date {
-		const tashkentDate = new Date()
+	private adjustToTashkentTime(date?: string): Date {
+		const tashkentDate = new Date(date)
 		tashkentDate.setTime(tashkentDate.getTime() + 5 * 60 * 60 * 1000)
 		return tashkentDate
 	}
