@@ -138,6 +138,7 @@ export async function ReedExcelFile2() {
 					debt: Number(row.getCell(3).value) || 0,
 					phone: row.getCell(6).value || '0000000000',
 					updatedAt: row.getCell(11).value ? row.getCell(11).value.toString().split(' ')[0] : undefined,
+					type: 'client'
 				}
 
 				// Validate data
