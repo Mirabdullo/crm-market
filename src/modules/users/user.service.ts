@@ -198,7 +198,7 @@ export class UserService {
 		const totalDebt = user?.orders?.reduce((sum, order) => sum + order.sum.toNumber(), 0)
 		let totalCredit = user?.payments?.reduce((sum, payment) => sum + payment.totalPay.toNumber(), 0)
 
-		totalCredit += user.returnedOrder?.reduce((sum, order) => sum + order.sum.toNumber(), 0)
+		totalCredit += user.returnedOrder?.reduce((sum, order) => sum + order.fromClient.toNumber(), 0)
 		// Sort combined array
 		const sorted = combined.sort((a, b) => {
 			const dateA = a.type === 'order' ? a.createdAt : a.updatedAt
