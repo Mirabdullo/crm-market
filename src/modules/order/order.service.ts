@@ -12,12 +12,13 @@ import {
 	OrderUpdateRequest,
 } from './interfaces'
 import { Decimal } from '../../types'
-import { addDays, addHours, endOfDay, format, startOfDay, subDays, subMonths } from 'date-fns'
+import { addDays, addHours, endOfDay, endOfMonth, format, startOfDay, startOfMonth, subDays, subMonths } from 'date-fns'
 import * as ExcelJS from 'exceljs'
 import { Response } from 'express'
 import { OrderUpload } from './excel'
 import { TelegramService } from '../telegram'
 import { generatePdfBuffer } from './format-to-pdf'
+import { getTimezoneOffset } from 'date-fns-tz'
 
 @Injectable()
 export class OrderService {
@@ -64,12 +65,25 @@ export class OrderService {
 
 			let dateOption = {}
 			if (payload.startDate || payload.endDate) {
-				const sDate = new Date(format(payload.startDate, 'yyyy-MM-dd'))
-				const eDate = addHours(new Date(endOfDay(payload.endDate)), 3)
+				// Toshkent timezone
+				const TIMEZONE = 'Asia/Tashkent'
+
+				// Timezome offsetni olish (millisekundlarda)
+				const tzOffset = getTimezoneOffset(TIMEZONE)
+
+				// Bugungi kun
+
+				const today = startOfDay(payload.startDate)
+				const endOfToday = endOfDay(payload.endDate)
+
+				// Timezone hisobga olingan vaqtlar
+				const startDate = new Date(today.getTime() - tzOffset)
+				const endDate = new Date(endOfToday.getTime() - tzOffset)
+
 				dateOption = {
 					createdAt: {
-						...(payload.startDate ? { gte: sDate } : {}),
-						...(payload.endDate ? { lte: eDate } : {}),
+						...(payload.startDate ? { gte: startDate } : {}),
+						...(payload.endDate ? { lte: endDate } : {}),
 					},
 				}
 			}
@@ -496,25 +510,46 @@ export class OrderService {
 	}
 
 	async orderStatistics(): Promise<OrderStatisticsResponse> {
-		const today = new Date(format(new Date(), 'yyyy-MM-dd'))
-		const endDate = addHours(new Date(endOfDay(today)), 3)
+		// Toshkent timezone
+		const TIMEZONE = 'Asia/Tashkent'
+
+		// Timezome offsetni olish (millisekundlarda)
+		const tzOffset = getTimezoneOffset(TIMEZONE)
+
+		// Bugungi kun
+		const now = new Date()
+		const today = startOfDay(now)
+		const endOfToday = endOfDay(now)
+
+		// Timezone hisobga olingan vaqtlar
+		const startDate = new Date(today.getTime() - tzOffset)
+		const endDate = new Date(endOfToday.getTime() - tzOffset)
+
 		console.log(today, endDate)
 
 		const todaySales = await this.#_prisma.order.aggregate({
 			_sum: { sum: true },
-			where: { sellingDate: { gte: today, lte: endDate }, accepted: true },
+			where: { sellingDate: { gte: startDate, lte: endDate }, accepted: true },
 		})
 
-		const week = subDays(endDate, 7)
+		// Haftalik sotuvlar uchun
+		const weekStart = new Date(startOfDay(subDays(now, 7)).getTime() - tzOffset)
 		const weeklySales = await this.#_prisma.order.aggregate({
 			_sum: { sum: true },
-			where: { sellingDate: { gte: startOfDay(week), lte: endDate }, accepted: true },
+			where: { sellingDate: { gte: weekStart, lte: endDate }, accepted: true },
 		})
 
-		const month = subMonths(endDate, 1)
+		// O'tgan oy
+		const lastMonth = subMonths(now, 1)
+		const startOfLastMonth = startOfMonth(lastMonth)
+		const endOfLastMonth = endOfMonth(lastMonth)
+
+		const lastMonthStartDate = new Date(startOfDay(startOfLastMonth).getTime() - tzOffset)
+		const lastMonthEndDate = new Date(endOfDay(endOfLastMonth).getTime() - tzOffset)
+
 		const monthlySales = await this.#_prisma.order.aggregate({
 			_sum: { sum: true },
-			where: { sellingDate: { gte: month, lte: endDate }, accepted: true },
+			where: { sellingDate: { gte: lastMonthStartDate, lte: lastMonthEndDate }, accepted: true },
 		})
 
 		const ourDebt = await this.#_prisma.users.aggregate({
@@ -539,14 +574,14 @@ export class OrderService {
 
 		const weeklyChart = await this.#_prisma.$queryRaw`SELECT DATE_TRUNC('day', "created_at") AS date,
 		  SUM("sum") AS totalSum FROM "order"
-		WHERE "selling_date" BETWEEN ${week} AND ${endDate} AND "accepted" = true
+		WHERE "selling_date" BETWEEN ${weekStart} AND ${endDate} AND "accepted" = true
 		GROUP BY DATE_TRUNC('day', "created_at")
 		ORDER BY DATE_TRUNC('day', "created_at") ASC;
 	  `
 
 		const dates = []
 		for (let i = 0; i < 7; i++) {
-			dates.push(format(addDays(week, i), 'yyyy-MM-dd'))
+			dates.push(format(addDays(weekStart, i), 'yyyy-MM-dd'))
 		}
 
 		const weeklyChartArray = dates.map((date) => {
@@ -827,7 +862,7 @@ export class OrderService {
 					await this.#_telegram.sendMessage(parseInt(process.env.ORDER_CHANEL_ID), text)
 
 					const pdfBuffer = await generatePdfBuffer(order)
-		
+
 					await this.#_telegram.sendDocument(parseInt(process.env.ORDER_CHANEL_ID), Buffer.from(pdfBuffer), 'order-details.pdf')
 
 					if (payload.sendUser && order.client.chatId) {
