@@ -80,8 +80,15 @@ export class ProductService {
 
 		const totalCount = await this.#_prisma.products.count({
 			where: {
-				deletedAt: null,
-				name: { contains: payload.search, mode: 'insensitive' },
+				AND: [
+					...keywords.map((keyword) => ({
+						name: {
+							contains: keyword,
+							mode: Prisma.QueryMode.insensitive,
+						},
+					})),
+					{ deletedAt: null },
+				],
 			},
 		})
 
