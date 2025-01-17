@@ -11,6 +11,7 @@ import {
 } from './interfaces'
 import { Decimal } from '../../types'
 import { ReedExcelFile } from '../order/excel'
+import { Prisma } from '@prisma/client'
 
 @Injectable()
 export class ProductService {
@@ -29,10 +30,19 @@ export class ProductService {
 			}
 		}
 
+		const keywords = payload.search ? payload.search.split(' ').filter(Boolean) : []
+
 		const productList = await this.#_prisma.products.findMany({
 			where: {
-				deletedAt: null,
-				name: { contains: payload.search, mode: 'insensitive' },
+				AND: [
+					...keywords.map((keyword) => ({
+						name: {
+							contains: keyword,
+							mode: Prisma.QueryMode.insensitive,
+						},
+					})),
+					{ deletedAt: null },
+				],
 			},
 			select: {
 				id: true,

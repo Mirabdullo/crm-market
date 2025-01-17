@@ -186,7 +186,9 @@ export class OrderProductService {
 				}),
 			)
 
-			let text = `📦 Товар добавлен\n\n✍️ ид заказа: ${order.articl}\n\n💵 сумма: ${order.sum.toNumber() + payload.price * payload.count}\n\n💳 долг: ${order.debt.toNumber()  + payload.price * payload.count}\n\n👨‍💼 клиент: ${order.client.name}`
+			const text = `📦 Товар добавлен\n\n✍️ ид заказа: ${order.articl}\n\n💵 сумма: ${order.sum.toNumber() + payload.price * payload.count}\n\n💳 долг: ${
+				order.debt.toNumber() + payload.price * payload.count
+			}\n\n👨‍💼 клиент: ${order.client.name}`
 			await this.#_telegram.sendMessage(parseInt(process.env.ORDER_CHANEL_ID), text)
 
 			const pdfBuffer = await generatePdfBufferWithProduct(order, {
@@ -194,7 +196,7 @@ export class OrderProductService {
 				price: payload.price,
 				count: payload.count,
 			})
-		
+
 			await this.#_telegram.sendDocument(parseInt(process.env.ORDER_CHANEL_ID), Buffer.from(pdfBuffer), 'order-details.pdf')
 
 			if (payload.sendUser && order.client.chatId) {

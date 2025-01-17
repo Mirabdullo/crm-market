@@ -18,7 +18,6 @@ setImmediate(async (): Promise<void> => {
 
 	console.log('app config:', appConfig)
 	await ReedExcelFile()
-	
 
 	await app.listen(appConfig.port, appConfig.host)
 })
