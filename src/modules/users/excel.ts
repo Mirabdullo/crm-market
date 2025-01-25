@@ -605,7 +605,7 @@ export async function ClientUpload(data: any, res: Response): Promise<void> {
 		date = date.replaceAll(':', '')
 
 		res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-		res.setHeader('Content-Disposition', `attachment; filename=должники.xlsx`)
+		res.setHeader('Content-Disposition', `attachment; filename*=UTF-8''${encodeURIComponent('должники.xlsx')}`)
 
 		await workbook.xlsx.write(res)
 		res.end()
