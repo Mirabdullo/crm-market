@@ -680,9 +680,9 @@ export class IncomingOrderService {
 
 			if (incomingOrders.length) {
 				incomingOrders.forEach(async (order) => {
-					let text = `новые продукты\nсумма: ${order.sum}\nдолг: ${order.debt}\nклиент: ${order.supplier.name}\n\n`
+					let text = `📦 новые продукты\n\n💰 сумма: ${order.sum}\n\n💳 долг: ${order.debt}\n\n👨‍💼 клиент: ${order.supplier.name}\n\n`
 					order.incomingProducts.forEach((product) => {
-						text += `продукт: ${product.product.name}\nцена: ${product.cost}\nкол-ва: ${product.count}\n\n`
+						text += `📦 продукт: ${product.product.name}\n💲 цена: ${product.cost}\n#️⃣ кол-ва: ${product.count}\n\n`
 					})
 
 					await this.#_telegram.sendMessage(parseInt(process.env.ORDER_CHANEL_ID), text)

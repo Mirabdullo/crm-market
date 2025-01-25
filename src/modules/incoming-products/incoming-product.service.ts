@@ -164,7 +164,7 @@ export class IncomingProductService {
 				data: { debt: { increment: payload.cost * payload.count } },
 			})
 
-			const text = `добавлен новый продукт\nсумма: ${order.sum}\nдолг: ${order.debt}\nклиент: ${order.supplier.name}\n\nпродукт: ${product.name}\nцена: ${payload.cost}\nкол-ва: ${payload.count}`
+			const text = `📦 добавлен новый продукт\n💰 сумма: ${order.sum}\n💳 долг: ${order.debt}\n👨‍💼 клиент: ${order.supplier.name}\n\nпродукт: ${product.name}\n💲 цена: ${payload.cost}\n#️⃣ кол-ва: ${payload.count}`
 			await this.#_telegram.sendMessage(parseInt(process.env.ORDER_CHANEL_ID), text)
 		}
 

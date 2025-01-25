@@ -1,10 +1,11 @@
 import * as ExcelJS from 'exceljs'
 import { UserDeedRetrieveRequest } from './interfaces'
 import { format } from 'date-fns'
+import { Response } from 'express'
 
 export async function UserDeedUpload(data: any, payload: UserDeedRetrieveRequest): Promise<void> {
 	const workbook = new ExcelJS.Workbook()
-	const worksheet = workbook.addWorksheet('Report')
+	const worksheet = workbook.addWorksheet('client')
 
 	worksheet.mergeCells('A1:C1')
 	worksheet.getCell('A1').value = `Клиент: ${data.name}`
@@ -33,7 +34,6 @@ export async function UserDeedUpload(data: any, payload: UserDeedRetrieveRequest
 	const headerRow = worksheet.addRow(['№', 'Время', 'Операция', 'Дебит', 'Кредит', 'Описание'])
 	headerRow.font = { bold: true }
 	headerRow.alignment = { vertical: 'middle' }
-	headerRow.height = 24
 
 	worksheet.getColumn(1).width = 5
 	worksheet.getColumn(2).width = 20
@@ -122,9 +122,9 @@ export async function UserDeedUpload(data: any, payload: UserDeedRetrieveRequest
 	date = date.replaceAll('.', '')
 	date = date.replaceAll(' ', '')
 	date = date.replaceAll(':', '')
-
+	const filename = data.name + '-' + data.debt.toString() + '-' + date.toString()
 	payload.res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-	payload.res.setHeader('Content-Disposition', `attachment; filename=${data.name + date}.xlsx`)
+	payload.res.setHeader('Content-Disposition', `attachment; filename=${filename}.xlsx`)
 
 	await workbook.xlsx.write(payload.res)
 	payload.res.end()
@@ -153,10 +153,10 @@ export async function UserDeedUploadWithProduct(data: any, payload: UserDeedRetr
 	headerRow.height = 24
 
 	worksheet.getColumn(1).width = 5
-	worksheet.getColumn(2).width = 20
-	worksheet.getColumn(3).width = 16
-	worksheet.getColumn(4).width = 8
-	worksheet.getColumn(5).width = 12
+	worksheet.getColumn(2).width = 30
+	worksheet.getColumn(3).width = 14
+	worksheet.getColumn(4).width = 10
+	worksheet.getColumn(5).width = 10
 	worksheet.getColumn(6).width = 18
 	worksheet.getColumn(7).width = 18
 
@@ -272,8 +272,9 @@ export async function UserDeedUploadWithProduct(data: any, payload: UserDeedRetr
 	date = date.replaceAll(' ', '')
 	date = date.replaceAll(':', '')
 
+	const filename = data.name + '-' + data.debt.toString() + '-' + date.toString()
 	payload.res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-	payload.res.setHeader('Content-Disposition', `attachment; filename=${data.name + '_' + date}.xlsx`)
+	payload.res.setHeader('Content-Disposition', `attachment; filename=${filename}.xlsx`)
 
 	await workbook.xlsx.write(payload.res)
 	payload.res.end()
@@ -281,7 +282,7 @@ export async function UserDeedUploadWithProduct(data: any, payload: UserDeedRetr
 
 export async function SupplierDeedUpload(data: any, payload: UserDeedRetrieveRequest): Promise<void> {
 	const workbook = new ExcelJS.Workbook()
-	const worksheet = workbook.addWorksheet('Report')
+	const worksheet = workbook.addWorksheet('Поставщик')
 
 	worksheet.mergeCells('A1:C1')
 	worksheet.getCell('A1').value = `Поставщик: ${data.name}`
@@ -387,9 +388,9 @@ export async function SupplierDeedUpload(data: any, payload: UserDeedRetrieveReq
 	date = date.replaceAll('.', '')
 	date = date.replaceAll(' ', '')
 	date = date.replaceAll(':', '')
-
+	const filename = data.name + '-' + data.debt.toString() + '-' + date.toString()
 	payload.res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-	payload.res.setHeader('Content-Disposition', `attachment; filename=${data.name + date}.xlsx`)
+	payload.res.setHeader('Content-Disposition', `attachment; filename=${filename}.xlsx`)
 
 	await workbook.xlsx.write(payload.res)
 	payload.res.end()
@@ -529,10 +530,86 @@ export async function SupplierDeedUploadWithProduct(data: any, payload: UserDeed
 	date = date.replaceAll('.', '')
 	date = date.replaceAll(' ', '')
 	date = date.replaceAll(':', '')
-
+	const filename = data.name + '-' + data.debt.toString() + '-' + date.toString()
 	payload.res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-	payload.res.setHeader('Content-Disposition', `attachment; filename=${data.name + '_' + date}.xlsx`)
+	payload.res.setHeader('Content-Disposition', `attachment; filename=${filename}.xlsx`)
 
 	await workbook.xlsx.write(payload.res)
 	payload.res.end()
+}
+
+export async function ClientUpload(data: any, res: Response): Promise<void> {
+	try {
+		const workbook = new ExcelJS.Workbook()
+		const worksheet = workbook.addWorksheet('Clients')
+
+		worksheet.addRow([])
+
+		const headerRow = worksheet.addRow(['№', 'клиент', 'телефон', 'долг', 'Время'])
+		headerRow.font = { bold: true }
+		headerRow.alignment = { vertical: 'middle', horizontal: 'center' }
+		headerRow.height = 24
+
+		worksheet.getColumn(1).width = 5
+		worksheet.getColumn(2).width = 24
+		worksheet.getColumn(3).width = 14
+		worksheet.getColumn(4).width = 8
+		worksheet.getColumn(5).width = 16
+
+		headerRow.eachCell((cell) => {
+			cell.border = {
+				top: { style: 'thin' },
+				left: { style: 'thin' },
+				bottom: { style: 'thin' },
+				right: { style: 'thin' },
+			}
+		})
+
+		let totalPay = 0
+		// Ma'lumotlarni kiritish
+		let index = 0
+		data.forEach((entry: any) => {
+			totalPay += entry.debt.toNumber()
+			index += 1
+			const row = worksheet.addRow([index, entry.name, entry.phone, entry.debt.toNumber(), format(entry.createdAt, 'dd.MM.yyyy')])
+
+			row.eachCell((cell) => {
+				cell.alignment = { vertical: 'middle', horizontal: 'center' }
+				cell.border = {
+					top: { style: 'thin' },
+					left: { style: 'thin' },
+					bottom: { style: 'thin' },
+					right: { style: 'thin' },
+				}
+			})
+		})
+
+		worksheet.addRow(['', 'Итого долг: ', '', totalPay, '']).font = { bold: true }
+
+		worksheet.eachRow((row) => {
+			row.eachCell((cell) => {
+				cell.border = {
+					top: { style: 'thin' },
+					left: { style: 'thin' },
+					bottom: { style: 'thin' },
+					right: { style: 'thin' },
+				}
+			})
+		})
+
+		// Excel faylni saqlash
+		let date = new Date().toLocaleString()
+		date = date.replaceAll(',', '')
+		date = date.replaceAll('.', '')
+		date = date.replaceAll(' ', '')
+		date = date.replaceAll(':', '')
+
+		res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+		res.setHeader('Content-Disposition', `attachment; filename=должники.xlsx`)
+
+		await workbook.xlsx.write(res)
+		res.end()
+	} catch (error) {
+		console.log(error)
+	}
 }

@@ -35,3 +35,8 @@ export declare interface UserDeedRetrieveRequest {
 	startDate?: string
 	endDate?: string
 }
+
+export declare interface ClientUploadRequest {
+	res: Response
+	type?: string
+}

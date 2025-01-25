@@ -1,6 +1,7 @@
 import { Injectable, ForbiddenException, NotFoundException } from '@nestjs/common'
 import { PrismaService } from '@prisma'
 import {
+	ClientUploadRequest,
 	UserCreateRequest,
 	UserDeedRetrieveRequest,
 	UserDeleteRequest,
@@ -12,8 +13,9 @@ import {
 } from './interfaces'
 import { UserTypeEnum } from '@prisma/client'
 import { addHours, endOfDay, format } from 'date-fns'
-import { SupplierDeedUpload, SupplierDeedUploadWithProduct, UserDeedUpload, UserDeedUploadWithProduct } from './excel'
+import { ClientUpload, SupplierDeedUpload, SupplierDeedUploadWithProduct, UserDeedUpload, UserDeedUploadWithProduct } from './excel'
 import { ReedExcelFile2 } from '../order/excel'
+import { Response } from 'express'
 
 @Injectable()
 export class UserService {
@@ -601,6 +603,25 @@ export class UserService {
 				payload,
 			)
 		}
+	}
+
+	async clientUpload(payload: ClientUploadRequest): Promise<void> {
+		const users = await this.#_prisma.users.findMany({
+			where: {
+				deletedAt: null,
+				debt: { gt: 0 },
+				type: 'client',
+			},
+			select: {
+				id: true,
+				name: true,
+				phone: true,
+				debt: true,
+				createdAt: true,
+			},
+		})
+
+		await ClientUpload(users, payload.res)
 	}
 
 	async userRetrieve(payload: UserRetriveRequest): Promise<UserRetriveResponse> {

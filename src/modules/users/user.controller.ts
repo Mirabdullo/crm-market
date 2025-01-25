@@ -93,6 +93,14 @@ export class UserController {
 		})
 	}
 
+	@Get('client/debtors')
+	@ApiOkResponse({ type: UserRetrieveAllResponseDto })
+	ClientsUpload(@Res() res: Response): Promise<void> {
+		return this.#_service.clientUpload({
+			res: res,
+		})
+	}
+
 	@Get(':id')
 	@ApiOkResponse({ type: UserRetrieveResponseDto })
 	UserRetrieve(@Param() payload: UserRetrieveRequestDto): Promise<UserRetriveResponse> {
