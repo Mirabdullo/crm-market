@@ -551,7 +551,7 @@ export async function ClientUpload(data: any, res: Response): Promise<void> {
 		headerRow.height = 24
 
 		worksheet.getColumn(1).width = 5
-		worksheet.getColumn(2).width = 24
+		worksheet.getColumn(2).width = 30
 		worksheet.getColumn(3).width = 14
 		worksheet.getColumn(4).width = 8
 		worksheet.getColumn(5).width = 16
@@ -596,6 +596,8 @@ export async function ClientUpload(data: any, res: Response): Promise<void> {
 				}
 			})
 		})
+
+		worksheet.getColumn(2).alignment = { horizontal: 'left' }
 
 		// Excel faylni saqlash
 		let date = new Date().toLocaleString()

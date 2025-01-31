@@ -65,6 +65,14 @@ export class ProductService {
 						createdAt: true,
 					},
 				},
+				incomingProducts: {
+					where: { incomingOrder: { accepted: true } },
+					take: 1,
+					orderBy: { createdAt: 'desc' },
+					select: {
+						createdAt: true,
+					},
+				},
 			},
 			...paginationOptions,
 			orderBy: { createdAt: 'desc' },
@@ -75,6 +83,7 @@ export class ProductService {
 			cost: (product.cost as Decimal).toNumber(),
 			selling_price: (product.selling_price as Decimal).toNumber(),
 			wholesale_price: (product.wholesale_price as Decimal).toNumber(),
+			lastIncoming: product.incomingProducts[0]?.createdAt,
 			lastSale: product?.orderProducts[0]?.createdAt,
 		}))
 
