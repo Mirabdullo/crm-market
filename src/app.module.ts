@@ -6,6 +6,7 @@ import { JwtModule } from '@nestjs/jwt'
 import {
 	AdminModule,
 	AuthModule,
+	BackupModule,
 	IncomingOrderModule,
 	IncomingOrderPaymentModule,
 	IncomingProductModule,
@@ -45,6 +46,7 @@ import { ReturnedOrderModule } from './modules/returned-order/returned-order.mod
 		OrderProductModule,
 		PaymentModule,
 		TelegramModule,
+		BackupModule,
 	],
 })
 export class AppModule {}
