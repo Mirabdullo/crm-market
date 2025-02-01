@@ -370,7 +370,7 @@ export class PaymentService {
 				)
 
 				const currentDebt = order.debt.toNumber()
-				const newDebt = Math.max(0, currentDebt - sum)
+				const newDebt = currentDebt - sum
 
 				await prisma.order.update({
 					where: { id: orderId },
@@ -424,7 +424,7 @@ export class PaymentService {
 
 	async paymentUpdate(payload: PaymentUpdateRequest): Promise<null> {
 		const { id, card = 0, transfer = 0, other = 0, cash = 0, description } = payload
-		console.log('description:', description)
+
 		const payment = await this.#_prisma.payment.findUnique({
 			where: { id },
 			include: { client: true, order: true },
@@ -445,23 +445,18 @@ export class PaymentService {
 			},
 		})
 
+		const pay = sum - payment.totalPay.toNumber()
+
 		await this.#_prisma.users.update({
 			where: { id: payment.clientId },
-			data: { debt: { decrement: sum - payment.totalPay.toNumber() } },
+			data: { debt: { decrement: pay } },
 		})
 
 		if (payment.order) {
-			if (sum > payment.order.debt.toNumber()) {
-				await this.#_prisma.order.update({
-					where: { id: payment.order.id },
-					data: { debt: { decrement: 0 } },
-				})
-			} else {
-				await this.#_prisma.order.update({
-					where: { id: payment.order.id },
-					data: { debt: { decrement: sum - payment.totalPay.toNumber() } },
-				})
-			}
+			await this.#_prisma.order.update({
+				where: { id: payment.order.id },
+				data: { debt: { decrement: pay } },
+			})
 		}
 
 		const message = `обновлено\n\n${payment.order ? 'тип: для продажи\n' : 'тип: для клиента\n'}Клиент: ${payment.client.name}\nСумма: ${payment.totalPay}\n\nналичными: ${

@@ -41,8 +41,8 @@ export class PaymentController {
 
 	@Get('upload')
 	@ApiOkResponse({ type: PaymentRetrieveAllResponseDto })
-	PaymentRetrieveAllUpload(@Query() payload: PaymentRetrieveAllRequestDto, @Res() res: Response): Promise<PaymentRetriveAllResponse> {
-		return this.#_service.paymentRetrieveAll({
+	PaymentRetrieveAllUpload(@Query() payload: PaymentRetrieveAllRequestDto, @Res() res: Response): Promise<void> {
+		return this.#_service.paymentRetrieveAllUpload({
 			...payload,
 			res,
 			pageNumber: payload.pageNumber ?? PAGE_NUMBER,

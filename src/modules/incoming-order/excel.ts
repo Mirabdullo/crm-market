@@ -81,7 +81,7 @@ export async function IncomingOrderUploadWithProduct(data: IncomingOrderRetriveR
 	headerRow.height = 24
 
 	worksheet.getColumn(1).width = 5
-	worksheet.getColumn(2).width = 20
+	worksheet.getColumn(2).width = 30
 	worksheet.getColumn(3).width = 14
 	worksheet.getColumn(4).width = 12
 	worksheet.getColumn(5).width = 14
