@@ -609,7 +609,6 @@ export class UserService {
 		const users = await this.#_prisma.users.findMany({
 			where: {
 				deletedAt: null,
-				debt: { gt: 0 },
 				type: 'client',
 			},
 			select: {
@@ -619,6 +618,7 @@ export class UserService {
 				debt: true,
 				createdAt: true,
 			},
+			orderBy: [{ debt: 'desc' }]
 		})
 
 		await ClientUpload(users, payload.res)
