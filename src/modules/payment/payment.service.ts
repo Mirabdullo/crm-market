@@ -383,7 +383,7 @@ export class PaymentService {
 
 			await prisma.users.update({
 				where: { id: clientId },
-				data: { debt: { increment: sum } },
+				data: { debt: { decrement: sum } },
 			})
 
 			return paymentData
