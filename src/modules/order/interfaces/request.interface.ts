@@ -19,6 +19,7 @@ export interface OrderUpdateRequest {
 	accepted?: boolean
 	sellingDate?: string
 	sendUser?: boolean
+	clientId?: string
 }
 
 export interface OrderDeleteRequest {

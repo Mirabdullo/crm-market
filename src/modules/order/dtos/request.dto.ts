@@ -116,6 +116,11 @@ export class OrderUpdateRequestDto implements OrderUpdateRequest {
 	@ApiPropertyOptional({ type: Boolean, example: false })
 	@IsOptional()
 	sendUser?: boolean
+
+	@ApiProperty({ type: String })
+	@IsUUID('4')
+	@IsOptional()
+	clientId?: string
 }
 
 export class OrderDeleteRequestDto implements OrderDeleteRequest {

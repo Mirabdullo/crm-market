@@ -503,7 +503,7 @@ export class OrderService {
 
 		const todaySales = await this.#_prisma.order.aggregate({
 			_sum: { sum: true },
-			where: { sellingDate: { gte: today, lte: endDate }, accepted: true },
+			where: { sellingDate: { gte: today, lte: endDate }, accepted: true, deletedAt: null },
 		})
 
 		// Haftalik sotuvlar uchun
@@ -768,7 +768,7 @@ export class OrderService {
 
 	async OrderUpdate(payload: OrderUpdateRequest): Promise<null> {
 		try {
-			const { id, accepted } = payload
+			const { id, accepted, clientId, sellingDate } = payload
 
 			const order = await this.#_prisma.order.findUnique({
 				where: { id },
@@ -804,6 +804,39 @@ export class OrderService {
 				},
 			})
 			if (!order) throw new NotFoundException("Ma'lumot topilmadi")
+
+			if (clientId) {
+				const client = await this.#_prisma.users.findFirst({
+					where: { id: clientId, type: 'client', deletedAt: null },
+				})
+
+				if (!client) throw new NotFoundException('Client topilmadi')
+
+				await Promise.all([
+					this.#_prisma.order.update({
+						where: { id: order.id },
+						data: { clientId: client.id },
+					}),
+
+					this.#_prisma.users.update({
+						where: { id: order.clientId },
+						data: { debt: { decrement: order.debt } },
+					}),
+
+					this.#_prisma.users.update({
+						where: { id: order.clientId },
+						data: { debt: { increment: order.sum } },
+					}),
+				])
+			}
+
+			if (sellingDate) {
+				const date = this.adjustToTashkentTime(sellingDate)
+				await this.#_prisma.order.update({
+					where: { id },
+					data: { sellingDate: date },
+				})
+			}
 
 			if (accepted && order.accepted !== true) {
 				const updatedProducts = order.products.map((pr) =>
