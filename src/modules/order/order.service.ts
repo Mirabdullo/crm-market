@@ -767,118 +767,147 @@ export class OrderService {
 	}
 
 	async OrderUpdate(payload: OrderUpdateRequest): Promise<null> {
-		try {
-			const { id, accepted, clientId, sellingDate } = payload
+		const { id, accepted, clientId, sellingDate, sendUser } = payload
 
-			const order = await this.#_prisma.order.findUnique({
-				where: { id },
-				select: {
-					id: true,
-					sellingDate: true,
-					accepted: true,
-					articl: true,
-					client: true,
-					payment: true,
-					debt: true,
-					sum: true,
-					clientId: true,
-					admin: {
-						select: {
-							name: true,
+		try {
+			return await this.#_prisma.$transaction(async (tx) => {
+				// 1. Get order with all necessary data
+				const order = await tx.order.findUnique({
+					where: { id },
+					select: {
+						id: true,
+						sellingDate: true,
+						accepted: true,
+						articl: true,
+						client: {
+							select: {
+								id: true,
+								name: true,
+								chatId: true,
+							},
 						},
-					},
-					products: {
-						select: {
-							id: true,
-							cost: true,
-							count: true,
-							price: true,
-							productId: true,
-							product: {
-								select: {
-									name: true,
+						payment: true,
+						debt: true,
+						sum: true,
+						clientId: true,
+						admin: {
+							select: { name: true },
+						},
+						products: {
+							select: {
+								id: true,
+								cost: true,
+								count: true,
+								price: true,
+								productId: true,
+								product: {
+									select: { name: true },
 								},
 							},
 						},
 					},
-				},
-			})
-			if (!order) throw new NotFoundException("Ma'lumot topilmadi")
-
-			if (clientId) {
-				const client = await this.#_prisma.users.findFirst({
-					where: { id: clientId, type: 'client', deletedAt: null },
 				})
 
-				if (!client) throw new NotFoundException('Client topilmadi')
+				if (!order) {
+					throw new NotFoundException("Ma'lumot topilmadi")
+				}
 
-				await Promise.all([
-					this.#_prisma.order.update({
-						where: { id: order.id },
-						data: { clientId: client.id },
-					}),
+				// 2. Handle client change for accepted order
+				if (clientId && order.accepted) {
+					const newClient = await tx.users.findFirst({
+						where: {
+							id: clientId,
+							type: 'client',
+							deletedAt: null,
+						},
+					})
 
-					this.#_prisma.users.update({
+					if (!newClient) {
+						throw new NotFoundException('Client topilmadi')
+					}
+
+					// Update old client's debt
+					await tx.users.update({
 						where: { id: order.clientId },
 						data: { debt: { decrement: order.debt } },
-					}),
+					})
 
-					this.#_prisma.users.update({
-						where: { id: order.clientId },
-						data: { debt: { increment: order.sum } },
-					}),
-				])
-			}
-
-			if (sellingDate) {
-				const date = this.adjustToTashkentTime(sellingDate)
-				await this.#_prisma.order.update({
-					where: { id },
-					data: { sellingDate: date },
-				})
-			}
-
-			if (accepted && order.accepted !== true) {
-				const updatedProducts = order.products.map((pr) =>
-					this.#_prisma.products.update({
-						where: { id: pr.productId },
-						data: { count: { decrement: pr.count } },
-					}),
-				)
-
-				await Promise.all([
-					...updatedProducts,
-					this.#_prisma.users.update({
-						where: { id: order.clientId },
+					// Update new client's debt
+					await tx.users.update({
+						where: { id: newClient.id },
 						data: { debt: { increment: order.debt } },
-					}),
-					this.#_prisma.order.update({
-						where: { id },
-						data: { accepted: true },
-					}),
-				])
-
-				const text = `💼 продажа\n\n✍️ ид заказа: ${order.articl}\n\n💵 сумма: ${order.sum.toNumber()}\n\n💳 долг: ${order.debt}\n\n👨‍💼 клиент: ${order.client.name}`
-
-				try {
-					await this.#_telegram.sendMessage(parseInt(process.env.ORDER_CHANEL_ID), text)
-
-					const pdfBuffer = await generatePdfBuffer(order)
-
-					await this.#_telegram.sendDocument(parseInt(process.env.ORDER_CHANEL_ID), Buffer.from(pdfBuffer), 'order-details.pdf')
-
-					if (payload.sendUser && order.client.chatId) {
-						await this.#_telegram.sendMessage(Number(order.client.chatId), text)
-					}
-				} catch (error) {
-					console.log(error)
+					})
 				}
+
+				// 3. Handle order acceptance
+				if (accepted && !order.accepted) {
+					const targetClientId = clientId || order.clientId
+
+					// Prepare all update operations
+					const updateOperations = [
+						// Update client debt
+						tx.users.update({
+							where: { id: targetClientId },
+							data: { debt: { increment: order.debt } },
+						}),
+						// Update product counts
+						...order.products.map((pr) =>
+							tx.products.update({
+								where: { id: pr.productId },
+								data: { count: { decrement: pr.count } },
+							}),
+						),
+					]
+
+					await Promise.all(updateOperations)
+				}
+
+				// 4. Update order
+				await tx.order.update({
+					where: { id },
+					data: {
+						accepted,
+						clientId,
+						sellingDate: sellingDate ? this.adjustToTashkentTime(sellingDate) : undefined,
+					},
+				})
+
+				// 5. Handle notifications (outside transaction as it's not critical)
+				if (accepted && !order.accepted) {
+					await this.sendOrderNotifications(order, sendUser)
+				}
+
+				return null
+			})
+		} catch (error) {
+			console.error('OrderUpdate error:', error)
+
+			if (error instanceof NotFoundException) {
+				throw error
 			}
 
-			return null
-		} catch (error) {
-			console.log(error)
 			throw new InternalServerErrorException("Kutilmagan xatolik! Qaytadan urinib ko'ring")
+		}
+	}
+
+	private async sendOrderNotifications(order: any, sendUser?: boolean): Promise<void> {
+		try {
+			const text = `💼 продажа\n\n✍️ ид заказа: ${order.articl}\n\n💵 сумма: ${order.sum.toNumber()}\n\n💳 долг: ${order.debt}\n\n👨‍💼 клиент: ${order.client.name}`
+
+			// Send to order channel
+			await this.#_telegram.sendMessage(parseInt(process.env.ORDER_CHANEL_ID), text)
+
+			// Send PDF document
+			const pdfBuffer = await generatePdfBuffer(order)
+			await this.#_telegram.sendDocument(parseInt(process.env.ORDER_CHANEL_ID), Buffer.from(pdfBuffer), 'order-details.pdf')
+
+			// Send to user if requested and chat ID exists
+			if (sendUser && order.client.chatId) {
+				await this.#_telegram.sendMessage(Number(order.client.chatId), text)
+			}
+		} catch (error) {
+			console.error('Notification error:', error)
+			// Don't throw error as notifications are not critical
 		}
 	}
 
