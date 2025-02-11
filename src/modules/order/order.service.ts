@@ -65,7 +65,7 @@ export class OrderService {
 			let dateOption = {}
 			if (payload.startDate || payload.endDate) {
 				const today = new Date(format(payload.startDate, 'yyyy-MM-dd'))
-				const endDate = addHours(new Date(endOfDay(today)), 3)
+				const endDate = addHours(new Date(endOfDay(payload.endDate)), 3)
 
 				dateOption = {
 					sellingDate: {
