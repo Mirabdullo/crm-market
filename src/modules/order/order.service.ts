@@ -104,6 +104,7 @@ export class OrderService {
 							id: true,
 							name: true,
 							phone: true,
+							debt: true,
 							createdAt: true,
 						},
 					},
