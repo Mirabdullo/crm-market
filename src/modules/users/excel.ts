@@ -35,12 +35,12 @@ export async function UserDeedUpload(data: any, payload: UserDeedRetrieveRequest
 	headerRow.font = { bold: true }
 	headerRow.alignment = { vertical: 'middle' }
 
-	worksheet.getColumn(1).width = 5
-	worksheet.getColumn(2).width = 20
-	worksheet.getColumn(3).width = 16
-	worksheet.getColumn(4).width = 10
-	worksheet.getColumn(5).width = 10
-	worksheet.getColumn(6).width = 20
+	worksheet.getColumn(1).width = 6
+	worksheet.getColumn(2).width = 22
+	worksheet.getColumn(3).width = 20
+	worksheet.getColumn(4).width = 14
+	worksheet.getColumn(5).width = 14
+	worksheet.getColumn(6).width = 24
 
 	headerRow.eachCell((cell) => {
 		cell.border = {
@@ -152,13 +152,13 @@ export async function UserDeedUploadWithProduct(data: any, payload: UserDeedRetr
 	headerRow.alignment = { vertical: 'middle', horizontal: 'center' }
 	headerRow.height = 24
 
-	worksheet.getColumn(1).width = 5
+	worksheet.getColumn(1).width = 6
 	worksheet.getColumn(2).width = 30
-	worksheet.getColumn(3).width = 14
-	worksheet.getColumn(4).width = 10
-	worksheet.getColumn(5).width = 10
-	worksheet.getColumn(6).width = 18
-	worksheet.getColumn(7).width = 18
+	worksheet.getColumn(3).width = 16
+	worksheet.getColumn(4).width = 14
+	worksheet.getColumn(5).width = 14
+	worksheet.getColumn(6).width = 20
+	worksheet.getColumn(7).width = 20
 
 	headerRow.eachCell((cell) => {
 		cell.border = {
@@ -303,12 +303,12 @@ export async function SupplierDeedUpload(data: any, payload: UserDeedRetrieveReq
 	headerRow.alignment = { vertical: 'middle' }
 	headerRow.height = 24
 
-	worksheet.getColumn(1).width = 5
-	worksheet.getColumn(2).width = 20
-	worksheet.getColumn(3).width = 16
-	worksheet.getColumn(4).width = 10
-	worksheet.getColumn(5).width = 10
-	worksheet.getColumn(6).width = 20
+	worksheet.getColumn(1).width = 6
+	worksheet.getColumn(2).width = 22
+	worksheet.getColumn(3).width = 20
+	worksheet.getColumn(4).width = 14
+	worksheet.getColumn(5).width = 14
+	worksheet.getColumn(6).width = 22
 
 	headerRow.eachCell((cell) => {
 		cell.border = {
@@ -418,13 +418,13 @@ export async function SupplierDeedUploadWithProduct(data: any, payload: UserDeed
 	headerRow.alignment = { vertical: 'middle', horizontal: 'center' }
 	headerRow.height = 24
 
-	worksheet.getColumn(1).width = 5
-	worksheet.getColumn(2).width = 20
+	worksheet.getColumn(1).width = 6
+	worksheet.getColumn(2).width = 22
 	worksheet.getColumn(3).width = 16
-	worksheet.getColumn(4).width = 8
-	worksheet.getColumn(5).width = 12
-	worksheet.getColumn(6).width = 18
-	worksheet.getColumn(7).width = 18
+	worksheet.getColumn(4).width = 14
+	worksheet.getColumn(5).width = 14
+	worksheet.getColumn(6).width = 20
+	worksheet.getColumn(7).width = 20
 
 	headerRow.eachCell((cell) => {
 		cell.border = {
@@ -550,11 +550,11 @@ export async function ClientUpload(data: any, res: Response): Promise<void> {
 		headerRow.alignment = { vertical: 'middle', horizontal: 'center' }
 		headerRow.height = 24
 
-		worksheet.getColumn(1).width = 5
+		worksheet.getColumn(1).width = 6
 		worksheet.getColumn(2).width = 30
-		worksheet.getColumn(3).width = 14
-		worksheet.getColumn(4).width = 8
-		worksheet.getColumn(5).width = 16
+		worksheet.getColumn(3).width = 28
+		worksheet.getColumn(4).width = 14
+		worksheet.getColumn(5).width = 20
 
 		headerRow.eachCell((cell) => {
 			cell.border = {

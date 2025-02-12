@@ -214,16 +214,16 @@ export class PaymentService {
 		headerRow.height = 24
 		headerRow.alignment = { wrapText: true, vertical: 'middle', horizontal: 'center' }
 
-		worksheet.getColumn(1).width = 5
-		worksheet.getColumn(2).width = 20
-		worksheet.getColumn(3).width = 16
-		worksheet.getColumn(4).width = 12
-		worksheet.getColumn(5).width = 12
-		worksheet.getColumn(6).width = 12
-		worksheet.getColumn(6).width = 12
-		worksheet.getColumn(6).width = 12
+		worksheet.getColumn(1).width = 6
+		worksheet.getColumn(2).width = 22
+		worksheet.getColumn(3).width = 20
+		worksheet.getColumn(4).width = 16
+		worksheet.getColumn(5).width = 16
 		worksheet.getColumn(6).width = 16
 		worksheet.getColumn(6).width = 16
+		worksheet.getColumn(6).width = 16
+		worksheet.getColumn(6).width = 20
+		worksheet.getColumn(6).width = 20
 
 		headerRow.eachCell((cell) => {
 			cell.border = {

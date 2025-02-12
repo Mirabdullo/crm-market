@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { OrderCreateResponse, OrderRetriveAllResponse, OrderRetriveResponse, OrderStatisticsResponse, OrderTotalCalcResponse, WeeklyChartResponse } from '../interfaces'
+import { DebtResponse, OrderCreateResponse, OrderRetriveAllResponse, OrderRetriveResponse, OrderStatisticsResponse, OrderTotalCalcResponse, WeeklyChartResponse } from '../interfaces'
 import { UserRetrieveResponseDto, UserRetriveResponse } from '../../users'
 import { AdminResponse } from '../../admins'
 import { PaymentResponseDto, PaymentResponse } from '../../payment'
@@ -95,6 +95,15 @@ export class WeeklyChartResponseDto implements WeeklyChartResponse {
 	@ApiProperty({ type: Number })
 	sum: number
 }
+
+export class DebtResponseDto implements DebtResponse {
+	@ApiProperty({ type: Number })
+	client: number
+
+	@ApiProperty({ type: Number })
+	supplier: number
+}
+
 export class OrderStatisticsResponseDto implements OrderStatisticsResponse {
 	@ApiProperty({ type: Number })
 	todaySales: number
@@ -105,11 +114,11 @@ export class OrderStatisticsResponseDto implements OrderStatisticsResponse {
 	@ApiProperty({ type: Number })
 	monthlySales: number
 
-	@ApiProperty({ type: Number })
-	ourDebt: number
+	@ApiProperty({ type: DebtResponseDto })
+	ourDebt: DebtResponse
 
-	@ApiProperty({ type: Number })
-	fromDebt: number
+	@ApiProperty({ type: DebtResponseDto })
+	fromDebt: DebtResponse
 
 	@ApiProperty({ type: [WeeklyChartResponseDto] })
 	weeklyChart: WeeklyChartResponse[]

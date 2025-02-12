@@ -524,23 +524,35 @@ export class OrderService {
 			where: { sellingDate: { gte: startOfLastMonth, lte: endDate }, accepted: true },
 		})
 
-		const ourDebt = await this.#_prisma.users.aggregate({
+		const ourDebtClient = await this.#_prisma.users.aggregate({
 			_sum: { debt: true },
 			where: {
-				OR: [
-					{ debt: { lt: 0 }, type: 'client' },
-					{ debt: { lt: 0 }, type: 'supplier' },
-				],
+				debt: { lt: 0 },
+				type: 'client',
 			},
 		})
 
-		const fromDebt = await this.#_prisma.users.aggregate({
+		const ourDebtSupplier = await this.#_prisma.users.aggregate({
 			_sum: { debt: true },
 			where: {
-				OR: [
-					{ debt: { gt: 0 }, type: 'client' },
-					{ debt: { gt: 0 }, type: 'supplier' },
-				],
+				debt: { lt: 0 },
+				type: 'supplier',
+			},
+		})
+
+		const fromDebtClient = await this.#_prisma.users.aggregate({
+			_sum: { debt: true },
+			where: {
+				debt: { gt: 0 },
+				type: 'client',
+			},
+		})
+
+		const fromDebtSupplier = await this.#_prisma.users.aggregate({
+			_sum: { debt: true },
+			where: {
+				debt: { gt: 0 },
+				type: 'supplier',
 			},
 		})
 
@@ -568,8 +580,14 @@ export class OrderService {
 			todaySales: todaySales._sum.sum ? todaySales._sum.sum.toNumber() : 0,
 			weeklySales: weeklySales._sum.sum ? weeklySales._sum.sum.toNumber() : 0,
 			monthlySales: monthlySales._sum.sum ? monthlySales._sum.sum.toNumber() : 0,
-			ourDebt: ourDebt._sum.debt ? ourDebt._sum.debt.toNumber() : 0,
-			fromDebt: fromDebt._sum.debt ? fromDebt._sum.debt.toNumber() : 0,
+			ourDebt: {
+				client: ourDebtClient._sum.debt? ourDebtClient._sum.debt.toNumber() : 0,
+                supplier: ourDebtSupplier._sum.debt? ourDebtSupplier._sum.debt.toNumber() : 0,
+			},
+			fromDebt: {
+				client: fromDebtClient._sum.debt? fromDebtClient._sum.debt.toNumber() : 0,
+                supplier: fromDebtSupplier._sum.debt? fromDebtSupplier._sum.debt.toNumber() : 0,
+			},
 			weeklyChart: weeklyChartArray,
 		}
 	}
@@ -654,10 +672,10 @@ export class OrderService {
 		headerRow.height = 18
 
 		// 2. Har bir ustunning kengligini belgilash
-		worksheet.getColumn(1).width = 5 // № ustuni
+		worksheet.getColumn(1).width = 6 // № ustuni
 		worksheet.getColumn(2).width = 30 // Махсулот номи
-		worksheet.getColumn(3).width = 8 // √ ustuni
-		worksheet.getColumn(4).width = 10 // Сони
+		worksheet.getColumn(3).width = 10 // √ ustuni
+		worksheet.getColumn(4).width = 12 // Сони
 		worksheet.getColumn(5).width = 20 // Нархи
 		worksheet.getColumn(6).width = 15 // Суммаси
 
@@ -1003,11 +1021,11 @@ export class OrderService {
 
 	private adjustToTashkentTime(date?: string): Date {
 		// Agar `date` kiritilmagan bo'lsa, hozirgi vaqtni olamiz
-		const inputDate = date ? new Date(date) : new Date();
-	
+		const inputDate = date ? new Date(date) : new Date()
+
 		// Toshkent vaqti (UTC+5) ni hisoblaymiz
-		const tashkentTime = new Date(inputDate.getTime() + 5 * 60 * 60 * 1000);
-	
-		return tashkentTime;
+		const tashkentTime = new Date(inputDate.getTime() + 5 * 60 * 60 * 1000)
+
+		return tashkentTime
 	}
 }
