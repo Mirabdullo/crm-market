@@ -1002,8 +1002,13 @@ export class OrderService {
 	}
 
 	private adjustToTashkentTime(date?: string): Date {
-		const tashkentDate = new Date(date)
-		tashkentDate.setTime(tashkentDate.getTime() + 5 * 60 * 60 * 1000)
-		return tashkentDate
+		// Agar `date` kiritilmagan bo'lsa, hozirgi vaqtni olamiz
+		const tashkentDate = date ? new Date(date) : new Date();
+		
+		// UTC vaqtini olamiz va 5 soat qo'shamiz (Toshkent vaqti UTC+5)
+		const utcTime = tashkentDate.getTime() + tashkentDate.getTimezoneOffset() * 60000;
+		const tashkentTime = new Date(utcTime + 5 * 60 * 60 * 1000);
+		
+		return tashkentTime;
 	}
 }
