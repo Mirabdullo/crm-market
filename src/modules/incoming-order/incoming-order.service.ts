@@ -612,7 +612,7 @@ export class IncomingOrderService {
 
 				await prisma.incomingOrder.update({
 					where: { id },
-					data: { debt: { increment: sum } },
+					data: { debt: { decrement: sum } },
 				})
 
 				await prisma.users.update({
