@@ -268,7 +268,7 @@ export class PaymentService {
 		date = date.replaceAll(':', '')
 
 		payload.res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-		payload.res.setHeader('Content-Disposition', `attachment; filename=Все погошения-${date}.xlsx`)
+		payload.res.setHeader('Content-Disposition', `attachment; filename=incoming-order-${date}.xlsx`)
 
 		await workbook.xlsx.write(payload.res)
 		payload.res.end()

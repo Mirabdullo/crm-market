@@ -617,7 +617,7 @@ export class IncomingOrderService {
 
 				await prisma.users.update({
 					where: { id: incomingOrder.supplierId },
-					data: { debt: { increment: sum} },
+					data: { debt: { increment: sum } },
 				})
 			})
 		}
@@ -739,11 +739,14 @@ export class IncomingOrderService {
 				where: { id: payload.id },
 				data: { deletedAt: new Date() },
 			}),
-			this.#_prisma.payment.update({
+		)
+
+		if (incomingOrder.payment.length) {
+			await this.#_prisma.payment.update({
 				where: { id: incomingOrder.payment[0].id },
 				data: { deletedAt: new Date() },
-			}),
-		)
+			})
+		}
 
 		return null
 	}
