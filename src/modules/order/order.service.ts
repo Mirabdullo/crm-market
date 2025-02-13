@@ -513,7 +513,7 @@ export class OrderService {
 
 		const weeklySales = await this.#_prisma.order.aggregate({
 			_sum: { sum: true },
-			where: { sellingDate: { gte: weekStart, lte: endDate }, accepted: true },
+			where: { sellingDate: { gte: weekStart, lte: endDate }, accepted: true, deletedAt: null },
 		})
 
 		const lastMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1)
@@ -521,7 +521,7 @@ export class OrderService {
 
 		const monthlySales = await this.#_prisma.order.aggregate({
 			_sum: { sum: true },
-			where: { sellingDate: { gte: startOfLastMonth, lte: endDate }, accepted: true },
+			where: { sellingDate: { gte: startOfLastMonth, lte: endDate }, accepted: true, deletedAt: null },
 		})
 
 		const ourDebtClient = await this.#_prisma.users.aggregate({
@@ -529,6 +529,7 @@ export class OrderService {
 			where: {
 				debt: { lt: 0 },
 				type: 'client',
+				deletedAt: null,
 			},
 		})
 
@@ -537,6 +538,7 @@ export class OrderService {
 			where: {
 				debt: { lt: 0 },
 				type: 'supplier',
+				deletedAt: null
 			},
 		})
 
@@ -545,6 +547,7 @@ export class OrderService {
 			where: {
 				debt: { gt: 0 },
 				type: 'client',
+				deletedAt: null,
 			},
 		})
 
@@ -553,14 +556,13 @@ export class OrderService {
 			where: {
 				debt: { gt: 0 },
 				type: 'supplier',
+				deletedAt: null,
 			},
 		})
 
-		console.log(ourDebtClient, ourDebtSupplier, fromDebtClient, fromDebtSupplier)
-
 		const weeklyChart = await this.#_prisma.$queryRaw`SELECT DATE_TRUNC('day', "created_at") AS date,
 		  SUM("sum") AS totalSum FROM "order"
-		WHERE "selling_date" BETWEEN ${weekStart} AND ${endDate} AND "accepted" = true
+		WHERE "selling_date" BETWEEN ${weekStart} AND ${endDate} AND "accepted" = true AND "deleted_at" IS NULL
 		GROUP BY DATE_TRUNC('day', "created_at")
 		ORDER BY DATE_TRUNC('day', "created_at") ASC;
 	  `
