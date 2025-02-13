@@ -556,6 +556,8 @@ export class OrderService {
 			},
 		})
 
+		console.log(ourDebtClient, ourDebtSupplier, fromDebtClient, fromDebtSupplier)
+
 		const weeklyChart = await this.#_prisma.$queryRaw`SELECT DATE_TRUNC('day', "created_at") AS date,
 		  SUM("sum") AS totalSum FROM "order"
 		WHERE "selling_date" BETWEEN ${weekStart} AND ${endDate} AND "accepted" = true
@@ -581,12 +583,12 @@ export class OrderService {
 			weeklySales: weeklySales._sum.sum ? weeklySales._sum.sum.toNumber() : 0,
 			monthlySales: monthlySales._sum.sum ? monthlySales._sum.sum.toNumber() : 0,
 			ourDebt: {
-				client: ourDebtClient._sum.debt? ourDebtClient._sum.debt.toNumber() : 0,
-                supplier: ourDebtSupplier._sum.debt? ourDebtSupplier._sum.debt.toNumber() : 0,
+				client: ourDebtClient._sum.debt ? ourDebtClient._sum.debt.toNumber() : 0,
+				supplier: ourDebtSupplier._sum.debt ? ourDebtSupplier._sum.debt.toNumber() : 0,
 			},
 			fromDebt: {
-				client: fromDebtClient._sum.debt? fromDebtClient._sum.debt.toNumber() : 0,
-                supplier: fromDebtSupplier._sum.debt? fromDebtSupplier._sum.debt.toNumber() : 0,
+				client: fromDebtClient._sum.debt ? fromDebtClient._sum.debt.toNumber() : 0,
+				supplier: fromDebtSupplier._sum.debt ? fromDebtSupplier._sum.debt.toNumber() : 0,
 			},
 			weeklyChart: weeklyChartArray,
 		}
@@ -753,7 +755,7 @@ export class OrderService {
 
 			const totalSum = products.reduce((sum, product) => sum + product.price * product.count, 0)
 
-			const now = this.adjustToTashkentTime(sellingDate)
+			const now = this.adjustToTashkentTime()
 
 			const order = await this.#_prisma.order.create({
 				data: {
@@ -887,7 +889,7 @@ export class OrderService {
 					data: {
 						accepted,
 						clientId,
-						sellingDate: sellingDate ? this.adjustToTashkentTime(sellingDate) : undefined,
+						sellingDate: sellingDate,
 					},
 				})
 
@@ -1019,9 +1021,9 @@ export class OrderService {
 		return null
 	}
 
-	private adjustToTashkentTime(date?: string): Date {
+	private adjustToTashkentTime(): Date {
 		// Agar `date` kiritilmagan bo'lsa, hozirgi vaqtni olamiz
-		const inputDate = date ? new Date(date) : new Date()
+		const inputDate = new Date()
 
 		// Toshkent vaqti (UTC+5) ni hisoblaymiz
 		const tashkentTime = new Date(inputDate.getTime() + 5 * 60 * 60 * 1000)

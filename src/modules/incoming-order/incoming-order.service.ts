@@ -617,7 +617,7 @@ export class IncomingOrderService {
 
 				await prisma.users.update({
 					where: { id: incomingOrder.supplierId },
-					data: { debt: {} },
+					data: { debt: { increment: sum} },
 				})
 			})
 		}
