@@ -765,7 +765,7 @@ export class OrderService {
 					adminId: userId,
 					sum: totalSum,
 					debt: totalSum,
-					sellingDate: now,
+					sellingDate: sellingDate ? new Date(sellingDate) : now,
 				},
 			})
 
@@ -891,7 +891,7 @@ export class OrderService {
 					data: {
 						accepted,
 						clientId,
-						sellingDate: sellingDate,
+						sellingDate: new Date(sellingDate),
 					},
 				})
 
