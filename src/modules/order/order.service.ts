@@ -509,7 +509,7 @@ export class OrderService {
 
 		// Haftalik sotuvlar uchun
 		const week = new Date()
-		const weekStart = addHours(new Date(week.setDate(today.getDate() - 7)), 3)
+		const weekStart = addHours(new Date(week.setDate(today.getDate() - 6)), 3)
 
 		const weeklySales = await this.#_prisma.order.aggregate({
 			_sum: { sum: true },
