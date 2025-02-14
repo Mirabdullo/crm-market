@@ -538,7 +538,7 @@ export class OrderService {
 			where: {
 				debt: { lt: 0 },
 				type: 'supplier',
-				deletedAt: null
+				deletedAt: null,
 			},
 		})
 
@@ -987,7 +987,7 @@ export class OrderService {
 				...products,
 				this.#_prisma.users.update({
 					where: { id: order.clientId },
-					data: { debt: { decrement: order.sum.toNumber() } },
+					data: { debt: { decrement: order.sum.toNumber() - (order.payment.length ? order.payment[0].totalPay.toNumber() : 0) } },
 				}),
 			)
 
