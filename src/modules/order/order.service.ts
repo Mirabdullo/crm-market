@@ -886,12 +886,17 @@ export class OrderService {
 				}
 
 				// 4. Update order
+				let date = new Date(sellingDate)
+				let now = this.adjustToTashkentTime()
+				if (format(date, 'yyyy-MM-dd') === format(now, 'yyyy-MM-dd')) { 
+					date = new Date(format(date, 'yyyy-MM-dd'))
+				}
 				await tx.order.update({
 					where: { id },
 					data: {
 						accepted,
 						clientId,
-						sellingDate: new Date(sellingDate),
+						sellingDate: date,
 					},
 				})
 

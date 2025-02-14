@@ -596,7 +596,7 @@ export class IncomingOrderService {
 
 		if (format(incomingOrder.sellingDate, 'yyyy-MM-dd') === format(new Date(), 'yyyy-MM-dd')) {
 			await this.#_prisma.$transaction(async (prisma) => {
-				const sum = incomingOrder.incomingProducts.reduce((acc, product) => acc + product.cost.toNumber() * product.count, 0)
+				// const sum = incomingOrder.incomingProducts.reduce((acc, product) => acc + product.cost.toNumber() * product.count, 0)
 				const updateProducts = incomingOrder.incomingProducts.map((product) =>
 					prisma.products.update({
 						where: { id: product.productId },
@@ -612,12 +612,12 @@ export class IncomingOrderService {
 
 				await prisma.incomingOrder.update({
 					where: { id },
-					data: { debt: { decrement: sum } },
+					data: { accepted: true },
 				})
 
 				await prisma.users.update({
 					where: { id: incomingOrder.supplierId },
-					data: { debt: { increment: sum } },
+					data: { debt: { increment: incomingOrder.debt } },
 				})
 			})
 		}
