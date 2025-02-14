@@ -987,7 +987,7 @@ export class OrderService {
 				...products,
 				this.#_prisma.users.update({
 					where: { id: order.clientId },
-					data: { debt: { decrement: order.sum.toNumber() - order.debt.toNumber() } },
+					data: { debt: { decrement: order.sum.toNumber() } },
 				}),
 			)
 
