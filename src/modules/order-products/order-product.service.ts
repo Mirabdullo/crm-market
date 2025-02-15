@@ -261,7 +261,7 @@ export class OrderProductService {
 				}
 
 				// `product`ning `count` qiymatini yangilash (faqat order `accepted` bo'lsa)
-				if (countDifference !== 0 && orderProduct.order.accepted) {
+				if ((countDifference !== 0 || orderDifference !== 0) && orderProduct.order.accepted) {
 					await prisma.products.update({
 						where: { id: orderProduct.productId },
 						data: { count: { decrement: countDifference } },
