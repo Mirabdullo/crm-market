@@ -381,10 +381,9 @@ export class PaymentService {
 				})
 			}
 
-			const summa = sum - (order ? order.sum.toNumber() : 0)
 			await prisma.users.update({
 				where: { id: clientId },
-				data: { debt: { decrement: summa } },
+				data: { debt: { decrement: sum } },
 			})
 
 			return paymentData
