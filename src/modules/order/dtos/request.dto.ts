@@ -85,8 +85,8 @@ export class OrderCreateRequestDto implements OrderCreateRequest {
 
 	@ApiProperty({ type: String })
 	@IsString()
-	@IsNotEmpty()
-	sellingDate: string
+	@IsOptional()
+	sellingDate?: string
 
 	@ApiProperty({ type: [OrderProductRequestDto] })
 	@IsArray()

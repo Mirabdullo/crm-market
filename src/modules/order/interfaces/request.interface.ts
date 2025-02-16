@@ -4,7 +4,7 @@ import { OrderProductRequest } from '../../order-products'
 export interface OrderCreateRequest {
 	clientId: string
 	sum?: number
-	sellingDate: string
+	sellingDate?: string
 	accepted?: boolean
 	products: OrderProductRequest[]
 	userId: string
