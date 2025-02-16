@@ -892,10 +892,10 @@ export class OrderService {
 					if (format(date, 'yyyy-MM-dd') !== format(now, 'yyyy-MM-dd')) {
 						date = new Date(format(date, 'yyyy-MM-dd'))
 					} else {
-						date = date.toString().split('T')[0] + 'T' + now.toString().split('T')[1]
+						date = date.toISOString().split('T')[0] + 'T' + now.toISOString().split('T')[1]
 					}
 				}
-				
+
 				await tx.order.update({
 					where: { id },
 					data: {
