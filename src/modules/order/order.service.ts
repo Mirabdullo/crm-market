@@ -885,12 +885,17 @@ export class OrderService {
 					await Promise.all(updateOperations)
 				}
 
-				// 4. Update order
-				let date = new Date(sellingDate)
-				let now = this.adjustToTashkentTime()
-				if (format(date, 'yyyy-MM-dd') !== format(now, 'yyyy-MM-dd')) { 
-					date = new Date(format(date, 'yyyy-MM-dd'))
+				let date = undefined
+				if (sellingDate) {
+					date = new Date(sellingDate)
+					let now = this.adjustToTashkentTime()
+					if (format(date, 'yyyy-MM-dd') !== format(now, 'yyyy-MM-dd')) {
+						date = new Date(format(date, 'yyyy-MM-dd'))
+					} else {
+						date = date.toString().split('T')[0] + 'T' + now.toString().split('T')[1]
+					}
 				}
+				
 				await tx.order.update({
 					where: { id },
 					data: {
@@ -1028,9 +1033,9 @@ export class OrderService {
 		return null
 	}
 
-	private adjustToTashkentTime(): Date {
+	private adjustToTashkentTime(date?: string): Date {
 		// Agar `date` kiritilmagan bo'lsa, hozirgi vaqtni olamiz
-		const inputDate = new Date()
+		const inputDate = date ? new Date(date) : new Date()
 
 		// Toshkent vaqti (UTC+5) ni hisoblaymiz
 		const tashkentTime = new Date(inputDate.getTime() + 5 * 60 * 60 * 1000)
