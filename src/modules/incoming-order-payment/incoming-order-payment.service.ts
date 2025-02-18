@@ -50,6 +50,7 @@ export class IncomingOrderPaymentService {
 				other: true,
 				humo: true,
 				createdAt: true,
+				totalPay: true,
 				order: {
 					select: {
 						id: true,
@@ -71,6 +72,7 @@ export class IncomingOrderPaymentService {
 
 		const transformedIncomingOrderPaymentList = incomingOrderPaymentList.map((incomingOrderPayment) => ({
 			...incomingOrderPayment,
+			totalPay: (incomingOrderPayment.totalPay as Decimal).toNumber(),
 			cash: (incomingOrderPayment.cash as Decimal).toNumber(),
 			card: incomingOrderPayment.card ? (incomingOrderPayment.card as Decimal).toNumber() : undefined,
 			transfer: (incomingOrderPayment.transfer as Decimal).toNumber(),
@@ -82,12 +84,29 @@ export class IncomingOrderPaymentService {
 			where: { deletedAt: null },
 		})
 
+		const totalCalc = {
+			totalPay: 0,
+			totalCard: 0,
+			totalCash: 0,
+			totalTransfer: 0,
+			totalOther: 0,
+		}
+
+		transformedIncomingOrderPaymentList.forEach((payment) => {
+			totalCalc.totalPay += payment.totalPay
+			totalCalc.totalCard += payment.card
+			totalCalc.totalCash += payment.cash
+			totalCalc.totalTransfer += payment.transfer
+			totalCalc.totalOther += payment.other
+		})
+
 		return {
 			totalCount: totalCount,
 			pageNumber: payload.pageNumber,
 			pageSize: payload.pageSize,
 			pageCount: Math.ceil(totalCount / payload.pageSize),
 			data: transformedIncomingOrderPaymentList,
+			totalCalc: totalCalc,
 		}
 	}
 

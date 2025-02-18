@@ -94,6 +94,7 @@ export class IncomingOrderService {
 						id: true,
 						name: true,
 						phone: true,
+						debt: true,
 						createdAt: true,
 					},
 				},
@@ -741,7 +742,7 @@ export class IncomingOrderService {
 			)
 
 		}
-		
+
 		if (incomingOrder.payment.length) {
 			await this.#_prisma.payment.update({
 				where: { id: incomingOrder.payment[0].id },

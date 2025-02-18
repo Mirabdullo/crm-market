@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger'
 import {
+	IPaymentTotalCalcResponse,
 	IncomingOrderPaymentClient,
 	IncomingOrderPaymentOrder,
 	IncomingOrderPaymentResponse,
@@ -27,6 +28,23 @@ export class IncomingOrderPaymentClientDto implements IncomingOrderPaymentClient
 
 	@ApiProperty({ type: String })
 	phone: string
+}
+
+export class IPaymentTotalCalcResponseDto implements IPaymentTotalCalcResponse {
+	@ApiProperty({ type: Number })
+	totalPay: number
+
+	@ApiProperty({ type: Number })
+	totalCard: number
+
+	@ApiProperty({ type: Number })
+	totalCash: number
+
+	@ApiProperty({ type: Number })
+	totalTransfer: number
+
+	@ApiProperty({ type: Number })
+	totalOther: number
 }
 
 export class IncomingOrderPaymentRetrieveResponseDto implements IncomingOrderPaymentRetriveResponse {
@@ -93,6 +111,9 @@ export class IncomingOrderPaymentRetrieveAllResponseDto implements IncomingOrder
 
 	@ApiProperty({ type: Number })
 	totalCount: number
+
+	@ApiProperty({ type: IPaymentTotalCalcResponseDto })
+	totalCalc: IPaymentTotalCalcResponse
 
 	@ApiProperty({ type: [IncomingOrderPaymentRetrieveResponseDto] })
 	data: IncomingOrderPaymentRetriveResponse[]
