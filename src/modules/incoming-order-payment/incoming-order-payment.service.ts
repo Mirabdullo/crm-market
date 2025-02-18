@@ -310,7 +310,7 @@ export class IncomingOrderPaymentService {
 	}
 
 	async incomingOrderPaymentCreate(payload: IncomingOrderPaymentCreateRequest): Promise<null> {
-		const { orderId, supplierId, cash, transfer, card, other } = payload
+		const { orderId, supplierId, cash, transfer, card, other, description } = payload
 		const order = orderId
 			? await this.#_prisma.incomingOrder.findFirst({
 					where: { id: orderId },
@@ -336,6 +336,7 @@ export class IncomingOrderPaymentService {
 					transfer: transfer || 0,
 					card: card || 0,
 					other: other || 0,
+					description,
 				},
 				include: { order: true, supplier: true },
 			})
@@ -433,6 +434,7 @@ export class IncomingOrderPaymentService {
 					transfer: transfer || 0,
 					card: card || 0,
 					other: other || 0,
+					description,
 				},
 			}),
 		)

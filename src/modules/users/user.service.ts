@@ -364,8 +364,7 @@ export class UserService {
 		if (startDate || endDate) {
 			const sDate = new Date(format(startDate, 'yyyy-MM-dd'))
 			const eDate = addHours(new Date(endOfDay(endDate)), 3)
-			console.log(startDate, endDate)
-			console.log(sDate, eDate)
+
 			dateOption = {
 				createdAt: {
 					gte: sDate,

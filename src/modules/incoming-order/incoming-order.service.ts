@@ -721,33 +721,34 @@ export class IncomingOrderService {
 				}),
 				this.#_prisma.users.update({
 					where: { id: incomingOrder.supplierId },
-					data: { debt: { increment: incomingOrder.sum } },
+					data: { debt: { decrement: incomingOrder.sum } },
 				}),
 				this.#_prisma.incomingOrder.update({
 					where: { id: incomingOrder.id },
 					data: { deletedAt: new Date() },
 				}),
 			)
+		} else {
+			promises.push(
+				this.#_prisma.incomingProducts.updateMany({
+					where: { id: { in: iProductIds } },
+					data: { deletedAt: new Date() },
+				}),
+				this.#_prisma.incomingOrder.update({
+					where: { id: payload.id },
+					data: { deletedAt: new Date() },
+				}),
+			)
+
 		}
-
-		promises.push(
-			this.#_prisma.incomingProducts.updateMany({
-				where: { id: { in: iProductIds } },
-				data: { deletedAt: new Date() },
-			}),
-			this.#_prisma.incomingOrder.update({
-				where: { id: payload.id },
-				data: { deletedAt: new Date() },
-			}),
-		)
-
+		
 		if (incomingOrder.payment.length) {
 			await this.#_prisma.payment.update({
 				where: { id: incomingOrder.payment[0].id },
 				data: { deletedAt: new Date() },
 			})
 		}
-
+			
 		return null
 	}
 }
