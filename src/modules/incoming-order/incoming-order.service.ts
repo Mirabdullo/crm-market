@@ -753,9 +753,9 @@ export class IncomingOrderService {
 				}),
 			)
 		}
-		console.log(incomingOrder.payment)
+		
 		if (incomingOrder.payment.length) {
-			await this.#_prisma.payment.update({
+			await this.#_prisma.incomingOrderPayment.update({
 				where: { id: incomingOrder.payment[0].id },
 				data: { deletedAt: new Date() },
 			})
