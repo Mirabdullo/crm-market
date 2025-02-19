@@ -128,7 +128,7 @@ export class IncomingProductService {
 			}),
 		])
 		if (!product || !order) throw new NotFoundException('Maxsulot topilmadi')
-		console.log(payload)
+
 		await this.#_prisma.incomingProducts.create({
 			data: {
 				incomingOrderId: payload.incomingOrderId,
@@ -164,8 +164,8 @@ export class IncomingProductService {
 				data: { debt: { increment: payload.cost * payload.count } },
 			})
 
-			const text = `📦 добавлен новый продукт\n💰 сумма: ${order.sum}\n💳 долг: ${order.debt}\n👨‍💼 клиент: ${order.supplier.name}\n\nпродукт: ${product.name}\n💲 цена: ${payload.cost}\n#️⃣ кол-ва: ${payload.count}`
-			await this.#_telegram.sendMessage(parseInt(process.env.ORDER_CHANEL_ID), text)
+			// const text = `📦 добавлен новый продукт\n💰 сумма: ${order.sum}\n💳 долг: ${order.debt}\n👨‍💼 клиент: ${order.supplier.name}\n\nпродукт: ${product.name}\n💲 цена: ${payload.cost}\n#️⃣ кол-ва: ${payload.count}`
+			// await this.#_telegram.sendMessage(parseInt(process.env.ORDER_CHANEL_ID), text)
 		}
 
 		return null
@@ -197,7 +197,7 @@ export class IncomingProductService {
 			},
 		})
 
-		if (format(incomingProduct.incomingOrder.sellingDate, 'yyyy-MM-dd') <= format(new Date(), 'yyyy-MM-dd')) {
+		if (incomingProduct.incomingOrder.accepted) {
 			await this.#_prisma.users.update({
 				where: { id: incomingProduct.incomingOrder.supplierId },
 				data: { debt: { decrement: productSum - payload.cost * payload.count } },

@@ -576,6 +576,11 @@ export class IncomingOrderService {
 						accepted: true,
 					},
 				})
+
+				await this.#_prisma.users.update({
+					where: { id: order.supplier.id },
+					data: { debt: { increment: order.debt } },
+				})
 			}
 
 			return {
@@ -686,16 +691,16 @@ export class IncomingOrderService {
 		try {
 			await Promise.all(transactions)
 
-			if (incomingOrders.length) {
-				incomingOrders.forEach(async (order) => {
-					let text = `📦 новые продукты\n\n💰 сумма: ${order.sum}\n\n💳 долг: ${order.debt}\n\n👨‍💼 клиент: ${order.supplier.name}\n\n`
-					order.incomingProducts.forEach((product) => {
-						text += `📦 продукт: ${product.product.name}\n💲 цена: ${product.cost}\n#️⃣ кол-ва: ${product.count}\n\n`
-					})
+			// if (incomingOrders.length) {
+			// 	incomingOrders.forEach(async (order) => {
+			// 		let text = `📦 новые продукты\n\n💰 сумма: ${order.sum}\n\n💳 долг: ${order.debt}\n\n👨‍💼 клиент: ${order.supplier.name}\n\n`
+			// 		order.incomingProducts.forEach((product) => {
+			// 			text += `📦 продукт: ${product.product.name}\n💲 цена: ${product.cost}\n#️⃣ кол-ва: ${product.count}\n\n`
+			// 		})
 
-					await this.#_telegram.sendMessage(parseInt(process.env.ORDER_CHANEL_ID), text)
-				})
-			}
+			// 		await this.#_telegram.sendMessage(parseInt(process.env.ORDER_CHANEL_ID), text)
+			// 	})
+			// }
 
 			console.log('Cron job executed successfully', new Date())
 		} catch (error) {

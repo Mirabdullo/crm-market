@@ -360,17 +360,17 @@ export class IncomingOrderPaymentService {
 				include: { order: true, supplier: true },
 			})
 
-			try {
-				const message = `${order ? 'тип: для новых продуктов\n' : 'тип: для поставщика\n'}👨‍💼 Поставщик: ${payment.supplier.name}\n💰 Сумма: ${
-					payment.totalPay
-				}\n\n💵 наличными: ${payment.cash}\n💳 карты: ${payment.card}\n💸 перечислением: ${payment.transfer}\n♻️ други: ${payment.other}\n🕐 Дата: ${format(
-					new Date(),
-					'yyyy-MM-dd HH:mm',
-				)}\n📔 Инфо: ${payment.description}\n📍 id: #${payment.id}`
-				await this.#_telegram.sendMessage(parseInt(process.env.PAYMENT_CHANEL_ID), message)
-			} catch (error) {
-				console.log(error)
-			}
+			// try {
+			// 	const message = `${order ? 'тип: для новых продуктов\n' : 'тип: для поставщика\n'}👨‍💼 Поставщик: ${payment.supplier.name}\n💰 Сумма: ${
+			// 		payment.totalPay
+			// 	}\n\n💵 наличными: ${payment.cash}\n💳 карты: ${payment.card}\n💸 перечислением: ${payment.transfer}\n♻️ други: ${payment.other}\n🕐 Дата: ${format(
+			// 		new Date(),
+			// 		'yyyy-MM-dd HH:mm',
+			// 	)}\n📔 Инфо: ${payment.description}\n📍 id: #${payment.id}`
+			// 	await this.#_telegram.sendMessage(parseInt(process.env.PAYMENT_CHANEL_ID), message)
+			// } catch (error) {
+			// 	console.log(error)
+			// }
 		}
 
 		const promises = []
@@ -493,16 +493,16 @@ export class IncomingOrderPaymentService {
 			)
 		}
 
-		try {
-			const message = `обновлено\n\n${order ? 'тип: для новых продуктов\n' : 'тип: для поставщика\n'}👨‍💼 Поставщик: ${
-				payment.supplier.name
-			}\n💰 Сумма: ${newSum}\n\nналичными: ${cash || payment.cash}\n💳 карты: ${card || payment.card}\n💸 перечислением: ${transfer || payment.transfer}\n♻️ други: ${
-				other || payment.other
-			}\n🕐 Дата: ${format(new Date(), 'yyyy-MM-dd HH:mm')}\n📔 Инфо: ${description || payment.description}\n📍 id: #${payment.id}`
-			await this.#_telegram.sendMessage(parseInt(process.env.PAYMENT_CHANEL_ID), message)
-		} catch (error) {
-			console.log(error)
-		}
+		// try {
+		// 	const message = `обновлено\n\n${order ? 'тип: для новых продуктов\n' : 'тип: для поставщика\n'}👨‍💼 Поставщик: ${
+		// 		payment.supplier.name
+		// 	}\n💰 Сумма: ${newSum}\n\nналичными: ${cash || payment.cash}\n💳 карты: ${card || payment.card}\n💸 перечислением: ${transfer || payment.transfer}\n♻️ други: ${
+		// 		other || payment.other
+		// 	}\n🕐 Дата: ${format(new Date(), 'yyyy-MM-dd HH:mm')}\n📔 Инфо: ${description || payment.description}\n📍 id: #${payment.id}`
+		// 	await this.#_telegram.sendMessage(parseInt(process.env.PAYMENT_CHANEL_ID), message)
+		// } catch (error) {
+		// 	console.log(error)
+		// }
 
 		await Promise.all(promises)
 		return null
@@ -573,17 +573,17 @@ export class IncomingOrderPaymentService {
 
 		await Promise.all(promises)
 
-		try {
-			const message = `🗑 удалено\n\n${order ? 'тип: новых продуктов\n' : 'тип: поставщика\n'}Поставщик: ${payment.supplier.name}\n💰 Сумма: ${
-				payment.totalPay
-			}\n\nналичными: ${payment.cash}\nкарты: ${payment.card}\nперечислением: ${payment.transfer}\nдруги: ${payment.other}\nДата: ${format(
-				new Date(),
-				'yyyy-MM-dd HH:mm',
-			)}\nИнфо: ${payment.description}\nid: #${payment.id}`
-			await this.#_telegram.sendMessage(parseInt(process.env.PAYMENT_CHANEL_ID), message)
-		} catch (error) {
-			console.log(error)
-		}
+		// try {
+		// 	const message = `🗑 удалено\n\n${order ? 'тип: новых продуктов\n' : 'тип: поставщика\n'}Поставщик: ${payment.supplier.name}\n💰 Сумма: ${
+		// 		payment.totalPay
+		// 	}\n\nналичными: ${payment.cash}\nкарты: ${payment.card}\nперечислением: ${payment.transfer}\nдруги: ${payment.other}\nДата: ${format(
+		// 		new Date(),
+		// 		'yyyy-MM-dd HH:mm',
+		// 	)}\nИнфо: ${payment.description}\nid: #${payment.id}`
+		// 	await this.#_telegram.sendMessage(parseInt(process.env.PAYMENT_CHANEL_ID), message)
+		// } catch (error) {
+		// 	console.log(error)
+		// }
 		return null
 	}
 }
