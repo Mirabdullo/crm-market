@@ -448,11 +448,10 @@ export class UserService {
 			return new Date(dateA).getTime() - new Date(dateB).getTime()
 		})
 
-		const totalDebt = user?.incomingOrder?.reduce((sum, order) => sum + order.debt.toNumber(), 0)
+		const totalDebt = user?.incomingOrder?.reduce((sum, order) => sum + order.sum.toNumber(), 0)
 		let totalCredit = user?.incomingOrderPayment?.reduce((sum, payment) => sum + payment.totalPay.toNumber(), 0)
 		totalCredit += user.refundIncoming?.reduce((sum, item) => sum + item.sum.toNumber(), 0)
 
-		console.log('totalDebt: ', totalDebt, totalCredit)
 		return {
 			id: id,
 			name: user.name,
