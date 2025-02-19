@@ -569,6 +569,13 @@ export class IncomingOrderService {
 
 					await Promise.all(updateProducts)
 				}
+
+				await this.#_prisma.incomingOrder.update({
+					where: { id: order.id },
+					data: {
+						accepted: true,
+					},
+				})
 			}
 
 			return {
@@ -595,7 +602,7 @@ export class IncomingOrderService {
 			throw new NotFoundException("Ma'lumot topilmadi") // Throw error for missing order
 		}
 
-		if (format(incomingOrder.sellingDate, 'yyyy-MM-dd') === format(new Date(), 'yyyy-MM-dd')) {
+		if ((format(incomingOrder.sellingDate, 'yyyy-MM-dd') === format(new Date(), 'yyyy-MM-dd')) && !incomingOrder.accepted) {
 			await this.#_prisma.$transaction(async (prisma) => {
 				// const sum = incomingOrder.incomingProducts.reduce((acc, product) => acc + product.cost.toNumber() * product.count, 0)
 				const updateProducts = incomingOrder.incomingProducts.map((product) =>
@@ -603,7 +610,7 @@ export class IncomingOrderService {
 						where: { id: product.productId },
 						data: {
 							cost: product.cost,
-							count: product.count,
+							count: { increment: product.count},
 							selling_price: product.selling_price ?? 0,
 							wholesale_price: product.wholesale_price ?? 0,
 						},
@@ -740,7 +747,6 @@ export class IncomingOrderService {
 					data: { deletedAt: new Date() },
 				}),
 			)
-
 		}
 
 		if (incomingOrder.payment.length) {
@@ -749,7 +755,7 @@ export class IncomingOrderService {
 				data: { deletedAt: new Date() },
 			})
 		}
-			
+
 		return null
 	}
 }
