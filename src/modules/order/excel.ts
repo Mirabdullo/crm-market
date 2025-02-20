@@ -105,19 +105,18 @@ export async function ReedExcelFile() {
 	return newData
 }
 
-export async function 	ReedExcelFile2() {
+export async function ReedExcelFile2() {
 	const workbook = new ExcelJS.Workbook()
 	const filename = path.resolve('users.xlsx')
 	console.log('Reading file:', filename)
 
 	const newData: any = []
+
 	try {
 		// Check if file exists
 		if (!fs.existsSync(filename)) {
 			throw new Error(`File not found: ${filename}`)
 		}
-
-		console.log('Reading file:', filename)
 
 		// Read the file
 		await workbook.xlsx.readFile(filename)
@@ -131,8 +130,10 @@ export async function 	ReedExcelFile2() {
 
 		// Process each row
 		worksheet.eachRow((row, rowNumber) => {
-			// Skip header rows (first 3 rows)
 			try {
+				// Skip header rows (first 3 rows)
+				if (rowNumber <= 3) return
+
 				const productData = {
 					name: (row.getCell(2).value?.toString() || '').toUpperCase(),
 					debt: Number(row.getCell(3).value) || 0,
@@ -152,10 +153,9 @@ export async function 	ReedExcelFile2() {
 			}
 		})
 
-		console.log(newData.length)
 		return newData
 	} catch (error) {
-		console.error('Error reading Excel file:', error)
-		throw new Error(`Failed to read Excel file: ${error.message}`)
+		console.error('Failed to read Excel file:', error)
+		throw new Error('Failed to read Excel file: ' + error.message)
 	}
 }
