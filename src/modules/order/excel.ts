@@ -127,7 +127,7 @@ export async function ReedExcelFile2() {
 		if (!worksheet) {
 			throw new Error('Worksheet not found')
 		}
-
+		console.log('sheet: ', worksheet);
 		// Process each row
 		worksheet.eachRow((row, rowNumber) => {
 			try {
