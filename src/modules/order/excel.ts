@@ -117,17 +117,17 @@ export async function ReedExcelFile2() {
 		if (!fs.existsSync(filename)) {
 			throw new Error(`File not found: ${filename}`)
 		}
-
+		console.log(1)
 		// Read the file
 		await workbook.xlsx.readFile(filename)
-
+		console.log(2)
 		// Get the first worksheet
 		const worksheet = workbook.getWorksheet(1)
-
+		console.log(3)
 		if (!worksheet) {
 			throw new Error('Worksheet not found')
 		}
-		console.log('sheet: ', worksheet);
+		console.log('sheet: ', worksheet)
 		// Process each row
 		worksheet.eachRow((row, rowNumber) => {
 			try {
