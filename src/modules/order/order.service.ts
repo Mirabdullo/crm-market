@@ -896,6 +896,10 @@ export class OrderService {
 					}
 				}
 
+				if (accepted) {
+					date = this.adjustToTashkentTime()
+				}
+
 				await tx.order.update({
 					where: { id },
 					data: {

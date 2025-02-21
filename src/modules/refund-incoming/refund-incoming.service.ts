@@ -215,8 +215,6 @@ export class RefundIncomingService {
 					supplierId: supplierId,
 					adminId: userId,
 					sum: totalSum,
-					createdAt: now,
-					updatedAt: now,
 				},
 			})
 

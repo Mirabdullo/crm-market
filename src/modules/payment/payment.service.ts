@@ -381,10 +381,19 @@ export class PaymentService {
 				})
 			}
 
-			await prisma.users.update({
-				where: { id: clientId },
-				data: { debt: { decrement: sum } },
-			})
+			if (order && order.accepted) {
+				await prisma.users.update({		
+					where: { id: clientId },
+					data: { debt: { decrement: sum } },
+				})
+			} else {
+				await prisma.users.update({
+					where: { id: clientId },
+					data: { debt: { increment: order.sum.toNumber() - sum } },
+				})
+			}
+
+
 
 			return paymentData
 		})

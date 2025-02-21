@@ -264,6 +264,13 @@ export class ReturnedOrderService {
 
 			await this.#_prisma.returnedProduct.createMany({ data: returnedOrderProductsData })
 
+			if (accepted) {
+				await this.#_prisma.users.update({
+					where: { id: clientId },
+					data: { debt: { decrement: totalSum } },
+				})
+			}
+
 			return {
 				id: returnedOrder.id,
 			}
