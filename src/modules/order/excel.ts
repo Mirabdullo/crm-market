@@ -77,9 +77,9 @@ export async function OrderUpload(data: OrderRetriveAllResponse['data'], res: Re
 
 export async function ReedExcelFile() {
 	const workbook = new ExcelJS.Workbook()
-	const filename = path.resolve('products.xlsx')
+	const filename = path.resolve('new-products.xlsx')
 	console.log('Reading file:', filename)
-
+	
 	const newData: any[] = []
 
 	// Faylni o'qish
@@ -107,7 +107,7 @@ export async function ReedExcelFile() {
 
 export async function ReedExcelFile2() {
 	const workbook = new ExcelJS.Workbook()
-	const filename = path.resolve('users copy.xlsx')
+	const filename = path.resolve('new-users copy.xlsx')
 	console.log('Reading file:', filename)
 	
 	const newData: any = []

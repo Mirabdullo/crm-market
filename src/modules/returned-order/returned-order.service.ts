@@ -230,7 +230,7 @@ export class ReturnedOrderService {
 
 	async ReturnedOrderCreate(payload: ReturnedOrderCreateRequest): Promise<ReturnedOrderCreateResponse> {
 		try {
-			const { clientId, userId, products, accepted, description, returnedDate } = payload
+			const { clientId, userId, products, description, returnedDate } = payload
 
 			// Mijozni tekshirish
 			const user = await this.#_prisma.users.findFirst({
@@ -248,8 +248,6 @@ export class ReturnedOrderService {
 					adminId: userId,
 					sum: totalSum,
 					description,
-					createdAt: now,
-					updatedAt: now,
 					returnedDate: now,
 				},
 			})
@@ -263,13 +261,6 @@ export class ReturnedOrderService {
 			}))
 
 			await this.#_prisma.returnedProduct.createMany({ data: returnedOrderProductsData })
-
-			if (accepted) {
-				await this.#_prisma.users.update({
-					where: { id: clientId },
-					data: { debt: { decrement: totalSum } },
-				})
-			}
 
 			return {
 				id: returnedOrder.id,
@@ -314,7 +305,7 @@ export class ReturnedOrderService {
 
 			const now = returnedDate ? this.adjustToTashkentTime(returnedDate) : undefined
 
-			if (accepted) {
+			if (accepted && !returnedOrder.accepted) {
 				const updatedProducts = returnedOrder.products.map((pr) =>
 					this.#_prisma.products.update({
 						where: { id: pr.productId },
@@ -326,7 +317,7 @@ export class ReturnedOrderService {
 					...updatedProducts,
 					this.#_prisma.users.update({
 						where: { id: returnedOrder.clientId },
-						data: { debt: { decrement: returnedOrder.fromClient } },
+						data: { debt: { increment: returnedOrder.fromClient } },
 					}),
 					this.#_prisma.returnedOrder.update({
 						where: { id },
@@ -407,7 +398,7 @@ export class ReturnedOrderService {
 				...products,
 				this.#_prisma.users.update({
 					where: { id: returnedOrder.clientId },
-					data: { debt: { increment: returnedOrder.fromClient } },
+					data: { debt: { decrement: returnedOrder.fromClient } },
 				}),
 			)
 		}
