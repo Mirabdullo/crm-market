@@ -941,6 +941,7 @@ export class OrderService {
 			// Send to user if requested and chat ID exists
 			if (sendUser && order.client.chatId) {
 				await this.#_telegram.sendMessage(Number(order.client.chatId), text)
+				await this.#_telegram.sendDocument(parseInt(order.client.chatId), Buffer.from(pdfBuffer), 'order-details.pdf')
 			}
 		} catch (error) {
 			console.error('Notification error:', error)
