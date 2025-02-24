@@ -741,7 +741,7 @@ export class IncomingOrderService {
 				}),
 				this.#_prisma.users.update({
 					where: { id: incomingOrder.supplierId },
-					data: { debt: { decrement: incomingOrder.sum } },
+					data: { debt: { decrement: incomingOrder.sum.toNumber() - (incomingOrder.payment.length ? incomingOrder.payment[0].totalPay.toNumber() : 0) } },
 				}),
 			)
 		} else {
