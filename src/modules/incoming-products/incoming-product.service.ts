@@ -149,6 +149,8 @@ export class IncomingProductService {
 		})
 
 		if (order.accepted) {
+			const now = this.adjustToTashkentTime()
+
 			await this.#_prisma.products.update({
 				where: { id: payload.product_id },
 				data: {
@@ -156,6 +158,7 @@ export class IncomingProductService {
 					cost: payload.cost,
 					selling_price: payload.selling_price,
 					wholesale_price: payload.wholesale_price,
+					createdAt: now,
 				},
 			})
 
@@ -253,5 +256,15 @@ export class IncomingProductService {
 		})
 
 		return null
+	}
+
+	private adjustToTashkentTime(date?: string): Date {
+		// Agar `date` kiritilmagan bo'lsa, hozirgi vaqtni olamiz
+		const inputDate = date ? new Date(date) : new Date()
+
+		// Toshkent vaqti (UTC+5) ni hisoblaymiz
+		const tashkentTime = new Date(inputDate.getTime() + 5 * 60 * 60 * 1000)
+
+		return tashkentTime
 	}
 }

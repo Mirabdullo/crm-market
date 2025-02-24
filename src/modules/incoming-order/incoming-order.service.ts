@@ -553,6 +553,8 @@ export class IncomingOrderService {
 				data: mappedProducts,
 			})
 
+			const now = this.adjustToTashkentTime()
+
 			if (format(sellingDate, 'yyyy-MM-dd') === format(new Date(), 'yyyy-MM-dd')) {
 				if (mappedProducts.length) {
 					const updateProducts = mappedProducts.map((product) =>
@@ -563,6 +565,7 @@ export class IncomingOrderService {
 								count: { increment: product.count },
 								...(product.selling_price && { selling_price: product.selling_price }),
 								...(product.wholesale_price && { wholesale_price: product.wholesale_price }),
+								createdAt: now,
 							},
 						}),
 					)
@@ -607,6 +610,7 @@ export class IncomingOrderService {
 			throw new NotFoundException("Ma'lumot topilmadi") // Throw error for missing order
 		}
 
+		const now = this.adjustToTashkentTime()
 		if (format(incomingOrder.sellingDate, 'yyyy-MM-dd') === format(new Date(), 'yyyy-MM-dd') && !incomingOrder.accepted) {
 			await this.#_prisma.$transaction(async (prisma) => {
 				// const sum = incomingOrder.incomingProducts.reduce((acc, product) => acc + product.cost.toNumber() * product.count, 0)
@@ -618,6 +622,7 @@ export class IncomingOrderService {
 							count: { increment: product.count },
 							selling_price: product.selling_price ?? 0,
 							wholesale_price: product.wholesale_price ?? 0,
+							createdAt: now,
 						},
 					}),
 				)
@@ -660,6 +665,7 @@ export class IncomingOrderService {
 			return
 		}
 
+		const now = this.adjustToTashkentTime()
 		const transactions = incomingOrders.map((order) => {
 			const productUpdates = order.incomingProducts.map((product) =>
 				this.#_prisma.products.update({
@@ -669,6 +675,7 @@ export class IncomingOrderService {
 						count: { increment: product.count },
 						...(product.selling_price && { selling_price: product.selling_price }),
 						...(product.wholesale_price && { wholesale_price: product.wholesale_price }),
+						createdAt: now,
 					},
 				}),
 			)
@@ -736,10 +743,6 @@ export class IncomingOrderService {
 					where: { id: incomingOrder.supplierId },
 					data: { debt: { decrement: incomingOrder.sum } },
 				}),
-				this.#_prisma.incomingOrder.update({
-					where: { id: incomingOrder.id },
-					data: { deletedAt: new Date() },
-				}),
 			)
 		} else {
 			promises.push(
@@ -747,20 +750,36 @@ export class IncomingOrderService {
 					where: { id: { in: iProductIds } },
 					data: { deletedAt: new Date() },
 				}),
-				this.#_prisma.incomingOrder.update({
-					where: { id: payload.id },
+			)
+		}
+
+		if (incomingOrder.payment.length) {
+			promises.push(
+				this.#_prisma.incomingOrderPayment.update({
+					where: { id: incomingOrder.payment[0].id },
 					data: { deletedAt: new Date() },
 				}),
 			)
 		}
-		
-		if (incomingOrder.payment.length) {
-			await this.#_prisma.incomingOrderPayment.update({
-				where: { id: incomingOrder.payment[0].id },
+
+		await Promise.all([
+			...promises,
+			this.#_prisma.incomingOrder.update({
+				where: { id: incomingOrder.id },
 				data: { deletedAt: new Date() },
-			})
-		}
+			}),
+		])
 
 		return null
+	}
+
+	private adjustToTashkentTime(date?: string): Date {
+		// Agar `date` kiritilmagan bo'lsa, hozirgi vaqtni olamiz
+		const inputDate = date ? new Date(date) : new Date()
+
+		// Toshkent vaqti (UTC+5) ni hisoblaymiz
+		const tashkentTime = new Date(inputDate.getTime() + 5 * 60 * 60 * 1000)
+
+		return tashkentTime
 	}
 }
