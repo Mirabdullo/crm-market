@@ -79,7 +79,7 @@ export async function ReedExcelFile() {
 	const workbook = new ExcelJS.Workbook()
 	const filename = path.resolve('Товары.xlsx')
 	console.log('Reading file:', filename)
-	
+
 	const newData: any[] = []
 
 	// Faylni o'qish
@@ -107,9 +107,9 @@ export async function ReedExcelFile() {
 
 export async function ReedExcelFile2() {
 	const workbook = new ExcelJS.Workbook()
-	const filename = path.resolve('users.xlsx')
+	const filename = path.resolve('состояние клиентов в момент 25022025 081026.xlsx')
 	console.log('Reading file:', filename)
-	
+
 	const newData: any = []
 
 	try {
