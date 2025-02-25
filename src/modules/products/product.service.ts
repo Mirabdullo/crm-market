@@ -165,10 +165,10 @@ export class ProductService {
 			},
 		})
 
-		// const data = await ReedExcelFile()
-		// await this.#_prisma.products.createMany({
-		// 	data,
-		// })
+		const data = await ReedExcelFile()
+		await this.#_prisma.products.createMany({
+			data,
+		})
 
 		return null
 	}
