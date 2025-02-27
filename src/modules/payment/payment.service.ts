@@ -494,7 +494,7 @@ export class PaymentService {
 
 		await this.#_prisma.users.update({
 			where: { id: payment.clientId },
-			data: { debt: { decrement: payment.totalPay } },
+			data: { debt: { increment: payment.totalPay } },
 		})
 
 		if (payment.order) {
