@@ -662,9 +662,20 @@ export class OrderService {
 		const worksheet = workbook.addWorksheet('Order List')
 
 		// Xaridor nomi uchun titleRow
-		const titleRow = worksheet.addRow([`Xaridor: ${order.client.name}`, `Telefon: ${order.client.phone}`])
-		worksheet.mergeCells('A1:C1') // Xaridor nomi uchun A1:C1 birlashtirish
-		worksheet.mergeCells('D1:F1') // Telefon raqami uchun D1:F1 birlashtirish
+		const titleRow = worksheet.addRow([
+			`Xaridor: ${order.client.name}`, // A1
+			'', // B1 (bo'sh, chunki A1:C1 birlashtiriladi)
+			'', // C1 (bo'sh, chunki A1:C1 birlashtiriladi)
+			`Telefon: ${order.client.phone}`, // D1
+			'', // E1 (bo'sh, chunki D1:F1 birlashtiriladi)
+			'', // F1 (bo'sh, chunki D1:F1 birlashtiriladi)
+		]);
+		
+		// Xaridor nomi uchun A1:C1 birlashtirish
+		worksheet.mergeCells('A1:C1');
+		
+		// Telefon raqami uchun D1:F1 birlashtirish
+		worksheet.mergeCells('D1:F1');
 
 		titleRow.getCell(1).alignment = { horizontal: 'left', vertical: 'middle' } // Chapga joylashtirish
 		titleRow.font = { bold: true, size: 12 } // Bold va shrift o'lchami
