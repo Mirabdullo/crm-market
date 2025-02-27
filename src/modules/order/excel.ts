@@ -107,7 +107,7 @@ export async function ReedExcelFile() {
 
 export async function ReedExcelFile2() {
 	const workbook = new ExcelJS.Workbook()
-	const filename = path.resolve('состояние клиентов в момент 26022025 072756.xlsx')
+	const filename = path.resolve('состояние клиентов в момент 27022025 071747.xlsx')
 	console.log('Reading file:', filename)
 
 	const newData: any = []
