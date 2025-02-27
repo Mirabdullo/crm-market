@@ -218,15 +218,15 @@ export class IncomingOrderPaymentService {
 		headerRow.alignment = { wrapText: true, vertical: 'middle', horizontal: 'center' }
 
 		worksheet.getColumn(1).width = 6
-		worksheet.getColumn(2).width = 22
-		worksheet.getColumn(3).width = 20
-		worksheet.getColumn(4).width = 16
-		worksheet.getColumn(5).width = 16
-		worksheet.getColumn(6).width = 16
-		worksheet.getColumn(7).width = 16
-		worksheet.getColumn(8).width = 16
-		worksheet.getColumn(9).width = 20
-		worksheet.getColumn(10).width = 20
+		worksheet.getColumn(2).width = 38
+		worksheet.getColumn(3).width = 30
+		worksheet.getColumn(4).width = 20
+		worksheet.getColumn(5).width = 20
+		worksheet.getColumn(6).width = 20
+		worksheet.getColumn(7).width = 20
+		worksheet.getColumn(8).width = 20
+		worksheet.getColumn(9).width = 30
+		worksheet.getColumn(10).width = 30
 
 		headerRow.eachCell((cell) => {
 			cell.border = {

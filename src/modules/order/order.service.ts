@@ -677,11 +677,11 @@ export class OrderService {
 
 		// 2. Har bir ustunning kengligini belgilash
 		worksheet.getColumn(1).width = 6 // № ustuni
-		worksheet.getColumn(2).width = 30 // Махсулот номи
-		worksheet.getColumn(3).width = 10 // √ ustuni
-		worksheet.getColumn(4).width = 12 // Сони
+		worksheet.getColumn(2).width = 40 // Махсулот номи
+		worksheet.getColumn(3).width = 20 // √ ustuni
+		worksheet.getColumn(4).width = 20 // Сони
 		worksheet.getColumn(5).width = 20 // Нархи
-		worksheet.getColumn(6).width = 15 // Суммаси
+		worksheet.getColumn(6).width = 20 // Суммаси
 
 		// Sarlavha ustunlarini style
 		headerRow.eachCell((cell) => {

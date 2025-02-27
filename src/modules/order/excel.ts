@@ -22,13 +22,13 @@ export async function OrderUpload(data: OrderRetriveAllResponse['data'], res: Re
 	headerRow.height = 24
 
 	worksheet.getColumn(1).width = 6
-	worksheet.getColumn(2).width = 26
-	worksheet.getColumn(3).width = 20
-	worksheet.getColumn(3).width = 20
-	worksheet.getColumn(4).width = 20
-	worksheet.getColumn(5).width = 20
-	worksheet.getColumn(6).width = 20
-	worksheet.getColumn(7).width = 24
+	worksheet.getColumn(2).width = 34
+	worksheet.getColumn(3).width = 30
+	worksheet.getColumn(3).width = 30
+	worksheet.getColumn(4).width = 30
+	worksheet.getColumn(5).width = 30
+	worksheet.getColumn(6).width = 30
+	worksheet.getColumn(7).width = 30
 
 	headerRow.eachCell((cell) => {
 		cell.border = {

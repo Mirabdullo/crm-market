@@ -36,11 +36,11 @@ export async function UserDeedUpload(data: any, payload: UserDeedRetrieveRequest
 	headerRow.alignment = { vertical: 'middle' }
 
 	worksheet.getColumn(1).width = 6
-	worksheet.getColumn(2).width = 22
-	worksheet.getColumn(3).width = 20
-	worksheet.getColumn(4).width = 14
-	worksheet.getColumn(5).width = 14
-	worksheet.getColumn(6).width = 24
+	worksheet.getColumn(2).width = 30
+	worksheet.getColumn(3).width = 30
+	worksheet.getColumn(4).width = 20
+	worksheet.getColumn(5).width = 20
+	worksheet.getColumn(6).width = 30
 
 	headerRow.eachCell((cell) => {
 		cell.border = {
@@ -153,12 +153,12 @@ export async function UserDeedUploadWithProduct(data: any, payload: UserDeedRetr
 	headerRow.height = 24
 
 	worksheet.getColumn(1).width = 6
-	worksheet.getColumn(2).width = 30
-	worksheet.getColumn(3).width = 16
-	worksheet.getColumn(4).width = 14
-	worksheet.getColumn(5).width = 14
-	worksheet.getColumn(6).width = 20
-	worksheet.getColumn(7).width = 20
+	worksheet.getColumn(2).width = 40
+	worksheet.getColumn(3).width = 20
+	worksheet.getColumn(4).width = 20
+	worksheet.getColumn(5).width = 20
+	worksheet.getColumn(6).width = 30
+	worksheet.getColumn(7).width = 30
 
 	headerRow.eachCell((cell) => {
 		cell.border = {
@@ -304,11 +304,11 @@ export async function SupplierDeedUpload(data: any, payload: UserDeedRetrieveReq
 	headerRow.height = 24
 
 	worksheet.getColumn(1).width = 6
-	worksheet.getColumn(2).width = 22
-	worksheet.getColumn(3).width = 20
-	worksheet.getColumn(4).width = 14
-	worksheet.getColumn(5).width = 14
-	worksheet.getColumn(6).width = 22
+	worksheet.getColumn(2).width = 30
+	worksheet.getColumn(3).width = 30
+	worksheet.getColumn(4).width = 20
+	worksheet.getColumn(5).width = 20
+	worksheet.getColumn(6).width = 30
 
 	headerRow.eachCell((cell) => {
 		cell.border = {
@@ -419,12 +419,12 @@ export async function SupplierDeedUploadWithProduct(data: any, payload: UserDeed
 	headerRow.height = 24
 
 	worksheet.getColumn(1).width = 6
-	worksheet.getColumn(2).width = 22
-	worksheet.getColumn(3).width = 16
-	worksheet.getColumn(4).width = 14
-	worksheet.getColumn(5).width = 14
-	worksheet.getColumn(6).width = 20
-	worksheet.getColumn(7).width = 20
+	worksheet.getColumn(2).width = 32
+	worksheet.getColumn(3).width = 20
+	worksheet.getColumn(4).width = 20
+	worksheet.getColumn(5).width = 20
+	worksheet.getColumn(6).width = 30
+	worksheet.getColumn(7).width = 30
 
 	headerRow.eachCell((cell) => {
 		cell.border = {
@@ -551,10 +551,10 @@ export async function ClientUpload(data: any, res: Response): Promise<void> {
 		headerRow.height = 24
 
 		worksheet.getColumn(1).width = 6
-		worksheet.getColumn(2).width = 30
-		worksheet.getColumn(3).width = 28
-		worksheet.getColumn(4).width = 14
-		worksheet.getColumn(5).width = 20
+		worksheet.getColumn(2).width = 40
+		worksheet.getColumn(3).width = 32
+		worksheet.getColumn(4).width = 30
+		worksheet.getColumn(5).width = 30
 
 		headerRow.eachCell((cell) => {
 			cell.border = {
