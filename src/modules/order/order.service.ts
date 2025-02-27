@@ -662,8 +662,9 @@ export class OrderService {
 		const worksheet = workbook.addWorksheet('Order List')
 
 		// Xaridor nomi uchun titleRow
-		const titleRow = worksheet.addRow([`Xaridor: ${order.client.name}`])
-		worksheet.mergeCells('A1:F1') // A1 dan E1 gacha kataklarni birlashtirish
+		const titleRow = worksheet.addRow([`Xaridor: ${order.client.name}`, `Telefon: ${order.client.phone}`])
+		worksheet.mergeCells('A1:C1') // Xaridor nomi uchun A1:C1 birlashtirish
+		worksheet.mergeCells('D1:F1') // Telefon raqami uchun D1:F1 birlashtirish
 
 		titleRow.getCell(1).alignment = { horizontal: 'left', vertical: 'middle' } // Chapga joylashtirish
 		titleRow.font = { bold: true, size: 12 } // Bold va shrift o'lchami
@@ -677,7 +678,7 @@ export class OrderService {
 
 		// 2. Har bir ustunning kengligini belgilash
 		worksheet.getColumn(1).width = 6 // № ustuni
-		worksheet.getColumn(2).width = 40 // Махсулот номи
+		worksheet.getColumn(2).width = 55 // Махсулот номи
 		worksheet.getColumn(3).width = 20 // √ ustuni
 		worksheet.getColumn(4).width = 20 // Сони
 		worksheet.getColumn(5).width = 20 // Нархи
@@ -706,8 +707,16 @@ export class OrderService {
 			])
 
 			// Qatorlarga chegara va markaziy formatlash
-			row.eachCell((cell) => {
-				cell.alignment = { vertical: 'middle', horizontal: 'center' }
+			row.eachCell((cell, colNumber) => {
+				// Agar katak "B" ustunida bo'lsa (maxsulot nomi), chapga tekislash
+				if (colNumber === 2) {
+					cell.alignment = { vertical: 'middle', horizontal: 'left' }
+				} else {
+					// Boshqa kataklar uchun markaziy formatlash
+					cell.alignment = { vertical: 'middle', horizontal: 'center' }
+				}
+
+				// Chegara qo'shish
 				cell.border = {
 					top: { style: 'thin' },
 					left: { style: 'thin' },
