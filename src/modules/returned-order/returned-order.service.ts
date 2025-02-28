@@ -317,7 +317,7 @@ export class ReturnedOrderService {
 					...updatedProducts,
 					this.#_prisma.users.update({
 						where: { id: returnedOrder.clientId },
-						data: { debt: { increment: returnedOrder.fromClient } },
+						data: { debt: { decrement: returnedOrder.fromClient } },
 					}),
 					this.#_prisma.returnedOrder.update({
 						where: { id },
@@ -398,7 +398,7 @@ export class ReturnedOrderService {
 				...products,
 				this.#_prisma.users.update({
 					where: { id: returnedOrder.clientId },
-					data: { debt: { decrement: returnedOrder.fromClient } },
+					data: { debt: { increment: returnedOrder.fromClient } },
 				}),
 			)
 		}
