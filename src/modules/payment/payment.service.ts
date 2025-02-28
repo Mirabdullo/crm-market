@@ -360,31 +360,30 @@ export class PaymentService {
 			}
 
 			if (orderId && order) {
-				await Promise.all(
-					order.products.map((pro) =>
-						prisma.products.update({
-							where: { id: pro.productId },
-							data: { count: { decrement: pro.count } },
-						}),
-					),
-				)
-
-				const currentDebt = order.debt.toNumber()
-				const newDebt = currentDebt - sum
+				if (!order.accepted) {
+					await Promise.all(
+						order.products.map((pro) =>
+							prisma.products.update({
+								where: { id: pro.productId },
+								data: { count: { decrement: pro.count } },
+							}),
+						),
+					)
+				}
 
 				await prisma.order.update({
 					where: { id: orderId },
 					data: {
-						debt: newDebt,
+						debt: {decrement: sum},
 						accepted: true,
 					},
 				})
 			}
 
-			if (order && order.accepted) {
-				await prisma.users.update({		
+			if (order && !order.accepted) {
+				await prisma.users.update({
 					where: { id: clientId },
-					data: { debt: { decrement: sum } },
+					data: { debt: { increment: order.sum.toNumber() - sum } },
 				})
 			} else {
 				await prisma.users.update({
@@ -392,8 +391,6 @@ export class PaymentService {
 					data: { debt: { decrement: sum } },
 				})
 			}
-
-
 
 			return paymentData
 		})
