@@ -465,9 +465,9 @@ export class PaymentService {
 			})
 		}
 
-		const message = `обновлено\n\n${payment.order ? 'тип: для продажи\n' : 'тип: для клиента\n'}Клиент: ${payment.client.name}\nСумма: ${payment.totalPay}\n\nналичными: ${
-			payment.cash
-		}\nкарты: ${payment.card}\nперечислением: ${payment.transfer}\nдруги: ${payment.other}\nДата: ${format(new Date(), 'yyyy-MM-dd HH:mm')}\nИнфо: ${
+		const message = `обновлено\n\n${payment.order ? 'тип: для продажи\n' : 'тип: для клиента\n'}Клиент: ${payment.client.name}\nСумма: ${sum}\n\nналичными: ${
+			cash
+		}\nкарты: ${card}\nперечислением: ${transfer}\nдруги: ${other}\nДата: ${format(new Date(), 'yyyy-MM-dd HH:mm')}\nИнфо: ${
 			payment.description
 		}\nid: #${payment.id}`
 
