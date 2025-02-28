@@ -127,13 +127,9 @@ export class ReturnedProductService {
 				this.#_prisma.products.update({
 					where: { id: payload.product_id },
 					data: {
-						count: { decrement: payload.count },
+						count: { increment: payload.count },
 					},
 				})
-				// this.#_prisma.users.update({
-				// 	where: { id: order.clientId },
-				// 	data: {}
-				// })
 			)
 		}
 

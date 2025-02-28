@@ -340,6 +340,13 @@ export class ReturnedOrderService {
 						returnedDate: now,
 					},
 				})
+
+				if (fromClient !== returnedOrder.fromClient.toNumber()) {
+					await this.#_prisma.users.update({
+                        where: { id: returnedOrder.clientId },
+                        data: { debt: { decrement: fromClient - returnedOrder.fromClient.toNumber() } },
+                    })
+				}
 			}
 
 			return null
