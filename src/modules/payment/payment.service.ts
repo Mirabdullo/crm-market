@@ -62,8 +62,15 @@ export class PaymentService {
 			}
 		}
 
+		let sellerOption = {}
+		if (payload.sellerId) {
+			sellerOption = {
+				sellerId: payload.sellerId,
+			}
+		}
+
 		const paymentList = await this.#_prisma.payment.findMany({
-			where: { deletedAt: null, ...clientOption, ...searchOption, ...dateOption },
+			where: { deletedAt: null, ...clientOption, ...searchOption, ...dateOption, ...sellerOption },
 			select: {
 				id: true,
 				totalPay: true,
@@ -97,12 +104,12 @@ export class PaymentService {
 			totalPay: payment.totalPay.toNumber(),
 			cash: payment.cash ? (payment.cash as Decimal).toNumber() : 0,
 			card: payment.card ? (payment.card as Decimal).toNumber() : 0,
-			transfer: payment.transfer ? (payment.transfer as Decimal).toNumber(): 0,
-			other: payment.other ? (payment.other as Decimal).toNumber(): 0,
+			transfer: payment.transfer ? (payment.transfer as Decimal).toNumber() : 0,
+			other: payment.other ? (payment.other as Decimal).toNumber() : 0,
 		}))
 
 		const totalCount = await this.#_prisma.payment.count({
-			where: { deletedAt: null, ...clientOption, ...searchOption, ...dateOption },
+			where: { deletedAt: null, ...clientOption, ...searchOption, ...dateOption, ...sellerOption },
 		})
 
 		const totalCalc = {
@@ -317,7 +324,7 @@ export class PaymentService {
 
 	async paymentCreate(payload: PaymentCreateRequest): Promise<null> {
 		console.log(payload)
-		const { card = 0, transfer = 0, other = 0, cash = 0, orderId, clientId, description } = payload
+		const { card = 0, transfer = 0, other = 0, cash = 0, orderId, clientId, description, userId } = payload
 
 		const order = orderId
 			? await this.#_prisma.order.findFirst({
@@ -341,6 +348,7 @@ export class PaymentService {
 						card: card ?? 0,
 						other: other ?? 0,
 						description: description,
+						sellerId: userId,
 					},
 					select: {
 						id: true,
@@ -374,7 +382,7 @@ export class PaymentService {
 				await prisma.order.update({
 					where: { id: orderId },
 					data: {
-						debt: {decrement: sum},
+						debt: { decrement: sum },
 						accepted: true,
 					},
 				})
@@ -465,9 +473,9 @@ export class PaymentService {
 			})
 		}
 
-		const message = `обновлено\n\n${payment.order ? 'тип: для продажи\n' : 'тип: для клиента\n'}Клиент: ${payment.client.name}\nСумма: ${sum}\n\nналичными: ${
-			cash
-		}\nкарты: ${card}\nперечислением: ${transfer}\nдруги: ${other}\nДата: ${format(new Date(), 'yyyy-MM-dd HH:mm')}\nИнфо: ${
+		const message = `обновлено\n\n${payment.order ? 'тип: для продажи\n' : 'тип: для клиента\n'}Клиент: ${
+			payment.client.name
+		}\nСумма: ${sum}\n\nналичными: ${cash}\nкарты: ${card}\nперечислением: ${transfer}\nдруги: ${other}\nДата: ${format(new Date(), 'yyyy-MM-dd HH:mm')}\nИнфо: ${
 			payment.description
 		}\nid: #${payment.id}`
 

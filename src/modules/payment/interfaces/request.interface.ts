@@ -9,6 +9,7 @@ export interface PaymentCreateRequest {
 	other?: number
 	description?: string
 	sendUser?: boolean
+	userId: string
 }
 
 export interface PaymentRequest {
@@ -45,6 +46,7 @@ export interface PaymentRetriveAllRequest {
 	pagination?: boolean
 	startDate?: string
 	endDate?: string
+	sellerId?: string
 }
 
 export interface PaymentRetriveRequest {

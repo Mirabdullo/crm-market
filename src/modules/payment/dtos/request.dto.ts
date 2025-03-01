@@ -45,6 +45,11 @@ export class PaymentRetrieveAllRequestDto implements PaymentRetriveAllRequest {
 	@IsString()
 	@IsOptional()
 	endDate?: string
+
+	@ApiPropertyOptional({ type: String })
+	@IsUUID('4')
+	@IsOptional()
+	sellerId?: string
 }
 
 export class PaymentRetrieveRequestDto implements PaymentRetriveRequest {
@@ -104,6 +109,10 @@ export class PaymentCreateRequestDto implements PaymentCreateRequest {
 	@IsString()
 	@IsOptional()
 	description?: string
+
+	@IsUUID('4')
+	@IsOptional()
+	userId: string
 }
 
 export class PaymentRequestDto implements PaymentRequest {
