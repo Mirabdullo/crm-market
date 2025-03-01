@@ -94,6 +94,13 @@ export class PaymentService {
 						phone: true,
 					},
 				},
+				seller: {
+					select: {
+						id: true,
+                        name: true,
+                        phone: true,
+					}
+				}
 			},
 			...paginationOptions,
 			orderBy: { createdAt: 'desc' },
