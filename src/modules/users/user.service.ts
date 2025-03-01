@@ -50,11 +50,27 @@ export class UserService {
 			}
 		}
 
+		let debtOption = {}
+		if (payload.debtType) {
+			if (payload.debtType === 'equal') {
+				debtOption = { debt: { equals: payload.debt } }
+			}
+
+			if (payload.debtType === 'greater') {
+				debtOption = { debt: { gte: payload.debt } }
+			}
+
+			if (payload.debtType === 'less') {
+				debtOption = { debt: { lte: payload.debt } }
+			}
+		}
+
 		const userList = await this.#_prisma.users.findMany({
 			where: {
 				deletedAt: null,
 				type: payload.type as UserTypeEnum,
 				...searchOption,
+				...debtOption,
 			},
 			...paginationOptions,
 			select: {
@@ -616,7 +632,7 @@ export class UserService {
 				debt: true,
 				createdAt: true,
 			},
-			orderBy: [{ debt: 'desc' }]
+			orderBy: [{ debt: 'desc' }],
 		})
 
 		await ClientUpload(users, payload.res)
@@ -721,7 +737,7 @@ export class UserService {
 		// await this.#_prisma.users.createMany({
 		// 	data,
 		// })
-		
+
 		return {
 			...condidate,
 			debt: condidate.debt.toNumber(),

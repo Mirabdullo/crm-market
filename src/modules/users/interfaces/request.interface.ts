@@ -15,6 +15,11 @@ export declare interface UserDeleteRequest {
 	id: string
 }
 
+export enum DebtTypeEnum{
+	equal = 'equal',
+	greater = 'greater',
+	less = 'less'
+}
 export declare interface UserRetriveAllRequest {
 	pageSize?: number
 	pageNumber?: number
@@ -22,6 +27,8 @@ export declare interface UserRetriveAllRequest {
 	type?: string
 	pagination?: boolean
 	orderBy?: string
+	debt?: number
+	debtType?: DebtTypeEnum
 }
 
 export declare interface UserRetriveRequest {
