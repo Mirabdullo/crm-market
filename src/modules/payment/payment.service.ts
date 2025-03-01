@@ -95,10 +95,10 @@ export class PaymentService {
 		const transformedPaymentList = paymentList.map((payment) => ({
 			...payment,
 			totalPay: payment.totalPay.toNumber(),
-			cash: (payment.cash as Decimal).toNumber(),
-			card: payment.card ? (payment.card as Decimal).toNumber() : undefined,
-			transfer: (payment.transfer as Decimal).toNumber(),
-			other: (payment.other as Decimal).toNumber(),
+			cash: payment.cash ? (payment.cash as Decimal).toNumber() : 0,
+			card: payment.card ? (payment.card as Decimal).toNumber() : 0,
+			transfer: payment.transfer ? (payment.transfer as Decimal).toNumber(): 0,
+			other: payment.other ? (payment.other as Decimal).toNumber(): 0,
 		}))
 
 		const totalCount = await this.#_prisma.payment.count({
@@ -336,10 +336,10 @@ export class PaymentService {
 						orderId: orderId,
 						clientId: clientId,
 						totalPay: sum,
-						cash: cash,
-						transfer: transfer,
-						card: card,
-						other: other,
+						cash: cash ?? 0,
+						transfer: transfer ?? 0,
+						card: card ?? 0,
+						other: other ?? 0,
 						description: description,
 					},
 					select: {
