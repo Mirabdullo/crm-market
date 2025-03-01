@@ -57,11 +57,11 @@ export class UserService {
 			}
 
 			if (payload.debtType === 'greater') {
-				debtOption = { debt: { gte: payload.debt } }
+				debtOption = { debt: { gt: payload.debt } }
 			}
 
 			if (payload.debtType === 'less') {
-				debtOption = { debt: { lte: payload.debt } }
+				debtOption = { debt: { lt: payload.debt } }
 			}
 		}
 
