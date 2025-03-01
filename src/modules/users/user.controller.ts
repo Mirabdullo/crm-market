@@ -35,6 +35,7 @@ export class UserController {
 			type: 'supplier',
 			pageNumber: payload.pageNumber ?? PAGE_NUMBER,
 			pageSize: payload.pageSize ?? PAGE_SIZE,
+			debt: payload.debt ?? 0,
 			pagination: [true, 'true'].includes(payload.pagination) ? false : true,
 		})
 	}
@@ -47,6 +48,7 @@ export class UserController {
 			type: 'client',
 			pageNumber: payload.pageNumber ?? PAGE_NUMBER,
 			pageSize: payload.pageSize ?? PAGE_SIZE,
+			debt: payload.debt ?? 0,
 			pagination: [true, 'true'].includes(payload.pagination) ? false : true,
 		})
 	}
