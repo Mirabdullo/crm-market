@@ -39,7 +39,7 @@ export class UserRetrieveAllRequestDto implements UserRetriveAllRequest {
 	@IsOptional()
 	debt?: number
 
-	@ApiPropertyOptional({ type: String, example: 'equal' })
+	@ApiPropertyOptional({ enum: ['equal', 'greter', 'less'], example: 'equal' })
 	@IsEnum(['equal', 'greater', 'less'])
 	@IsOptional()
 	debtType?: DebtTypeEnum
