@@ -102,6 +102,7 @@ export class UserService {
 				deletedAt: null,
 				type: payload.type as UserTypeEnum,
 				...searchOption,
+				...debtOption,
 			},
 		})
 

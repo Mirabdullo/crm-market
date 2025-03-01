@@ -623,6 +623,7 @@ export class OrderService {
 					},
 				},
 				payment: {
+					where: {deletedAt: null},
 					select: {
 						id: true,
 						totalPay: true,
@@ -635,6 +636,7 @@ export class OrderService {
 					},
 				},
 				products: {
+					where: {deletedAt: null},
 					select: {
 						id: true,
 						cost: true,
