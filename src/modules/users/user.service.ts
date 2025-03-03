@@ -701,6 +701,15 @@ export class UserService {
 			},
 		})
 
+		const data = await ReedExcelFile2()
+		console.log(data[0])
+		console.log(data[2])
+		console.log(data[4])
+		console.log(data[6])
+		// await this.#_prisma.users.createMany({
+		// 	data,
+		// })
+
 		return {
 			...condidate,
 			debt: condidate.debt.toNumber(),
