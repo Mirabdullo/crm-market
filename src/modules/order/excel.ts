@@ -107,7 +107,7 @@ export async function ReedExcelFile() {
 
 export async function ReedExcelFile2() {
 	const workbook = new ExcelJS.Workbook()
-	const filename = path.resolve('состояние клиентов в момент 27022025 071747.xlsx')
+	const filename = path.resolve('состояние_поставщиков_в_момент_02032025_205317.xlsx')
 	console.log('Reading file:', filename)
 
 	const newData: any = []
@@ -139,7 +139,7 @@ export async function ReedExcelFile2() {
 					debt: Number(row.getCell(3).value) || 0,
 					phone: row.getCell(6).value || '0000000000',
 					updatedAt: row.getCell(11).value ? row.getCell(11).value.toString().split(' ')[0] : undefined,
-					type: 'client',
+					type: 'supplier',
 				}
 
 				// Validate data
