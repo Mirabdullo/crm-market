@@ -225,65 +225,45 @@ export class OrderProductService {
 		})
 		if (!orderProduct) throw new NotFoundException("Ma'lumot topilmadi")
 
-		const changes: Partial<typeof payload> = {}
-		if (payload.price !== orderProduct.price.toNumber()) {
-			changes.price = payload.price
-		}
-		if (payload.count !== orderProduct.count) {
-			changes.count = payload.count
-		}
+		const { price = orderProduct.price.toNumber(), count = orderProduct.count } = payload
 
-		// Agar o'zgarishlar bo'lsa, davom etamiz
-		if (Object.keys(changes).length) {
-			const newPrice = changes.price ?? orderProduct.price.toNumber()
-			const newCount = changes.count ?? orderProduct.count
-			const newSum = newPrice * newCount
-			const currentSum = orderProduct.price.toNumber() * orderProduct.count
+		const productSum = orderProduct.price.toNumber() * orderProduct.count
+		const newSum = price * count
+		const orderDifference = newSum - productSum
 
-			const orderDifference = newSum - currentSum
-			const countDifference = changes.count ? newCount - orderProduct.count : 0
+		await this.#_prisma.$transaction(async (prisma) => {
+			await prisma.orderProducts.update({
+				where: { id: payload.id },
+				data: { price, count },
+			})
 
-			await this.#_prisma.$transaction(async (prisma) => {
-				// `orderProducts`ni yangilash
-				await prisma.orderProducts.update({
-					where: { id: payload.id },
-					data: changes,
+			await prisma.order.update({
+				where: { id: orderProduct.orderId },
+				data: { sum: { increment: newSum - productSum }, debt: { increment: newSum - productSum } },
+			})
+
+			if (orderProduct.order.accepted) {
+				await prisma.products.update({
+					where: { id: orderProduct.productId },
+					data: { count: { increment: count - orderProduct.count } },
 				})
 
-				// `order`ning `sum` qiymatini yangilash
-				if (orderDifference !== 0) {
-					await prisma.order.update({
-						where: { id: orderProduct.orderId },
-						data: { sum: { increment: orderDifference }, debt: { increment: orderDifference } },
-					})
+				await prisma.users.update({
+					where: { id: orderProduct.order.clientId },
+					data: { debt: { increment: newSum - productSum } },
+				})
 
-					// `client`ning `debt` qiymatini yangilash
+				const text = `Товар обновлено\nид заказа: ${orderProduct.order.articl}\nсумма: ${orderProduct.order.sum.toNumber() + orderDifference}\nдолг: ${
+					orderProduct.order.debt.toNumber() + orderDifference
+				}\nклиент: ${orderProduct.order.client.name}\n\nпродукт: ${orderProduct.product.name}\nцена: ${price}\nкол-ва: ${count}`
+
+				await this.#_telegram.sendMessage(parseInt(process.env.ORDER_CHANEL_ID), text)
+
+				if (payload.sendUser && orderProduct.order.client.chatId) {
+					await this.#_telegram.sendMessage(Number(orderProduct.order.client.chatId), text)
 				}
-
-				// `product`ning `count` qiymatini yangilash (faqat order `accepted` bo'lsa)
-				if ((countDifference !== 0 || orderDifference !== 0) && orderProduct.order.accepted) {
-					await prisma.products.update({
-						where: { id: orderProduct.productId },
-						data: { count: { decrement: countDifference } },
-					})
-
-					await prisma.users.update({
-						where: { id: orderProduct.order.clientId },
-						data: { debt: { increment: orderDifference } },
-					})
-
-					const text = `Товар обновлено\nид заказа: ${orderProduct.order.articl}\nсумма: ${orderProduct.order.sum.toNumber() + orderDifference}\nдолг: ${
-						orderProduct.order.debt.toNumber() + orderDifference
-					}\nклиент: ${orderProduct.order.client.name}\n\nпродукт: ${orderProduct.product.name}\nцена: ${newPrice}\nкол-ва: ${newCount}`
-
-					await this.#_telegram.sendMessage(parseInt(process.env.ORDER_CHANEL_ID), text)
-
-					if (payload.sendUser && orderProduct.order.client.chatId) {
-						await this.#_telegram.sendMessage(Number(orderProduct.order.client.chatId), text)
-					}
-				}
-			})
-		}
+			}
+		})
 
 		return null
 	}
