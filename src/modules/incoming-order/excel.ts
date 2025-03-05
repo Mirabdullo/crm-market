@@ -123,7 +123,7 @@ export async function IncomingOrderUploadWithProduct(data: IncomingOrderRetriveR
 	date = date.replaceAll(':', '')
 
 	res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-	res.setHeader('Content-Disposition', `attachment; filename=приход_${date}.xlsx`)
+	res.setHeader('Content-Disposition', `attachment; filename=prixod_${date}.xlsx`)
 
 	await workbook.xlsx.write(res)
 	res.end()
