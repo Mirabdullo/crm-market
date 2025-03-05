@@ -960,7 +960,7 @@ export class OrderService {
 			const text = `💼 продажа\n\n✍️ ид заказа: ${order.articl}\n\n💵 сумма: ${order.sum.toNumber()}\n\n💳 долг: ${order.debt}\n\n👨‍💼 клиент: ${order.client.name}`
 
 			// Send to order channel
-			await this.#_telegram.sendMessage(parseInt(process.env.ORDER_CHANEL_ID), text)
+			// await this.#_telegram.sendMessage(parseInt(process.env.ORDER_CHANEL_ID), text)
 
 			// Send PDF document
 			const pdfBuffer = await generatePdfBuffer(order)
