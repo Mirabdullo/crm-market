@@ -40,8 +40,10 @@ export interface ReturnedOrderRetriveAllRequest {
 	startDate?: string
 	endDate?: string
 	accepted?: boolean
+	res: Response
 }
 
 export interface ReturnedOrderRetriveRequest {
 	id: string
+	res: Response
 }

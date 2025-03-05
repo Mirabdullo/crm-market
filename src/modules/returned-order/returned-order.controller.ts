@@ -48,10 +48,36 @@ export class ReturnedOrderController {
 		})
 	}
 
+	@Get('upload')
+	@ApiOkResponse({ type: [ReturnedOrderRetrieveAllResponseDto] })
+	ReturnedOrderRetrieveAllUpload(@Query() payload: ReturnedOrderRetrieveAllRequestDto): Promise<void> {
+		let accepted = undefined
+		if (['true', true].includes(payload.accepted) || ['false', false].includes(payload.accepted)) {
+			if (['true', true].includes(payload.accepted)) {
+				accepted = true
+			} else {
+				accepted = false
+			}
+		}
+		return this.#_service.ReturnedOrderRetrieveAllUpload({
+			...payload,
+			pageNumber: payload.pageNumber ?? PAGE_NUMBER,
+			pageSize: payload.pageSize ?? PAGE_SIZE,
+			accepted,
+			pagination: [true, 'true'].includes(payload.pagination) ? false : true,
+		})
+	}
+
 	@Get(':id')
 	@ApiOkResponse({ type: ReturnedOrderRetrieveResponseDto })
 	ReturnedOrderRetrieve(@Param() payload: ReturnedOrderRetrieveRequestDto): Promise<ReturnedOrderRetriveResponse> {
 		return this.#_service.ReturnedOrderRetrieve(payload)
+	}
+
+	@Get('upload/:id')
+	@ApiOkResponse({ type: ReturnedOrderRetrieveResponseDto })
+	ReturnedOrderRetrieveUpload(@Param() payload: ReturnedOrderRetrieveRequestDto): Promise<void> {
+		return this.#_service.ReturnedOrderRetrieveUpload(payload)
 	}
 
 	@Permission(Permissions.ORDER_CREATE)

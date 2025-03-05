@@ -13,6 +13,7 @@ import {
 import { Decimal } from '../../types'
 import { addHours, endOfDay, format } from 'date-fns'
 import { TelegramService } from '../telegram'
+import { ReturnedOrderUpload, ReturnedOrderUploadWithProduct } from './excel'
 
 @Injectable()
 export class ReturnedOrderService {
@@ -164,6 +165,130 @@ export class ReturnedOrderService {
 		}
 	}
 
+	async ReturnedOrderRetrieveAllUpload(payload: ReturnedOrderRetriveAllRequest): Promise<void> {
+		try {
+			let paginationOptions = {}
+			if (payload.pagination) {
+				paginationOptions = {
+					take: payload.pageSize,
+					skip: (payload.pageNumber - 1) * payload.pageSize,
+				}
+			}
+
+			let sellerOption = {}
+			if (payload.sellerId) {
+				sellerOption = {
+					adminId: payload.sellerId,
+				}
+			}
+
+			let searchOption = {}
+			if (payload.search) {
+				searchOption = {
+					client: {
+						OR: [{ name: { contains: payload.search, mode: 'insensitive' } }, { phone: { contains: payload.search, mode: 'insensitive' } }],
+					},
+				}
+			}
+
+			let clientOption = {}
+			if (payload.clientId) {
+				clientOption = {
+					clientId: payload.clientId,
+				}
+			}
+
+			let dateOption = {}
+			if (payload.startDate || payload.endDate) {
+				const sDate = new Date(format(payload.startDate, 'yyyy-MM-dd'))
+				const eDate = addHours(new Date(endOfDay(payload.endDate)), 3)
+				dateOption = {
+					createdAt: {
+						...(payload.startDate ? { gte: sDate } : {}),
+						...(payload.endDate ? { lte: eDate } : {}),
+					},
+				}
+			}
+
+			let acceptedOption = {}
+			if (payload.accepted) {
+				acceptedOption = {
+					accepted: true,
+				}
+			}
+
+			const ReturnedOrderList = await this.#_prisma.returnedOrder.findMany({
+				where: {
+					deletedAt: null,
+					...sellerOption,
+					...searchOption,
+					...dateOption,
+					...clientOption,
+					...acceptedOption,
+				},
+				select: {
+					id: true,
+					sum: true,
+					fromClient: true,
+					cashPayment: true,
+					description: true,
+					accepted: true,
+					createdAt: true,
+					returnedDate: true,
+					client: {
+						select: {
+							id: true,
+							name: true,
+							phone: true,
+							createdAt: true,
+						},
+					},
+					admin: {
+						select: {
+							id: true,
+							name: true,
+							phone: true,
+						},
+					},
+					products: {
+						where: { deletedAt: null },
+						select: {
+							id: true,
+							count: true,
+							price: true,
+							createdAt: true,
+							product: {
+								select: {
+									id: true,
+									name: true,
+								},
+							},
+						},
+						orderBy: { createdAt: 'desc' },
+					},
+				},
+				orderBy: { createdAt: 'desc' },
+				...paginationOptions,
+			})
+
+			const formattedData = ReturnedOrderList.map((returnedOrder) => ({
+				...returnedOrder,
+				sum: returnedOrder.sum.toNumber(),
+				fromClient: returnedOrder.fromClient.toNumber(),
+				cashPayment: returnedOrder.cashPayment.toNumber(),
+				seller: returnedOrder.admin,
+				products: returnedOrder.products.map((prod) => ({
+					...prod,
+					price: (prod.price as Decimal).toNumber(),
+				})),
+			}))
+
+			await ReturnedOrderUpload(formattedData, payload.res)
+		} catch (error) {
+			console.log(error)
+		}
+	}
+
 	async ReturnedOrderRetrieve(payload: ReturnedOrderRetriveRequest): Promise<ReturnedOrderRetriveResponse> {
 		const ReturnedOrder = await this.#_prisma.returnedOrder.findUnique({
 			where: { id: payload.id },
@@ -226,6 +351,73 @@ export class ReturnedOrderService {
 				count: prod.count,
 			})),
 		}
+	}
+
+	async ReturnedOrderRetrieveUpload(payload: ReturnedOrderRetriveRequest): Promise<void> {
+		const ReturnedOrder = await this.#_prisma.returnedOrder.findUnique({
+			where: { id: payload.id },
+			select: {
+				id: true,
+				sum: true,
+				fromClient: true,
+				cashPayment: true,
+				description: true,
+				accepted: true,
+				createdAt: true,
+				returnedDate: true,
+				client: {
+					select: {
+						id: true,
+						name: true,
+						phone: true,
+						createdAt: true,
+					},
+				},
+				admin: {
+					select: {
+						id: true,
+						name: true,
+						phone: true,
+					},
+				},
+				products: {
+					where: { deletedAt: null },
+					select: {
+						id: true,
+						count: true,
+						price: true,
+						createdAt: true,
+						product: {
+							select: {
+								id: true,
+								name: true,
+							},
+						},
+					},
+					orderBy: { createdAt: 'desc' },
+				},
+			},
+		})
+
+		if (!ReturnedOrder) {
+			throw new NotFoundException('ReturnedOrder not found')
+		}
+
+		await ReturnedOrderUploadWithProduct(
+			{
+				...ReturnedOrder,
+				seller: ReturnedOrder.admin,
+				sum: ReturnedOrder.sum.toNumber(),
+				cashPayment: ReturnedOrder.cashPayment.toNumber(),
+				fromClient: ReturnedOrder.fromClient.toNumber(),
+				products: ReturnedOrder.products.map((prod) => ({
+					...prod,
+					price: (prod.price as Decimal).toNumber(),
+					count: prod.count,
+				})),
+			},
+			payload.res,
+		)
 	}
 
 	async ReturnedOrderCreate(payload: ReturnedOrderCreateRequest): Promise<ReturnedOrderCreateResponse> {
@@ -343,9 +535,9 @@ export class ReturnedOrderService {
 
 				if (fromClient !== returnedOrder.fromClient.toNumber()) {
 					await this.#_prisma.users.update({
-                        where: { id: returnedOrder.clientId },
-                        data: { debt: { decrement: fromClient - returnedOrder.fromClient.toNumber() } },
-                    })
+						where: { id: returnedOrder.clientId },
+						data: { debt: { decrement: fromClient - returnedOrder.fromClient.toNumber() } },
+					})
 				}
 			}
 

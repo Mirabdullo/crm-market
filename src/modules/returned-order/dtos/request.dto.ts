@@ -3,6 +3,7 @@ import { Type } from 'class-transformer'
 import { ReturnedOrderCreateRequest, ReturnedOrderDeleteRequest, ReturnedOrderRetriveAllRequest, ReturnedOrderRetriveRequest, ReturnedOrderUpdateRequest } from '../interfaces'
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
 import { ReturnedProductRequest, ReturnedProductRequestDto } from '../../returned-products'
+import { Response } from 'express'
 
 export class ReturnedOrderRetrieveAllRequestDto implements ReturnedOrderRetriveAllRequest {
 	@ApiPropertyOptional({ type: Number })
@@ -56,6 +57,8 @@ export class ReturnedOrderRetrieveAllRequestDto implements ReturnedOrderRetriveA
 	@IsString()
 	@IsOptional()
 	endDate?: string
+
+	res: Response
 }
 
 export class ReturnedOrderRetrieveRequestDto implements ReturnedOrderRetriveRequest {
@@ -63,6 +66,8 @@ export class ReturnedOrderRetrieveRequestDto implements ReturnedOrderRetriveRequ
 	@IsUUID('4')
 	@IsNotEmpty()
 	id: string
+
+	res: Response
 }
 
 export class ReturnedOrderCreateRequestDto implements ReturnedOrderCreateRequest {

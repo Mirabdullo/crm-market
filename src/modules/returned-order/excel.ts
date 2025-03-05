@@ -14,7 +14,7 @@ export async function ReturnedOrderUpload(data: ReturnedOrderRetriveAllResponse[
 	worksheet.getCell('A1').font = { bold: true }
 	worksheet.addRow([])
 
-	const headerRow = worksheet.addRow(['№', 'Поставщик', 'Cумма', 'Кем оприходован', 'Информация', 'Дата прихода'])
+	const headerRow = worksheet.addRow(['№', 'Клиент', 'Cумма', 'Кем оприходован', 'Информация', 'Дата прихода'])
 	headerRow.font = { bold: true }
 	headerRow.alignment = { vertical: 'middle', horizontal: 'center' }
 	headerRow.height = 24
@@ -71,7 +71,7 @@ export async function ReturnedOrderUploadWithProduct(data: ReturnedOrderRetriveR
 	worksheet.getCell('A1').font = { bold: true }
 
 	worksheet.mergeCells('A2:C2')
-	worksheet.getCell('A2').value = `Поставщик:   ${data.client.name}`
+	worksheet.getCell('A2').value = `Клиент:   ${data.client.name}`
 	worksheet.getCell('A2').font = { bold: true }
 	worksheet.addRow([])
 
@@ -123,7 +123,7 @@ export async function ReturnedOrderUploadWithProduct(data: ReturnedOrderRetriveR
 	date = date.replaceAll(':', '')
 
 	res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-	res.setHeader('Content-Disposition', `attachment; filename=приход_${date}.xlsx`)
+	res.setHeader('Content-Disposition', `attachment; filename=prixod_${date}.xlsx`)
 
 	await workbook.xlsx.write(res)
 	res.end()
