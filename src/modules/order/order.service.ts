@@ -623,7 +623,7 @@ export class OrderService {
 					},
 				},
 				payment: {
-					where: {deletedAt: null},
+					where: { deletedAt: null },
 					select: {
 						id: true,
 						totalPay: true,
@@ -636,7 +636,7 @@ export class OrderService {
 					},
 				},
 				products: {
-					where: {deletedAt: null},
+					where: { deletedAt: null },
 					select: {
 						id: true,
 						cost: true,
@@ -671,13 +671,13 @@ export class OrderService {
 			`Telefon: ${order.client.phone}`, // D1
 			'', // E1 (bo'sh, chunki D1:F1 birlashtiriladi)
 			'', // F1 (bo'sh, chunki D1:F1 birlashtiriladi)
-		]);
-		
+		])
+
 		// Xaridor nomi uchun A1:C1 birlashtirish
-		worksheet.mergeCells('A1:C1');
-		
+		worksheet.mergeCells('A1:C1')
+
 		// Telefon raqami uchun D1:F1 birlashtirish
-		worksheet.mergeCells('D1:F1');
+		worksheet.mergeCells('D1:F1')
 
 		titleRow.getCell(1).alignment = { horizontal: 'left', vertical: 'middle' } // Chapga joylashtirish
 		titleRow.font = { bold: true, size: 12 } // Bold va shrift o'lchami
@@ -814,49 +814,49 @@ export class OrderService {
 	async OrderUpdate(payload: OrderUpdateRequest): Promise<null> {
 		const { id, accepted, clientId, sellingDate, sendUser } = payload
 
-		try {
-			return await this.#_prisma.$transaction(async (tx) => {
-				// 1. Get order with all necessary data
-				const order = await tx.order.findUnique({
-					where: { id },
+		// 1. Get order with all necessary data
+		const order = await this.#_prisma.order.findUnique({
+			where: { id },
+			select: {
+				id: true,
+				sellingDate: true,
+				accepted: true,
+				articl: true,
+				client: {
 					select: {
 						id: true,
-						sellingDate: true,
-						accepted: true,
-						articl: true,
-						client: {
-							select: {
-								id: true,
-								name: true,
-								chatId: true,
-							},
-						},
-						payment: true,
-						debt: true,
-						sum: true,
-						clientId: true,
-						admin: {
+						name: true,
+						chatId: true,
+					},
+				},
+				payment: true,
+				debt: true,
+				sum: true,
+				clientId: true,
+				admin: {
+					select: { name: true },
+				},
+				products: {
+					select: {
+						id: true,
+						cost: true,
+						count: true,
+						price: true,
+						productId: true,
+						product: {
 							select: { name: true },
 						},
-						products: {
-							select: {
-								id: true,
-								cost: true,
-								count: true,
-								price: true,
-								productId: true,
-								product: {
-									select: { name: true },
-								},
-							},
-						},
 					},
-				})
+				},
+			},
+		})
 
-				if (!order) {
-					throw new NotFoundException("Ma'lumot topilmadi")
-				}
+		if (!order) {
+			throw new NotFoundException("Ma'lumot topilmadi")
+		}
 
+		try {
+			await this.#_prisma.$transaction(async (tx) => {
 				// 2. Handle client change for accepted order
 				if (clientId && order.accepted) {
 					const newClient = await tx.users.findFirst({
@@ -930,14 +930,20 @@ export class OrderService {
 						sellingDate: date,
 					},
 				})
-
-				// 5. Handle notifications (outside transaction as it's not critical)
-				if (accepted && !order.accepted) {
-					await this.sendOrderNotifications(order, sendUser)
-				}
-
-				return null
 			})
+
+			// 5. Handle notifications (outside transaction as it's not critical)
+			if (accepted && !order.accepted) {
+				await this.sendOrderNotifications(
+					{
+						...order,
+						clientId: clientId ?? order.clientId,
+					},
+					sendUser,
+				)
+			}
+
+			return null
 		} catch (error) {
 			console.error('OrderUpdate error:', error)
 
@@ -958,13 +964,16 @@ export class OrderService {
 
 			// Send PDF document
 			const pdfBuffer = await generatePdfBuffer(order)
-			await this.#_telegram.sendDocument(parseInt(process.env.ORDER_CHANEL_ID), Buffer.from(pdfBuffer), 'order-details.pdf')
+			await this.#_telegram.sendMessageWithDocument(parseInt(process.env.ORDER_CHANEL_ID), text, Buffer.from(pdfBuffer), 'order-details.pdf')
+			// await this.#_telegram.sendDocument(parseInt(process.env.ORDER_CHANEL_ID), Buffer.from(pdfBuffer), 'order-details.pdf')
 
 			// Send to user if requested and chat ID exists
 			if (sendUser && order.client.chatId) {
-				await this.#_telegram.sendMessage(Number(order.client.chatId), text)
-				console.log(pdfBuffer);
-				await this.#_telegram.sendDocument(Number(order.client.chatId), Buffer.from(pdfBuffer), 'order-details.pdf')
+				await this.#_telegram.sendMessageWithDocument(parseInt(order.client.chatId), text, Buffer.from(pdfBuffer), 'order-details.pdf')
+
+				// await this.#_telegram.sendMessage()
+				// console.log(pdfBuffer)
+				// await this.#_telegram.sendDocument(Number(order.client.chatId), Buffer.from(pdfBuffer), 'order-details.pdf')
 			}
 		} catch (error) {
 			console.error('Notification error:', error)

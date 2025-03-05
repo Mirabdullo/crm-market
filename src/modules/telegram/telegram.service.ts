@@ -122,4 +122,21 @@ export class TelegramService {
 			filename,
 		})
 	}
+
+	async sendMessageWithDocument(chatId: number, text: string, pdfBuffer: Buffer, filename: string): Promise<void> {
+		try {
+			await this.bot.telegram.sendDocument(
+				chatId,
+				{
+					source: pdfBuffer,
+					filename,
+				},
+				{
+					caption: text, // Fayl bilan birga yuboriladigan matn
+				},
+			)
+		} catch (error) {
+			console.log(error)
+		}
+	}
 }

@@ -1,0 +1,130 @@
+import * as ExcelJS from 'exceljs'
+import { format } from 'date-fns'
+import { Response } from 'express'
+import { ReturnedOrderRetriveAllResponse, ReturnedOrderRetriveResponse } from './interfaces'
+
+export async function ReturnedOrderUpload(data: ReturnedOrderRetriveAllResponse['data'], res: Response): Promise<void> {
+	const workbook = new ExcelJS.Workbook()
+	const worksheet = workbook.addWorksheet('продажа')
+
+	const sum = data.reduce((sum, item) => sum + item.sum, 0)
+
+	worksheet.mergeCells('A1:C1')
+	worksheet.getCell('A1').value = `Общая сумма:   ${sum}`
+	worksheet.getCell('A1').font = { bold: true }
+	worksheet.addRow([])
+
+	const headerRow = worksheet.addRow(['№', 'Поставщик', 'Cумма', 'Кем оприходован', 'Информация', 'Дата прихода'])
+	headerRow.font = { bold: true }
+	headerRow.alignment = { vertical: 'middle', horizontal: 'center' }
+	headerRow.height = 24
+
+	worksheet.getColumn(1).width = 5
+	worksheet.getColumn(2).width = 34
+	worksheet.getColumn(3).width = 30
+	worksheet.getColumn(4).width = 20
+	worksheet.getColumn(5).width = 20
+	worksheet.getColumn(6).width = 20
+
+	headerRow.eachCell((cell) => {
+		cell.border = {
+			top: { style: 'thin' },
+			left: { style: 'thin' },
+			bottom: { style: 'thin' },
+			right: { style: 'thin' },
+		}
+	})
+
+	data.forEach((order, index) => {
+		const row = worksheet.addRow([index + 1, order.client.name, order.sum, order.seller.phone, '', format(order.returnedDate, 'dd.MM.yyyy HH:mm')])
+
+		row.eachCell((cell) => {
+			cell.alignment = { vertical: 'middle', horizontal: 'center' }
+			cell.border = {
+				top: { style: 'thin' },
+				left: { style: 'thin' },
+				bottom: { style: 'thin' },
+				right: { style: 'thin' },
+			}
+		})
+	})
+
+	let date = new Date().toLocaleString()
+	date = date.replaceAll(',', '')
+	date = date.replaceAll('.', '')
+	date = date.replaceAll(' ', '')
+	date = date.replaceAll(':', '')
+
+	res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+	res.setHeader('Content-Disposition', `attachment; filename=prixod${date}.xlsx`)
+
+	await workbook.xlsx.write(res)
+	res.end()
+}
+
+export async function ReturnedOrderUploadWithProduct(data: ReturnedOrderRetriveResponse, res: Response): Promise<void> {
+	const workbook = new ExcelJS.Workbook()
+	const worksheet = workbook.addWorksheet('продажа')
+
+	worksheet.mergeCells('A1:C1')
+	worksheet.getCell('A1').value = `Приход от:   ${format(data.returnedDate, 'dd.MM.yyyy HH:mm')}`
+	worksheet.getCell('A1').font = { bold: true }
+
+	worksheet.mergeCells('A2:C2')
+	worksheet.getCell('A2').value = `Поставщик:   ${data.client.name}`
+	worksheet.getCell('A2').font = { bold: true }
+	worksheet.addRow([])
+
+	const headerRow = worksheet.addRow(['№', 'Товар', 'Количество', 'Цена', 'Стоимость'])
+	headerRow.font = { bold: true }
+	headerRow.alignment = { vertical: 'middle', horizontal: 'center' }
+	headerRow.height = 24
+
+	worksheet.getColumn(1).width = 5
+	worksheet.getColumn(2).width = 38
+	worksheet.getColumn(3).width = 24
+	worksheet.getColumn(4).width = 24
+	worksheet.getColumn(5).width = 24
+
+	headerRow.eachCell((cell) => {
+		cell.border = {
+			top: { style: 'thin' },
+			left: { style: 'thin' },
+			bottom: { style: 'thin' },
+			right: { style: 'thin' },
+		}
+	})
+
+	let sum = 0
+	data.products.forEach((product, index) => {
+		sum += product.price * product.count
+		const row = worksheet.addRow([index + 1, product.product.name, product.count, product.price, product.count * product.price])
+
+		row.eachCell((cell) => {
+			cell.alignment = { vertical: 'middle', horizontal: 'center' }
+			cell.border = {
+				top: { style: 'thin' },
+				left: { style: 'thin' },
+				bottom: { style: 'thin' },
+				right: { style: 'thin' },
+			}
+		})
+	})
+
+	worksheet.addRow([])
+	const finishedRow = worksheet.addRow(['', 'Итого', '', '', sum])
+	finishedRow.font = { bold: true }
+	finishedRow.alignment = { horizontal: 'center', vertical: 'middle' }
+
+	let date = new Date().toLocaleString()
+	date = date.replaceAll(',', '')
+	date = date.replaceAll('.', '')
+	date = date.replaceAll(' ', '')
+	date = date.replaceAll(':', '')
+
+	res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+	res.setHeader('Content-Disposition', `attachment; filename=приход_${date}.xlsx`)
+
+	await workbook.xlsx.write(res)
+	res.end()
+}
