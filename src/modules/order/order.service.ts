@@ -937,7 +937,7 @@ export class OrderService {
 
 	private async sendOrderNotifications(order: any, sendUser?: boolean): Promise<void> {
 		try {
-			const text = `💼 продажа\n\n✍️ ид заказа: ${order.articl}\n\n💵 сумма: ${order.sum.toNumber()}\n\n💳 долг: ${order.debt}\n\n👨‍💼 клиент: ${order.client.name}`
+			const text = `💼 продажа\n\n✍️ ид заказа: ${order.articl}\n\n💵 сумма: ${order.sum.toNumber().toFixed(1)}\n\n💳 долг: ${order.debt.toFixed(1)}\n\n👨‍💼 клиент: ${order.client.name}`
 
 			// Send to order channel
 			// await this.#_telegram.sendMessage(parseInt(process.env.ORDER_CHANEL_ID), text)
@@ -1018,7 +1018,7 @@ export class OrderService {
 				}),
 			)
 
-			let text = `продажа удалена\nид заказа: ${order.articl}\nсумма: ${order.sum}\nдолг: ${order.debt}\nклиент: ${order.client.name}\n\n`
+			let text = `продажа удалена\nид заказа: ${order.articl}\nсумма: ${order.sum.toFixed(1)}\nдолг: ${order.debt.toFixed(1)}\nклиент: ${order.client.name}\n\n`
 			order.products.forEach((product) => {
 				text += `продукт: ${product.product.name}\nцена: ${product.price}\nкол-ва: ${product.count}\n\n`
 			})

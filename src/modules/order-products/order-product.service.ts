@@ -186,8 +186,8 @@ export class OrderProductService {
 				}),
 			)
 
-			const text = `📦 Товар добавлен\n\n✍️ ид заказа: ${order.articl}\n\n💰 сумма: ${order.sum.toNumber() + payload.price * payload.count}\n\n💳 долг: ${
-				order.debt.toNumber() + payload.price * payload.count
+			const text = `📦 Товар добавлен\n\n✍️ ид заказа: ${order.articl}\n\n💰 сумма: ${Number(order.sum.toNumber().toFixed(1)) + payload.price * payload.count}\n\n💳 долг: ${
+				Number(order.debt.toNumber().toFixed(1)) + payload.price * payload.count
 			}\n\n👨‍💼 клиент: ${order.client.name}`
 			await this.#_telegram.sendMessage(parseInt(process.env.ORDER_CHANEL_ID), text)
 
@@ -253,8 +253,8 @@ export class OrderProductService {
 					data: { debt: { increment: newSum - productSum } },
 				})
 
-				const text = `Товар обновлено\nид заказа: ${orderProduct.order.articl}\nсумма: ${orderProduct.order.sum.toNumber() + orderDifference}\nдолг: ${
-					orderProduct.order.debt.toNumber() + orderDifference
+				const text = `Товар обновлено\nид заказа: ${orderProduct.order.articl}\nсумма: ${Number(orderProduct.order.sum.toNumber().toFixed(1)) + orderDifference}\nдолг: ${
+					Number(orderProduct.order.debt.toNumber().toFixed(1)) + orderDifference
 				}\nклиент: ${orderProduct.order.client.name}\n\nпродукт: ${orderProduct.product.name}\nцена: ${price}\nкол-ва: ${count}`
 
 				await this.#_telegram.sendMessage(parseInt(process.env.ORDER_CHANEL_ID), text)
@@ -303,7 +303,9 @@ export class OrderProductService {
 				}),
 			])
 
-			const text = `Товар удалено\nид заказа: ${orderProduct.order.articl}\nклиент: ${orderProduct.order.client.name}\n\nпродукт: ${orderProduct.product.name}\nцена: ${orderProduct.price}\nкол-ва: ${orderProduct.count}`
+			const text = `Товар удалено\nид заказа: ${orderProduct.order.articl}\nклиент: ${orderProduct.order.client.name}\n\nпродукт: ${
+				orderProduct.product.name
+			}\nцена: ${orderProduct.price.toFixed(1)}\nкол-ва: ${orderProduct.count.toFixed(1)}`
 
 			await this.#_telegram.sendMessage(parseInt(process.env.ORDER_CHANEL_ID), text)
 
