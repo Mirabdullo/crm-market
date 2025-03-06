@@ -16,6 +16,7 @@ import { ReturnedOrderCreateResponse, ReturnedOrderRetriveAllResponse, ReturnedO
 import { PassUserIdInterceptor } from '../../interceptors'
 import { Permission } from '@decorators'
 import { Permissions } from '@enums'
+import { Response } from 'express'
 
 @ApiTags('ReturnedOrder')
 @UseInterceptors(PassUserIdInterceptor)
@@ -49,8 +50,8 @@ export class ReturnedOrderController {
 	}
 
 	@Get('upload')
-	@ApiOkResponse({ type: [ReturnedOrderRetrieveAllResponseDto] })
-	ReturnedOrderRetrieveAllUpload(@Query() payload: ReturnedOrderRetrieveAllRequestDto): Promise<void> {
+	@ApiOkResponse({})
+	ReturnedOrderRetrieveAllUpload(@Query() payload: ReturnedOrderRetrieveAllRequestDto, @Res() res: Response): Promise<void> {
 		let accepted = undefined
 		if (['true', true].includes(payload.accepted) || ['false', false].includes(payload.accepted)) {
 			if (['true', true].includes(payload.accepted)) {
@@ -61,6 +62,7 @@ export class ReturnedOrderController {
 		}
 		return this.#_service.ReturnedOrderRetrieveAllUpload({
 			...payload,
+			res,
 			pageNumber: payload.pageNumber ?? PAGE_NUMBER,
 			pageSize: payload.pageSize ?? PAGE_SIZE,
 			accepted,
@@ -76,8 +78,8 @@ export class ReturnedOrderController {
 
 	@Get('upload/:id')
 	@ApiOkResponse({ type: ReturnedOrderRetrieveResponseDto })
-	ReturnedOrderRetrieveUpload(@Param() payload: ReturnedOrderRetrieveRequestDto): Promise<void> {
-		return this.#_service.ReturnedOrderRetrieveUpload(payload)
+	ReturnedOrderRetrieveUpload(@Param() payload: ReturnedOrderRetrieveRequestDto, @Res() res: Response): Promise<void> {
+		return this.#_service.ReturnedOrderRetrieveUpload({...payload, res})
 	}
 
 	@Permission(Permissions.ORDER_CREATE)

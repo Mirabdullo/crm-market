@@ -376,26 +376,6 @@ export class OrderService {
 				})),
 			}))
 
-			const totalCalc = {
-				totalSum: 0,
-				totalDebt: 0,
-				totalPay: 0,
-				totalCard: 0,
-				totalCash: 0,
-				totalTransfer: 0,
-				totalOther: 0,
-			}
-
-			formattedData.forEach((order) => {
-				totalCalc.totalSum += order.sum
-				totalCalc.totalDebt += order.debt
-				totalCalc.totalPay += order?.payment?.totalPay || 0
-				totalCalc.totalCard += order?.payment?.card || 0
-				totalCalc.totalCash += order?.payment?.cash || 0
-				totalCalc.totalTransfer += order?.payment?.transfer || 0
-				totalCalc.totalOther += order?.payment?.other || 0
-			})
-
 			await OrderUpload(formattedData, payload.res)
 		} catch (error) {
 			console.log(error)
