@@ -428,11 +428,11 @@ export class PaymentService {
 			const message =
 				`${order ? 'тип: для продажи\n' : 'тип: для клиента\n'}` +
 				`Клиент: ${payment.client.name}\n` +
-				`Сумма: ${payment.totalPay}\n\n` +
-				`наличными: ${payment.cash}\n` +
-				`карты: ${payment.card}\n` +
-				`перечислением: ${payment.transfer}\n` +
-				`други: ${payment.other}\n` +
+				`Сумма: ${payment.totalPay.toFixed(1)}\n\n` +
+				`наличными: ${payment.cash?.toFixed(1)}\n` +
+				`карты: ${payment.card?.toFixed(1)}\n` +
+				`перечислением: ${payment.transfer?.toFixed(1)}\n` +
+				`други: ${payment.other?.toFixed(1)}\n` +
 				`Дата: ${format(new Date(), 'yyyy-MM-dd HH:mm')}\n` +
 				`Инфо: ${payment.description}\n` +
 				`id: ${payment.id}`
@@ -482,7 +482,7 @@ export class PaymentService {
 
 		const message = `обновлено\n\n${payment.order ? 'тип: для продажи\n' : 'тип: для клиента\n'}Клиент: ${
 			payment.client.name
-		}\nСумма: ${sum}\n\nналичными: ${cash}\nкарты: ${card}\nперечислением: ${transfer}\nдруги: ${other}\nДата: ${format(new Date(), 'yyyy-MM-dd HH:mm')}\nИнфо: ${
+		}\nСумма: ${sum?.toFixed(1)}\n\nналичными: ${cash?.toFixed(1)}\nкарты: ${card?.toFixed(1)}\nперечислением: ${transfer?.toFixed(1)}\nдруги: ${other?.toFixed(1)}\nДата: ${format(new Date(), 'yyyy-MM-dd HH:mm')}\nИнфо: ${
 			payment.description
 		}\nid: #${payment.id}`
 
@@ -516,9 +516,9 @@ export class PaymentService {
 			})
 		}
 
-		const message = `удалено\n\n${payment.order ? 'тип: для продажи\n' : 'тип: для клиента\n'}Клиент: ${payment.client.name}\nСумма: ${payment.totalPay}\n\nналичными: ${
-			payment.cash
-		}\nкарты: ${payment.card}\nперечислением: ${payment.transfer}\nдруги: ${payment.other}\nДата: ${format(new Date(), 'yyyy-MM-dd HH:mm')}\nИнфо: ${
+		const message = `удалено\n\n${payment.order ? 'тип: для продажи\n' : 'тип: для клиента\n'}Клиент: ${payment.client.name}\nСумма: ${payment.totalPay?.toFixed(1)}\n\nналичными: ${
+			payment.cash?.toFixed(1)
+		}\nкарты: ${payment.card?.toFixed(1)}\nперечислением: ${payment.transfer?.toFixed(1)}\nдруги: ${payment.other?.toFixed(1)}\nДата: ${format(new Date(), 'yyyy-MM-dd HH:mm')}\nИнфо: ${
 			payment.description
 		}\nid: #${payment.id}`
 		await this.#_telegram.sendMessage(parseInt(process.env.PAYMENT_CHANEL_ID), message)
