@@ -1,7 +1,6 @@
 import { format } from 'date-fns'
 import * as Puppeteer from 'puppeteer'
 export async function generatePdfBuffer(orderData: any) {
-	console.log(__dirname)
 	const browser = await Puppeteer.launch({
 		args: [
 			'--no-sandbox',

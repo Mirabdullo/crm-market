@@ -78,7 +78,6 @@ export async function OrderUpload(data: OrderRetriveAllResponse['data'], res: Re
 export async function ReedExcelFile() {
 	const workbook = new ExcelJS.Workbook()
 	const filename = path.resolve('Товары.xlsx')
-	console.log('Reading file:', filename)
 
 	const newData: any[] = []
 
@@ -101,14 +100,13 @@ export async function ReedExcelFile() {
 			})
 		}
 	})
-	console.log('productlar: ', newData.length)
+
 	return newData
 }
 
 export async function ReedExcelFile2() {
 	const workbook = new ExcelJS.Workbook()
 	const filename = path.resolve('состояние_поставщиков_в_момент_02032025_205317.xlsx')
-	console.log('Reading file:', filename)
 
 	const newData: any = []
 
@@ -117,17 +115,17 @@ export async function ReedExcelFile2() {
 		if (!fs.existsSync(filename)) {
 			throw new Error(`File not found: ${filename}`)
 		}
-		console.log(1)
+
 		// Read the file
 		await workbook.xlsx.readFile(filename)
-		console.log(2)
+	
 		// Get the first worksheet
 		const worksheet = workbook.getWorksheet(1)
-		console.log(3)
+	
 		if (!worksheet) {
 			throw new Error('Worksheet not found')
 		}
-		console.log('sheet: ', worksheet)
+
 		// Process each row
 		worksheet.eachRow((row, rowNumber) => {
 			try {

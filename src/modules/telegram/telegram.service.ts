@@ -27,11 +27,10 @@ export class TelegramService {
 
 			this.bot.on('contact', async (ctx) => {
 				const contact = ctx.message.contact
-				console.log(contact)
 				let num = contact.phone_number.trim().replace(' ', '')
 				num = num.replace('+', '')
+				
 				const telegramId = ctx.message.contact.user_id
-				console.log(contact, telegramId)
 				const user = await this.prisma.users.findFirst({
 					where: { phone: num, deletedAt: null },
 				})

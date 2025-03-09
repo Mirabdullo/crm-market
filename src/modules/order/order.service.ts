@@ -480,7 +480,6 @@ export class OrderService {
 	async orderStatistics(): Promise<OrderStatisticsResponse> {
 		const today = new Date(format(new Date(), 'yyyy-MM-dd'))
 		const endDate = addHours(new Date(endOfDay(today)), 3)
-		console.log(today, endDate)
 
 		const todaySales = await this.#_prisma.order.aggregate({
 			_sum: { sum: true },
@@ -947,25 +946,16 @@ export class OrderService {
 				order.client.name
 			}`
 
-			// Send to order channel
-			// await this.#_telegram.sendMessage(parseInt(process.env.ORDER_CHANEL_ID), text)
-
 			// Send PDF document
 			const pdfBuffer = await generatePdfBuffer(order)
 			await this.#_telegram.sendMessageWithDocument(parseInt(process.env.ORDER_CHANEL_ID), text, Buffer.from(pdfBuffer), 'order-details.pdf')
-			// await this.#_telegram.sendDocument(parseInt(process.env.ORDER_CHANEL_ID), Buffer.from(pdfBuffer), 'order-details.pdf')
 
 			// Send to user if requested and chat ID exists
 			if (sendUser && order.client.chatId) {
 				await this.#_telegram.sendMessageWithDocument(parseInt(order.client.chatId), text, Buffer.from(pdfBuffer), 'order-details.pdf')
-
-				// await this.#_telegram.sendMessage()
-				// console.log(pdfBuffer)
-				// await this.#_telegram.sendDocument(Number(order.client.chatId), Buffer.from(pdfBuffer), 'order-details.pdf')
 			}
 		} catch (error) {
 			console.error('Notification error:', error)
-			// Don't throw error as notifications are not critical
 		}
 	}
 

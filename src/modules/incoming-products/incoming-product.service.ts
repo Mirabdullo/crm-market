@@ -225,7 +225,7 @@ export class IncomingProductService {
 			where: { id: payload.id, deletedAt: null },
 			include: { incomingOrder: true },
 		})
-		console.log(incomingProduct, payload)
+
 		if (!incomingProduct) throw new NotFoundException('maxsulot topilmadi')
 
 		await this.#_prisma.incomingOrder.update({

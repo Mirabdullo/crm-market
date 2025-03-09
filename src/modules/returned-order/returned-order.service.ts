@@ -466,7 +466,6 @@ export class ReturnedOrderService {
 	async ReturnedOrderUpdate(payload: ReturnedOrderUpdateRequest): Promise<null> {
 		try {
 			const { id, accepted, cashPayment, description, fromClient, returnedDate } = payload
-			console.log(payload)
 			const returnedOrder = await this.#_prisma.returnedOrder.findUnique({
 				where: { id },
 				select: {

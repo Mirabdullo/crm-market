@@ -330,7 +330,6 @@ export class PaymentService {
 	}
 
 	async paymentCreate(payload: PaymentCreateRequest): Promise<null> {
-		console.log(payload)
 		const { card = 0, transfer = 0, other = 0, cash = 0, orderId, clientId, description, userId } = payload
 
 		const order = orderId
