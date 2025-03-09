@@ -186,8 +186,8 @@ export class OrderProductService {
 				}),
 			)
 
-			const text = `📦 Товар добавлен\n\n✍️ ид заказа: ${order.articl}\n\n💰 сумма: ${(order.sum.toNumber() + payload.price * payload.count).toFixed(1)}\n\n💳 долг: ${
-				(order.debt.toNumber() + payload.price * payload.count).toFixed(1)
+			const text = `📦 Товар добавлен\n\n✍️ ид заказа: ${order.articl}\n\n💰 сумма: ${parseFloat((order.sum.toNumber() + payload.price * payload.count).toFixed(1))}\n\n💳 долг: ${
+				parseFloat((order.debt.toNumber() + payload.price * payload.count).toFixed(1))
 			}\n\n👨‍💼 клиент: ${order.client.name}`
 			await this.#_telegram.sendMessage(parseInt(process.env.ORDER_CHANEL_ID), text)
 
