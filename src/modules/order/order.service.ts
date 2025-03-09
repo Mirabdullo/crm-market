@@ -899,7 +899,7 @@ export class OrderService {
 						}
 					}
 
-					if (accepted) {
+					if (accepted && !order.accepted) {
 						date = this.adjustToTashkentTime()
 					}
 

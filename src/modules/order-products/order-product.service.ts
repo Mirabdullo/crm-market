@@ -11,7 +11,8 @@ import {
 } from './interfaces'
 import { Decimal } from '../../types'
 import { TelegramService } from '../telegram'
-import { generatePdfBuffer, generatePdfBufferWithProduct } from '../order/format-to-pdf'
+import { generatePdfBuffer } from '../order/format-to-pdf'
+import { generatePdfBufferWithProduct } from 'modules/order/generatePdfBufferWithProduct'
 
 @Injectable()
 export class OrderProductService {
@@ -186,8 +187,8 @@ export class OrderProductService {
 				}),
 			)
 
-			const text = `📦 Товар добавлен\n\n✍️ ид заказа: ${order.articl}\n\n💰 сумма: ${Number(order.sum.toNumber().toFixed(1)) + payload.price * payload.count}\n\n💳 долг: ${
-				Number(order.debt.toNumber().toFixed(1)) + payload.price * payload.count
+			const text = `📦 Товар добавлен\n\n✍️ ид заказа: ${order.articl}\n\n💰 сумма: ${(order.sum.toNumber() + payload.price * payload.count).toFixed(1)}\n\n💳 долг: ${
+				(order.debt.toNumber() + payload.price * payload.count).toFixed(1)
 			}\n\n👨‍💼 клиент: ${order.client.name}`
 			await this.#_telegram.sendMessage(parseInt(process.env.ORDER_CHANEL_ID), text)
 
