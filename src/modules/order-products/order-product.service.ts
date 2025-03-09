@@ -11,8 +11,7 @@ import {
 } from './interfaces'
 import { Decimal } from '../../types'
 import { TelegramService } from '../telegram'
-import { generatePdfBuffer } from '../order/format-to-pdf'
-import { generatePdfBufferWithProduct } from 'modules/order/generatePdfBufferWithProduct'
+import { generatePdfBuffer, generatePdfBufferWithProduct } from '../order/format-to-pdf'
 
 @Injectable()
 export class OrderProductService {
