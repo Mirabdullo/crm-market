@@ -78,7 +78,7 @@ export async function generatePdfBuffer(orderData: any) {
       		<p><strong>Дата продажа:</strong> ${format(orderData.sellingDate, 'yyyy-MM-dd HH:mm:ss')}</p>
    		 </div>
    		 <div class="logo">
-     		 <img src="src/media/logo.svg" alt="SAS-IDEAL Logo"> 
+     		 <img src="../../../src/media/logo.svg" alt="SAS-IDEAL Logo"> 
    		 </div>
  		</div>
 
@@ -208,7 +208,7 @@ export async function generatePdfBufferWithProduct(orderData: any, payload: any)
 	  <p><strong>Дата продажа:</strong> ${format(orderData.sellingDate, 'yyyy-MM-dd HH:mm:ss')}</p>
 	</div>
 	<div class="logo">
-	  <img src="src/media/logo.svg" alt="SAS-IDEAL Logo"> 
+	  <img src="../../../src/media/logo.svg" alt="SAS-IDEAL Logo"> 
 	  </div>
       </div>
 
