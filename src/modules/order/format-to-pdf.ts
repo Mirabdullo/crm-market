@@ -25,9 +25,24 @@ export async function generatePdfBuffer(orderData: any) {
 		  margin: 20px;
 		}
 	
-		.logo {
-		  text-align: center;
-		  margin-bottom: 20px;
+		.header {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			margin-bottom: 20px;
+		  }
+	  
+		  .logo {
+			text-align: right;
+		  }
+	  
+		  .logo img {
+			max-width: 150px; /* Logoning maksimal kengligi */
+			height: auto;
+		  }
+	  
+		  .client-info {
+			text-align: left;
 		}
 	
 		table {
@@ -56,10 +71,17 @@ export async function generatePdfBuffer(orderData: any) {
 	</head>
 	
 	<body>
-	  <h2 class="logo">SAS-IDEAL</h2>
-	  <p><strong>Клиент:</strong> ${orderData.client.name}</p>
-	  <p><strong>Дата продажа:</strong> ${format(orderData.sellingDate, 'yyyy-MM-dd HH:mm:ss')}</p>
-	
+		<div class="header">
+   		 <div class="client-info">
+       		<p><strong>Клиент:</strong> ${orderData.client.name}</p>
+      		<p><strong>Дата продажа:</strong> ${format(orderData.sellingDate, 'yyyy-MM-dd HH:mm:ss')}</p>
+   		 </div>
+   		 <div class="logo">
+     		 <img src="../../media/logo.svg" alt="SAS-IDEAL Logo"> 
+   		 </div>
+ 		</div>
+
+
 	  <table>
 		<thead>
 		  <tr>

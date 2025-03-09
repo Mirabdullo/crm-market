@@ -81,6 +81,7 @@ model Users {
 
   @@id([ id ])
   @@map("users")
+  @@index([id, name])
 }
 
 model Products {
@@ -105,6 +106,7 @@ model Products {
 
   @@id([ id ])
   @@map("products")
+  @@index([id, name])
 }
 
 model IncomingOrder {
@@ -167,6 +169,7 @@ model Order {
 
   @@id([ id ])
   @@map("order")
+  @@index([id, articl])
 }
 
 model OrderProducts {

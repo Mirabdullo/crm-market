@@ -836,81 +836,87 @@ export class OrderService {
 		}
 
 		try {
-			await this.#_prisma.$transaction(async (tx) => {
-				// 2. Handle client change for accepted order
-				if (clientId && order.accepted) {
-					const newClient = await tx.users.findFirst({
-						where: {
-							id: clientId,
-							type: 'client',
-							deletedAt: null,
+			await this.#_prisma.$transaction(
+				async (tx) => {
+					// 2. Handle client change for accepted order
+					if (clientId && order.accepted) {
+						const newClient = await tx.users.findFirst({
+							where: {
+								id: clientId,
+								type: 'client',
+								deletedAt: null,
+							},
+						})
+
+						if (!newClient) {
+							throw new NotFoundException('Client topilmadi')
+						}
+
+						// Update old client's debt
+						await tx.users.update({
+							where: { id: order.clientId },
+							data: { debt: { decrement: order.debt } },
+						})
+
+						// Update new client's debt
+						await tx.users.update({
+							where: { id: newClient.id },
+							data: { debt: { increment: order.debt } },
+						})
+					}
+
+					// 3. Handle order acceptance
+					if (accepted && !order.accepted) {
+						const targetClientId = clientId || order.clientId
+
+						// Prepare all update operations
+						const updateOperations = [
+							// Update client debt
+							tx.users.update({
+								where: { id: targetClientId },
+								data: { debt: { increment: order.debt } },
+							}),
+							// Update product counts
+							...order.products.map((pr) =>
+								tx.products.update({
+									where: { id: pr.productId },
+									data: { count: { decrement: pr.count } },
+								}),
+							),
+						]
+
+						await Promise.all(updateOperations)
+					}
+
+					let date = undefined
+					if (sellingDate) {
+						date = new Date(sellingDate)
+						let now = this.adjustToTashkentTime()
+						if (format(date, 'yyyy-MM-dd') !== format(now, 'yyyy-MM-dd')) {
+							date = new Date(format(date, 'yyyy-MM-dd'))
+						} else {
+							date = date.toISOString().split('T')[0] + 'T' + now.toISOString().split('T')[1]
+						}
+					}
+
+					if (accepted) {
+						date = this.adjustToTashkentTime()
+					}
+
+					await tx.order.update({
+						where: { id },
+						data: {
+							accepted,
+							clientId,
+							sellingDate: date,
 						},
 					})
-
-					if (!newClient) {
-						throw new NotFoundException('Client topilmadi')
-					}
-
-					// Update old client's debt
-					await tx.users.update({
-						where: { id: order.clientId },
-						data: { debt: { decrement: order.debt } },
-					})
-
-					// Update new client's debt
-					await tx.users.update({
-						where: { id: newClient.id },
-						data: { debt: { increment: order.debt } },
-					})
-				}
-
-				// 3. Handle order acceptance
-				if (accepted && !order.accepted) {
-					const targetClientId = clientId || order.clientId
-
-					// Prepare all update operations
-					const updateOperations = [
-						// Update client debt
-						tx.users.update({
-							where: { id: targetClientId },
-							data: { debt: { increment: order.debt } },
-						}),
-						// Update product counts
-						...order.products.map((pr) =>
-							tx.products.update({
-								where: { id: pr.productId },
-								data: { count: { decrement: pr.count } },
-							}),
-						),
-					]
-
-					await Promise.all(updateOperations)
-				}
-
-				let date = undefined
-				if (sellingDate) {
-					date = new Date(sellingDate)
-					let now = this.adjustToTashkentTime()
-					if (format(date, 'yyyy-MM-dd') !== format(now, 'yyyy-MM-dd')) {
-						date = new Date(format(date, 'yyyy-MM-dd'))
-					} else {
-						date = date.toISOString().split('T')[0] + 'T' + now.toISOString().split('T')[1]
-					}
-				}
-
-				if (accepted) {
-					date = this.adjustToTashkentTime()
-				}
-
-				await tx.order.update({
-					where: { id },
-					data: {
-						accepted,
-						clientId,
-						sellingDate: date,
-					},
-				})
-			})
+				},
+				{
+					maxWait: 20000, // Maksimum kutish vaqti (20 soniya)
+					timeout: 15000, // Transactionning maksimum ishlash vaqti (15 soniya)
+				},
+			)
 
 			// 5. Handle notifications (outside transaction as it's not critical)
 			if (accepted && !order.accepted) {
@@ -937,7 +943,9 @@ export class OrderService {
 
 	private async sendOrderNotifications(order: any, sendUser?: boolean): Promise<void> {
 		try {
-			const text = `💼 продажа\n\n✍️ ид заказа: ${order.articl}\n\n💵 сумма: ${order.sum.toNumber().toFixed(1)}\n\n💳 долг: ${order.debt.toFixed(1)}\n\n👨‍💼 клиент: ${order.client.name}`
+			const text = `💼 продажа\n\n✍️ ид заказа: ${order.articl}\n\n💵 сумма: ${order.sum.toNumber().toFixed(1)}\n\n💳 долг: ${order.debt.toFixed(1)}\n\n👨‍💼 клиент: ${
+				order.client.name
+			}`
 
 			// Send to order channel
 			// await this.#_telegram.sendMessage(parseInt(process.env.ORDER_CHANEL_ID), text)
