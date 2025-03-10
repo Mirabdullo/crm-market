@@ -792,7 +792,6 @@ export class OrderService {
 
 	async OrderUpdate(payload: OrderUpdateRequest): Promise<null> {
 		const { id, accepted, clientId, sellingDate, sendUser } = payload
-		console.time('findorder')
 		// 1. Get order with all necessary data
 		const order = await this.#_prisma.order.findUnique({
 			where: { id },
@@ -829,18 +828,16 @@ export class OrderService {
 				},
 			},
 		})
-		console.timeEnd('findorder')
+
 		if (!order) {
 			throw new NotFoundException("Ma'lumot topilmadi")
 		}
 
-		console.log('clientId: ', clientId)
 		try {
 			await this.#_prisma.$transaction(
 				async (tx) => {
 					// 2. Handle client change for accepted order
 					if (clientId && order.clientId !== clientId && order.accepted) {
-						console.time('clientupdate')
 						const newClient = await tx.users.findFirst({
 							where: {
 								id: clientId,
@@ -864,12 +861,10 @@ export class OrderService {
 							where: { id: newClient.id },
 							data: { debt: { increment: order.debt } },
 						})
-						console.timeEnd('clientupdate')
 					}
 
 					// 3. Handle order acceptance
 					if (accepted && !order.accepted) {
-						console.time('accepted')
 						const targetClientId = clientId || order.clientId
 
 						// Prepare all update operations
@@ -889,7 +884,6 @@ export class OrderService {
 						]
 
 						await Promise.all(updateOperations)
-						console.timeEnd('accepted')
 					}
 
 					let date = undefined
@@ -906,7 +900,7 @@ export class OrderService {
 					if (accepted && !order.accepted) {
 						date = this.adjustToTashkentTime()
 					}
-					console.time('order')
+
 					await tx.order.update({
 						where: { id },
 						data: {
@@ -915,7 +909,6 @@ export class OrderService {
 							sellingDate: date,
 						},
 					})
-					console.timeEnd('order')
 				},
 				{
 					maxWait: 20000, // Maksimum kutish vaqti (20 soniya)
@@ -925,7 +918,6 @@ export class OrderService {
 
 			// 5. Handle notifications (outside transaction as it's not critical)
 			if (accepted && !order.accepted) {
-				console.time('send notifications')
 				await this.sendOrderNotifications(
 					{
 						...order,
@@ -933,7 +925,6 @@ export class OrderService {
 					},
 					sendUser,
 				)
-				console.timeEnd('send notifications')
 			}
 
 			return null
@@ -955,8 +946,13 @@ export class OrderService {
 			}`
 
 			// Send PDF document
+			console.time('generatePdf')
 			const pdfBuffer = await generatePdfBuffer(order)
+			console.timeEnd('generatePdf');
+
+			console.time('sendmessage')
 			await this.#_telegram.sendMessageWithDocument(parseInt(process.env.ORDER_CHANEL_ID), text, Buffer.from(pdfBuffer), 'order-details.pdf')
+			console.timeEnd('sendmessage');
 
 			// Send to user if requested and chat ID exists
 			if (sendUser && order.client.chatId) {
