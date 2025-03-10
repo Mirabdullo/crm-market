@@ -946,13 +946,9 @@ export class OrderService {
 			}`
 
 			// Send PDF document
-			console.time('plg')
 			const pdfBuffer = await generatePdfBuffer(order)
-			console.timeEnd('plg');
 
-			console.time('sendmessage')
 			await this.#_telegram.sendMessageWithDocument(parseInt(process.env.ORDER_CHANEL_ID), text, Buffer.from(pdfBuffer), 'order-details.pdf')
-			console.timeEnd('sendmessage');
 
 			// Send to user if requested and chat ID exists
 			if (sendUser && order.client.chatId) {
