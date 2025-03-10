@@ -2,21 +2,22 @@ import { format } from 'date-fns'
 import * as path from 'path'
 import * as Puppeteer from 'puppeteer'
 
-console.log(__dirname)
-export async function generatePdfBuffer(orderData: any) {
-	const filePath = path.join(__dirname, '../../media')
-	console.log(filePath) // /root/crm-market/media
+let browser: any
 
-	const browser = await Puppeteer.launch({
-		args: [
-			'--no-sandbox',
-			'--disable-setuid-sandbox',
-			'--disable-dev-shm-usage', // Bu muhim
-			'--disable-gpu', // Bu ham
-		],
-		headless: true,
-	})
-	const page = await browser.newPage()
+async function getBrowserInstance() {
+	if (!browser) {
+		browser = await Puppeteer.launch({
+			args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage', '--disable-gpu', '--single-process', '--no-zygote', '--disable-software-rasterizer'],
+			headless: true,
+		})
+	}
+	return browser
+}
+export async function generatePdfBuffer(orderData: any) {
+	const browser = await getBrowserInstance();
+	const page = await browser.newPage();
+  
+	const filePath = path.join(__dirname, '../../media');
 
 	const htmlContent = `
 	<!DOCTYPE html>
@@ -83,7 +84,7 @@ export async function generatePdfBuffer(orderData: any) {
       		<p><strong>Дата продажа:</strong> ${format(orderData.sellingDate, 'yyyy-MM-dd HH:mm:ss')}</p>
    		 </div>
    		 <div class="logo">
-     		 <img src="${filePath}/logo.svg" alt="SAS-IDEAL Logo"> 
+     		 <img src="./logo.png" alt="SAS-IDEAL Logo"> 
    		 </div>
  		</div>
 
@@ -121,29 +122,16 @@ export async function generatePdfBuffer(orderData: any) {
 	</html>
 	`
 
-	// HTML-ni sahifaga joylashtiramiz
-	await page.setContent(htmlContent)
-
-	// PDF-ni xotirada yaratamiz
-	const pdfBuffer = await page.pdf({ format: 'A4' })
-	await browser.close()
-
-	return pdfBuffer
+	await page.setContent(htmlContent, { waitUntil: 'networkidle0' });
+	const pdfBuffer = await page.pdf({ format: 'A4' });
+	await page.close();
+  
+	return pdfBuffer;
 }
 
 export async function generatePdfBufferWithProduct(orderData: any, payload: any) {
-	const filePath = path.join(__dirname, '../../media')
-	console.log(filePath)
-	const browser = await Puppeteer.launch({
-		args: [
-			'--no-sandbox',
-			'--disable-setuid-sandbox',
-			'--disable-dev-shm-usage', // Bu muhim
-			'--disable-gpu', // Bu ham
-		],
-		headless: true,
-	})
-	const page = await browser.newPage()
+	const browser = await getBrowserInstance();
+	const page = await browser.newPage();
 
 	const htmlContent = `
 	<!DOCTYPE html>
@@ -215,7 +203,7 @@ export async function generatePdfBufferWithProduct(orderData: any, payload: any)
 	  <p><strong>Дата продажа:</strong> ${format(orderData.sellingDate, 'yyyy-MM-dd HH:mm:ss')}</p>
 	</div>
 	<div class="logo">
-	  <img src="${filePath}/logo.svg" alt="SAS-IDEAL Logo"> 
+	  <img src="./logo.png" alt="SAS-IDEAL Logo"> 
 	  </div>
       </div>
 
@@ -276,12 +264,9 @@ export async function generatePdfBufferWithProduct(orderData: any, payload: any)
 	</html>
 	`
 
-	// HTML-ni sahifaga joylashtiramiz
-	await page.setContent(htmlContent)
-
-	// PDF-ni xotirada yaratamiz
-	const pdfBuffer = await page.pdf({ format: 'A4' })
-	await browser.close()
-
-	return pdfBuffer
+	await page.setContent(htmlContent, { waitUntil: 'networkidle0' });
+	const pdfBuffer = await page.pdf({ format: 'A4' });
+	await page.close();
+  
+	return pdfBuffer;
 }
