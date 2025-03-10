@@ -2,23 +2,18 @@ import { format } from 'date-fns'
 import * as path from 'path'
 import * as Puppeteer from 'puppeteer'
 
-let browser: any
-
-async function getBrowserInstance() {
-	if (!browser) {
-		browser = await Puppeteer.launch({
-			args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage', '--disable-gpu', '--single-process', '--no-zygote', '--disable-software-rasterizer'],
-			headless: true,
-			protocolTimeout: 60000, // Vaqt chegarasini 60 soniyaga oshirish
-		})
-	}
-	return browser
-}
+console.log(__dirname)
 export async function generatePdfBuffer(orderData: any) {
-	const browser = await getBrowserInstance()
+	const browser = await Puppeteer.launch({
+		args: [
+			'--no-sandbox',
+			'--disable-setuid-sandbox',
+			'--disable-dev-shm-usage', // Bu muhim
+			'--disable-gpu', // Bu ham
+		],
+		headless: true,
+	})
 	const page = await browser.newPage()
-
-	const filePath = path.join(__dirname, '../../media')
 
 	const htmlContent = `
 	<!DOCTYPE html>
@@ -123,16 +118,26 @@ export async function generatePdfBuffer(orderData: any) {
 	</html>
 	`
 
-	await page.setContent(htmlContent, { waitUntil: 'networkidle2' })
+	// HTML-ni sahifaga joylashtiramiz
+	await page.setContent(htmlContent)
+
+	// PDF-ni xotirada yaratamiz
 	const pdfBuffer = await page.pdf({ format: 'A4' })
-	await page.close()
 	await browser.close()
 
 	return pdfBuffer
 }
 
 export async function generatePdfBufferWithProduct(orderData: any, payload: any) {
-	const browser = await getBrowserInstance()
+	const browser = await Puppeteer.launch({
+		args: [
+			'--no-sandbox',
+			'--disable-setuid-sandbox',
+			'--disable-dev-shm-usage', // Bu muhim
+			'--disable-gpu', // Bu ham
+		],
+		headless: true,
+	})
 	const page = await browser.newPage()
 
 	const htmlContent = `
@@ -266,9 +271,11 @@ export async function generatePdfBufferWithProduct(orderData: any, payload: any)
 	</html>
 	`
 
-	await page.setContent(htmlContent, { waitUntil: 'networkidle0' })
+	// HTML-ni sahifaga joylashtiramiz
+	await page.setContent(htmlContent)
+
+	// PDF-ni xotirada yaratamiz
 	const pdfBuffer = await page.pdf({ format: 'A4' })
-	await page.close()
 	await browser.close()
 
 	return pdfBuffer
