@@ -834,6 +834,7 @@ export class OrderService {
 			throw new NotFoundException("Ma'lumot topilmadi")
 		}
 
+		console.log('clientId: ', clientId)
 		try {
 			await this.#_prisma.$transaction(
 				async (tx) => {
@@ -932,7 +933,7 @@ export class OrderService {
 					},
 					sendUser,
 				)
-				console.timeEnd('sent notification')
+				console.timeEnd('sent notifications')
 			}
 
 			return null
