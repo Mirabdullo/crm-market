@@ -3,7 +3,7 @@ import * as Puppeteer from 'puppeteer'
 
 console.log(__dirname)
 export async function generatePdfBuffer(orderData: any) {
-	const filePath = __dirname + '../../'
+	const filePath = __dirname + '../../../media'
 	const browser = await Puppeteer.launch({
 		args: [
 			'--no-sandbox',
@@ -80,7 +80,7 @@ export async function generatePdfBuffer(orderData: any) {
       		<p><strong>Дата продажа:</strong> ${format(orderData.sellingDate, 'yyyy-MM-dd HH:mm:ss')}</p>
    		 </div>
    		 <div class="logo">
-     		 <img src="../../../media/logo.svg" alt="SAS-IDEAL Logo"> 
+     		 <img src="${filePath}/logo.svg" alt="SAS-IDEAL Logo"> 
    		 </div>
  		</div>
 
@@ -129,6 +129,8 @@ export async function generatePdfBuffer(orderData: any) {
 }
 
 export async function generatePdfBufferWithProduct(orderData: any, payload: any) {
+	const filePath = __dirname + '../../../media'
+	console.log(filePath)
 	const browser = await Puppeteer.launch({
 		args: [
 			'--no-sandbox',
@@ -210,7 +212,7 @@ export async function generatePdfBufferWithProduct(orderData: any, payload: any)
 	  <p><strong>Дата продажа:</strong> ${format(orderData.sellingDate, 'yyyy-MM-dd HH:mm:ss')}</p>
 	</div>
 	<div class="logo">
-	  <img src="../../../media/logo.svg" alt="SAS-IDEAL Logo"> 
+	  <img src="${filePath}/logo.svg" alt="SAS-IDEAL Logo"> 
 	  </div>
       </div>
 
