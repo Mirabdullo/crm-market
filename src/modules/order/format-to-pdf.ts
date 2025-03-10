@@ -1,9 +1,12 @@
 import { format } from 'date-fns'
+import path from 'path'
 import * as Puppeteer from 'puppeteer'
 
 console.log(__dirname)
 export async function generatePdfBuffer(orderData: any) {
-	const filePath = __dirname + '../../../media'
+	const filePath = path.join(__dirname, '../../../../media')
+	console.log(filePath) // /root/crm-market/media
+
 	const browser = await Puppeteer.launch({
 		args: [
 			'--no-sandbox',
@@ -129,7 +132,7 @@ export async function generatePdfBuffer(orderData: any) {
 }
 
 export async function generatePdfBufferWithProduct(orderData: any, payload: any) {
-	const filePath = __dirname + '../../../media'
+	const filePath = path.join(__dirname, '../../../../media')
 	console.log(filePath)
 	const browser = await Puppeteer.launch({
 		args: [

@@ -792,7 +792,7 @@ export class OrderService {
 
 	async OrderUpdate(payload: OrderUpdateRequest): Promise<null> {
 		const { id, accepted, clientId, sellingDate, sendUser } = payload
-
+		console.time('findorder')
 		// 1. Get order with all necessary data
 		const order = await this.#_prisma.order.findUnique({
 			where: { id },
@@ -829,16 +829,18 @@ export class OrderService {
 				},
 			},
 		})
-
+		console.timeEnd('findorder')
 		if (!order) {
 			throw new NotFoundException("Ma'lumot topilmadi")
 		}
 
 		try {
+			console.time('transaction')
 			await this.#_prisma.$transaction(
 				async (tx) => {
 					// 2. Handle client change for accepted order
 					if (clientId && order.accepted) {
+						console.time('clientupdate')
 						const newClient = await tx.users.findFirst({
 							where: {
 								id: clientId,
@@ -862,10 +864,12 @@ export class OrderService {
 							where: { id: newClient.id },
 							data: { debt: { increment: order.debt } },
 						})
+						console.timeEnd('clientupdate')
 					}
 
 					// 3. Handle order acceptance
 					if (accepted && !order.accepted) {
+						console.time('order update')
 						const targetClientId = clientId || order.clientId
 
 						// Prepare all update operations
@@ -884,7 +888,9 @@ export class OrderService {
 							),
 						]
 
+						console.time('promisegacha')
 						await Promise.all(updateOperations)
+						console.timeEnd('order update')
 					}
 
 					let date = undefined
@@ -901,7 +907,7 @@ export class OrderService {
 					if (accepted && !order.accepted) {
 						date = this.adjustToTashkentTime()
 					}
-
+					console.time('order')
 					await tx.order.update({
 						where: { id },
 						data: {
@@ -910,6 +916,7 @@ export class OrderService {
 							sellingDate: date,
 						},
 					})
+					console.timeEnd('order')
 				},
 				{
 					maxWait: 20000, // Maksimum kutish vaqti (20 soniya)
@@ -919,6 +926,7 @@ export class OrderService {
 
 			// 5. Handle notifications (outside transaction as it's not critical)
 			if (accepted && !order.accepted) {
+				console.time('send notifications')
 				await this.sendOrderNotifications(
 					{
 						...order,
@@ -926,6 +934,7 @@ export class OrderService {
 					},
 					sendUser,
 				)
+				console.timeEnd('sent notification')
 			}
 
 			return null
