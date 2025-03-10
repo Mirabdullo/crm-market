@@ -839,7 +839,7 @@ export class OrderService {
 			await this.#_prisma.$transaction(
 				async (tx) => {
 					// 2. Handle client change for accepted order
-					if (clientId && order.accepted) {
+					if (clientId && order.clientId !== clientId && order.accepted) {
 						console.time('clientupdate')
 						const newClient = await tx.users.findFirst({
 							where: {
@@ -869,7 +869,7 @@ export class OrderService {
 
 					// 3. Handle order acceptance
 					if (accepted && !order.accepted) {
-						console.time('order update')
+						console.time('accepted')
 						const targetClientId = clientId || order.clientId
 
 						// Prepare all update operations
@@ -889,7 +889,7 @@ export class OrderService {
 						]
 
 						await Promise.all(updateOperations)
-						console.timeEnd('order update')
+						console.timeEnd('accepted')
 					}
 
 					let date = undefined
@@ -933,7 +933,7 @@ export class OrderService {
 					},
 					sendUser,
 				)
-				console.timeEnd('sent notifications')
+				console.timeEnd('send notifications')
 			}
 
 			return null
