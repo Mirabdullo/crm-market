@@ -946,9 +946,9 @@ export class OrderService {
 			}`
 
 			// Send PDF document
-			console.time('pdfg')
+			console.time('plg')
 			const pdfBuffer = await generatePdfBuffer(order)
-			console.timeEnd('pdfg');
+			console.timeEnd('plg');
 
 			console.time('sendmessage')
 			await this.#_telegram.sendMessageWithDocument(parseInt(process.env.ORDER_CHANEL_ID), text, Buffer.from(pdfBuffer), 'order-details.pdf')
