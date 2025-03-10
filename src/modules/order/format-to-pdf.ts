@@ -7,8 +7,17 @@ let browser: any
 async function getBrowserInstance() {
 	if (!browser) {
 		browser = await Puppeteer.launch({
-			args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage', '--disable-gpu', '--single-process', '--no-zygote', '--disable-software-rasterizer'],
-			headless: true,
+			args: [
+				'--no-sandbox',
+				'--disable-setuid-sandbox',
+				'--disable-dev-shm-usage',
+				'--disable-gpu',
+				'--single-process',
+				'--no-zygote',
+				'--disable-software-rasterizer',
+			  ],
+			  headless: true,
+			  protocolTimeout: 60000, // Vaqt chegarasini 60 soniyaga oshirish
 		})
 	}
 	return browser
@@ -122,7 +131,7 @@ export async function generatePdfBuffer(orderData: any) {
 	</html>
 	`
 
-	await page.setContent(htmlContent, { waitUntil: 'networkidle0' });
+	await page.setContent(htmlContent, { waitUntil: 'networkidle2' });
 	const pdfBuffer = await page.pdf({ format: 'A4' });
 	await page.close();
   
