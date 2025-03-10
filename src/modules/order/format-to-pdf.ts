@@ -1,5 +1,5 @@
 import { format } from 'date-fns'
-import path from 'path'
+import * as path from 'path'
 import * as Puppeteer from 'puppeteer'
 
 console.log(__dirname)

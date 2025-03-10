@@ -835,7 +835,6 @@ export class OrderService {
 		}
 
 		try {
-			console.time('transaction')
 			await this.#_prisma.$transaction(
 				async (tx) => {
 					// 2. Handle client change for accepted order
@@ -888,7 +887,6 @@ export class OrderService {
 							),
 						]
 
-						console.time('promisegacha')
 						await Promise.all(updateOperations)
 						console.timeEnd('order update')
 					}
