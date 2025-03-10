@@ -7,26 +7,18 @@ let browser: any
 async function getBrowserInstance() {
 	if (!browser) {
 		browser = await Puppeteer.launch({
-			args: [
-				'--no-sandbox',
-				'--disable-setuid-sandbox',
-				'--disable-dev-shm-usage',
-				'--disable-gpu',
-				'--single-process',
-				'--no-zygote',
-				'--disable-software-rasterizer',
-			  ],
-			  headless: true,
-			  protocolTimeout: 60000, // Vaqt chegarasini 60 soniyaga oshirish
+			args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage', '--disable-gpu', '--single-process', '--no-zygote', '--disable-software-rasterizer'],
+			headless: true,
+			protocolTimeout: 60000, // Vaqt chegarasini 60 soniyaga oshirish
 		})
 	}
 	return browser
 }
 export async function generatePdfBuffer(orderData: any) {
-	const browser = await getBrowserInstance();
-	const page = await browser.newPage();
-  
-	const filePath = path.join(__dirname, '../../media');
+	const browser = await getBrowserInstance()
+	const page = await browser.newPage()
+
+	const filePath = path.join(__dirname, '../../media')
 
 	const htmlContent = `
 	<!DOCTYPE html>
@@ -131,16 +123,17 @@ export async function generatePdfBuffer(orderData: any) {
 	</html>
 	`
 
-	await page.setContent(htmlContent, { waitUntil: 'networkidle2' });
-	const pdfBuffer = await page.pdf({ format: 'A4' });
-	await page.close();
-  
-	return pdfBuffer;
+	await page.setContent(htmlContent, { waitUntil: 'networkidle2' })
+	const pdfBuffer = await page.pdf({ format: 'A4' })
+	await page.close()
+	await browser.close()
+
+	return pdfBuffer
 }
 
 export async function generatePdfBufferWithProduct(orderData: any, payload: any) {
-	const browser = await getBrowserInstance();
-	const page = await browser.newPage();
+	const browser = await getBrowserInstance()
+	const page = await browser.newPage()
 
 	const htmlContent = `
 	<!DOCTYPE html>
@@ -273,9 +266,10 @@ export async function generatePdfBufferWithProduct(orderData: any, payload: any)
 	</html>
 	`
 
-	await page.setContent(htmlContent, { waitUntil: 'networkidle0' });
-	const pdfBuffer = await page.pdf({ format: 'A4' });
-	await page.close();
-  
-	return pdfBuffer;
+	await page.setContent(htmlContent, { waitUntil: 'networkidle0' })
+	const pdfBuffer = await page.pdf({ format: 'A4' })
+	await page.close()
+	await browser.close()
+
+	return pdfBuffer
 }
