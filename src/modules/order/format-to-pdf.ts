@@ -4,6 +4,8 @@ import * as Puppeteer from 'puppeteer'
 import * as PDFDocument from 'pdfkit'
 import * as fs from 'fs'
 
+let logoBuffer: Buffer | null = null
+
 export async function generatePdfBuffer(orderData: any) {
 	const browser = await Puppeteer.launch({
 		args: [
@@ -135,6 +137,9 @@ export async function generatePdfBufferWithProduct(orderData: any, payload: any)
 		const doc = new PDFDocument({
 			margins: { top: 50, bottom: 50, left: 50, right: 50 },
 			size: 'A4',
+			compress: true,
+			bufferPages: true,
+			autoFirstPage: true,
 		})
 
 		// PDF kontentni buffer sifatida qaytarish uchun
@@ -158,20 +163,20 @@ export async function generatePdfBufferWithProduct(orderData: any, payload: any)
 		doc.text(`Клиент: ${orderData.client.name}`, 50, 50)
 		doc.text(`Дата продажа: ${format(orderData.sellingDate, 'yyyy-MM-dd HH:mm:ss')}`, 50, 70)
 
-		try {
-			// Absolyut yo'lni ishlatish
-			const logoPath = path.resolve(process.cwd(), 'media/logo.png')
-			console.log("Logo yo'li:", logoPath)
-
-			// Fayl mavjudligini tekshirish
-			if (fs.existsSync(logoPath)) {
-				doc.image(logoPath, 450, 50, { width: 100 })
-				console.log('Logo muvaffaqiyatli yuklandi')
-			} else {
-				console.error('Logo fayli topilmadi:', logoPath)
+		if (!logoBuffer) {
+			try {
+				const logoPath = path.resolve(process.cwd(), 'media/logo.jpg')
+				if (fs.existsSync(logoPath)) {
+					logoBuffer = fs.readFileSync(logoPath)
+				}
+			} catch (error) {
+				console.error('Logo yuklashda xatolik:', error)
 			}
-		} catch (error) {
-			console.error('Logo yuklashda xatolik yuz berdi:', error)
+		}
+
+		// Keched qilingan bufferni ishlatish
+		if (logoBuffer) {
+			doc.image(logoBuffer, 450, 20, { width: 80 })
 		}
 
 		// Jadval 1: Mavjud tovarlar
@@ -220,7 +225,7 @@ export async function generatePdfBufferWithProduct(orderData: any, payload: any)
 		// PDF generatsiyani yakunlaymiz
 		doc.end()
 
-		return promise
+		return await promise
 	} catch (error) {
 		console.log(error)
 	}
