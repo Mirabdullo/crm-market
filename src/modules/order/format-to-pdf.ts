@@ -160,7 +160,7 @@ export async function generatePdfBufferWithProduct(orderData: any, payload: any)
 
 		// Logo (agar logo fayli mavjud bo'lsa)
 		try {
-			const logoPath = path.resolve('./logo.png')
+			const logoPath = path.join(__dirname, '../../../', 'media', './logo.png')
 			if (fs.existsSync(logoPath)) {
 				doc.image(logoPath, 400, 50, { width: 150 })
 			}
