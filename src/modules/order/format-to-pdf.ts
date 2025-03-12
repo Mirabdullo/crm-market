@@ -149,8 +149,8 @@ export async function generatePdfBufferWithProduct(orderData: any, payload: any)
     });
   });
 
-  // Sahifa fonti va shriftni o'rnatamiz
-  doc.font('Helvetica');
+  const fontPath = path.join(__dirname, 'Arial', 'arialmt.ttf');
+  doc.font(fontPath);
   
   // Header qismi
   doc.fontSize(12);
