@@ -160,22 +160,22 @@ export async function generatePdfBufferWithProduct(orderData: any, payload: any)
 
 		try {
 			// Absolyut yo'lni ishlatish
-			const logoPath = path.resolve(process.cwd(), 'media/logo.png');
-			console.log('Logo yo\'li:', logoPath);
-			
+			const logoPath = path.resolve(process.cwd(), 'media/logo.png')
+			console.log("Logo yo'li:", logoPath)
+
 			// Fayl mavjudligini tekshirish
 			if (fs.existsSync(logoPath)) {
-			  doc.image(logoPath, 400, 50, { width: 150 });
-			  console.log('Logo muvaffaqiyatli yuklandi');
+				doc.image(logoPath, 450, 50, { width: 100 })
+				console.log('Logo muvaffaqiyatli yuklandi')
 			} else {
-			  console.error('Logo fayli topilmadi:', logoPath);
+				console.error('Logo fayli topilmadi:', logoPath)
 			}
-		  } catch (error) {
-			console.error('Logo yuklashda xatolik yuz berdi:', error);
-		  }
+		} catch (error) {
+			console.error('Logo yuklashda xatolik yuz berdi:', error)
+		}
 
 		// Jadval 1: Mavjud tovarlar
-		doc.moveDown(3)
+		doc.moveDown(4)
 		drawTable(
 			doc,
 			['№', 'Товар или услуга', 'Кол-во', 'Цена', 'Сумма'],
