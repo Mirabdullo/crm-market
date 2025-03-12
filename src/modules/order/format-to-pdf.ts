@@ -1,9 +1,8 @@
 import { format } from 'date-fns'
 import * as path from 'path'
 import * as Puppeteer from 'puppeteer'
-import * as PDFDocument from 'pdfkit';
-import * as fs from 'fs';
-
+import * as PDFDocument from 'pdfkit'
+import * as fs from 'fs'
 
 export async function generatePdfBuffer(orderData: any) {
 	const browser = await Puppeteer.launch({
@@ -131,150 +130,150 @@ export async function generatePdfBuffer(orderData: any) {
 }
 
 export async function generatePdfBufferWithProduct(orderData: any, payload: any) {
-  // Yangi PDFDocument yaratamiz
-  const doc = new PDFDocument({
-    margins: { top: 50, bottom: 50, left: 50, right: 50 },
-    size: 'A4',
-  });
+	try {
+		// Yangi PDFDocument yaratamiz
+		const doc = new PDFDocument({
+			margins: { top: 50, bottom: 50, left: 50, right: 50 },
+			size: 'A4',
+		})
 
-  // PDF kontentni buffer sifatida qaytarish uchun
-  const buffers: Buffer[] = [];
-  doc.on('data', buffers.push.bind(buffers));
-  
-  let pdfBuffer: Buffer;
-  const promise = new Promise<Buffer>((resolve) => {
-    doc.on('end', () => {
-      pdfBuffer = Buffer.concat(buffers);
-      resolve(pdfBuffer);
-    });
-  });
+		// PDF kontentni buffer sifatida qaytarish uchun
+		const buffers: Buffer[] = []
+		doc.on('data', buffers.push.bind(buffers))
 
-  const fontPath = path.join(__dirname, 'Arial', 'arialmt.ttf');
-  doc.font(fontPath);
-  
-  // Header qismi
-  doc.fontSize(12);
-  // Client ma'lumotlari
-  doc.text(`Клиент: ${orderData.client.name}`, 50, 50);
-  doc.text(`Дата продажа: ${format(orderData.sellingDate, 'yyyy-MM-dd HH:mm:ss')}`, 50, 70);
+		let pdfBuffer: Buffer
+		const promise = new Promise<Buffer>((resolve) => {
+			doc.on('end', () => {
+				pdfBuffer = Buffer.concat(buffers)
+				resolve(pdfBuffer)
+			})
+		})
 
-  // Logo (agar logo fayli mavjud bo'lsa)
-  try {
-    const logoPath = path.resolve('./logo.png');
-    if (fs.existsSync(logoPath)) {
-      doc.image(logoPath, 400, 50, { width: 150 });
-    }
-  } catch (error) {
-    console.error('Logo yuklanmadi:', error);
-  }
+		const fontPath = path.join(__dirname, '../../../', 'Arial', 'arialmt.ttf')
+		doc.font(fontPath)
 
-  // Jadval 1: Mavjud tovarlar
-  doc.moveDown(3);
-  drawTable(
-    doc, 
-    ['№', 'Товар или услуга', 'Кол-во', 'Цена', 'Сумма'],
-    orderData.products.map((product: any, index: number) => [
-      (index + 1).toString(),
-      product.product.name,
-      product.count.toString(),
-      product.price.toString(),
-      (product.price.toNumber() * product.count).toString()
-    ]),
-    50, 
-    doc.y, 
-    [40, 200, 60, 100, 100]
-  );
+		// Header qismi
+		doc.fontSize(12)
+		// Client ma'lumotlari
+		doc.text(`Клиент: ${orderData.client.name}`, 50, 50)
+		doc.text(`Дата продажа: ${format(orderData.sellingDate, 'yyyy-MM-dd HH:mm:ss')}`, 50, 70)
 
-  // Yangi tovarlar sarlavhasi
-  doc.moveDown(2);
-  doc.fontSize(14);
-  const textWidth = doc.widthOfString('Добавлены новые товары');
-  const pageWidth = doc.page.width - doc.page.margins.left - doc.page.margins.right;
-  const textX = doc.page.margins.left + (pageWidth - textWidth) / 2;
-  doc.text('Добавлены новые товары', textX, doc.y);
-  doc.fontSize(12);
-  doc.moveDown();
+		// Logo (agar logo fayli mavjud bo'lsa)
+		try {
+			const logoPath = path.resolve('./logo.png')
+			if (fs.existsSync(logoPath)) {
+				doc.image(logoPath, 400, 50, { width: 150 })
+			}
+		} catch (error) {
+			console.error('Logo yuklanmadi:', error)
+		}
 
-  // Jadval 2: Yangi tovarlar
-  drawTable(
-    doc, 
-    ['№', 'Товар или услуга', 'Кол-во', 'Цена', 'Сумма'],
-    [
-      ['1', payload.name, payload.count.toString(), payload.price.toString(), (payload.price * payload.count).toString()]
-    ],
-    50, 
-    doc.y, 
-    [40, 200, 60, 100, 100]
-  );
+		// Jadval 1: Mavjud tovarlar
+		doc.moveDown(3)
+		drawTable(
+			doc,
+			['№', 'Товар или услуга', 'Кол-во', 'Цена', 'Сумма'],
+			orderData.products.map((product: any, index: number) => [
+				(index + 1).toString(),
+				product.product.name,
+				product.count.toString(),
+				product.price.toString(),
+				(product.price.toNumber() * product.count).toString(),
+			]),
+			50,
+			doc.y,
+			[40, 200, 60, 100, 100],
+		)
 
-  // Jami summa
-  doc.moveDown(2);
-  doc.fontSize(12).fillColor('red');
-  doc.text(`Итого: ${orderData.sum.toNumber() + payload.price * payload.count}`, { align: 'right' });
-  doc.fillColor('black');
+		// Yangi tovarlar sarlavhasi
+		doc.moveDown(2)
+		doc.fontSize(14)
+		const textWidth = doc.widthOfString('Добавлены новые товары')
+		const pageWidth = doc.page.width - doc.page.margins.left - doc.page.margins.right
+		const textX = doc.page.margins.left + (pageWidth - textWidth) / 2
+		doc.text('Добавлены новые товары', textX, doc.y)
+		doc.fontSize(12)
+		doc.moveDown()
 
-  // PDF generatsiyani yakunlaymiz
-  doc.end();
-  
-  return promise;
+		// Jadval 2: Yangi tovarlar
+		drawTable(
+			doc,
+			['№', 'Товар или услуга', 'Кол-во', 'Цена', 'Сумма'],
+			[['1', payload.name, payload.count.toString(), payload.price.toString(), (payload.price * payload.count).toString()]],
+			50,
+			doc.y,
+			[40, 200, 60, 100, 100],
+		)
+
+		// Jami summa
+		doc.moveDown(2)
+		doc.fontSize(12).fillColor('red')
+		doc.text(`Итого: ${orderData.sum.toNumber() + payload.price * payload.count}`, { align: 'right' })
+		doc.fillColor('black')
+
+		// PDF generatsiyani yakunlaymiz
+		doc.end()
+
+		return promise
+	} catch (error) {
+		console.log(error)
+	}
 }
 
 // Jadval chizish uchun yordamchi funksiya
 function drawTable(doc: PDFKit.PDFDocument, headers: string[], rows: string[][], x: number, y: number, columnWidths: number[]) {
-  const rowHeight = 30;
-  let currentY = y;
+	const rowHeight = 30
+	let currentY = y
 
-  // Jadval sarlavhasi
-  doc.rect(x, currentY, columnWidths.reduce((a, b) => a + b, 0), rowHeight)
-    .fillAndStroke('#f4f4f4', '#000000');
-  
-  let currentX = x;
-  headers.forEach((header, i) => {
-    doc.fillColor('#000000').text(
-      header,
-      currentX + 5,
-      currentY + 10,
-      { width: columnWidths[i] - 10 }
-    );
-    currentX += columnWidths[i];
-  });
-  currentY += rowHeight;
+	// Jadval sarlavhasi
+	doc.rect(
+		x,
+		currentY,
+		columnWidths.reduce((a, b) => a + b, 0),
+		rowHeight,
+	).fillAndStroke('#f4f4f4', '#000000')
 
-  // Jadval qatorlari
-  rows.forEach((row) => {
-    currentX = x;
-    
-    // Ushbu qator uchun to'rtburchak
-    doc.rect(x, currentY, columnWidths.reduce((a, b) => a + b, 0), rowHeight)
-      .stroke();
-    
-    // Qator ma'lumotlari
-    row.forEach((cell, i) => {
-      // Vertikal chiziq
-      doc.moveTo(currentX, currentY)
-        .lineTo(currentX, currentY + rowHeight)
-        .stroke();
-      
-      // Cell ma'lumotlari
-      doc.text(
-        cell,
-        currentX + 5,
-        currentY + 10,
-        { width: columnWidths[i] - 10 }
-      );
-      
-      currentX += columnWidths[i];
-    });
-    
-    // Oxirgi vertikal chiziq
-    doc.moveTo(currentX, currentY)
-      .lineTo(currentX, currentY + rowHeight)
-      .stroke();
-    
-    currentY += rowHeight;
-  });
+	let currentX = x
+	headers.forEach((header, i) => {
+		doc.fillColor('#000000').text(header, currentX + 5, currentY + 10, { width: columnWidths[i] - 10 })
+		currentX += columnWidths[i]
+	})
+	currentY += rowHeight
 
-  return currentY;
+	// Jadval qatorlari
+	rows.forEach((row) => {
+		currentX = x
+
+		// Ushbu qator uchun to'rtburchak
+		doc.rect(
+			x,
+			currentY,
+			columnWidths.reduce((a, b) => a + b, 0),
+			rowHeight,
+		).stroke()
+
+		// Qator ma'lumotlari
+		row.forEach((cell, i) => {
+			// Vertikal chiziq
+			doc.moveTo(currentX, currentY)
+				.lineTo(currentX, currentY + rowHeight)
+				.stroke()
+
+			// Cell ma'lumotlari
+			doc.text(cell, currentX + 5, currentY + 10, { width: columnWidths[i] - 10 })
+
+			currentX += columnWidths[i]
+		})
+
+		// Oxirgi vertikal chiziq
+		doc.moveTo(currentX, currentY)
+			.lineTo(currentX, currentY + rowHeight)
+			.stroke()
+
+		currentY += rowHeight
+	})
+
+	return currentY
 }
 
 // export async function generatePdfBufferWithProduct(orderData: any, payload: any) {
@@ -292,7 +291,7 @@ function drawTable(doc: PDFKit.PDFDocument, headers: string[], rows: string[][],
 // 	const htmlContent = `
 // 	<!DOCTYPE html>
 // 	<html lang="en">
-	
+
 // 	<head>
 // 	  <meta charset="UTF-8">
 // 	  <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -301,44 +300,44 @@ function drawTable(doc: PDFKit.PDFDocument, headers: string[], rows: string[][],
 // 		  font-family: Arial, sans-serif;
 // 		  margin: 20px;
 // 		}
-	
+
 // 		.header {
 // 			display: flex;
 // 			justify-content: space-between;
 // 			align-items: center;
 // 			margin-bottom: 20px;
 // 		  }
-	  
+
 // 		  .logo {
 // 			text-align: right;
 // 		  }
-	  
+
 // 		  .logo img {
 // 			max-width: 150px; /* Logoning maksimal kengligi */
 // 			height: auto;
 // 		  }
-	  
+
 // 		  .client-info {
 // 			text-align: left;
 // 		}
-	
+
 // 		table {
 // 		  width: 100%;
 // 		  border-collapse: collapse;
 // 		  margin-top: 20px;
 // 		}
-	
+
 // 		th,
 // 		td {
 // 		  border: 1px solid #ddd;
 // 		  padding: 8px;
 // 		  text-align: left;
 // 		}
-	
+
 // 		th {
 // 		  background-color: #f4f4f4;
 // 		}
-	
+
 // 		.total {
 // 		  font-weight: bold;
 // 		  color: red;
@@ -351,7 +350,7 @@ function drawTable(doc: PDFKit.PDFDocument, headers: string[], rows: string[][],
 // 	  </style>
 // 	  <title>Order Details</title>
 // 	</head>
-	
+
 // 	<body>
 // 	<div class="header">
 // 	<div class="client-info">
@@ -359,7 +358,7 @@ function drawTable(doc: PDFKit.PDFDocument, headers: string[], rows: string[][],
 // 	  <p><strong>Дата продажа:</strong> ${format(orderData.sellingDate, 'yyyy-MM-dd HH:mm:ss')}</p>
 // 	</div>
 // 	<div class="logo">
-// 	  <img src="./logo.png" alt="SAS-IDEAL Logo"> 
+// 	  <img src="./logo.png" alt="SAS-IDEAL Logo">
 // 	  </div>
 //       </div>
 
@@ -410,13 +409,13 @@ function drawTable(doc: PDFKit.PDFDocument, headers: string[], rows: string[][],
 // 		  <td>${payload.price}</td>
 // 		  <td>${payload.price * payload.count}</td>
 // 		</tr>
-		
+
 // 	  </tbody>
 // 	</table>
-	
+
 // 	  <p class="total">Итого: ${orderData.sum.toNumber() + payload.price * payload.count}</p>
 // 	</body>
-	
+
 // 	</html>
 // 	`
 
