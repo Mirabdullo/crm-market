@@ -190,16 +190,18 @@ export class OrderProductService {
 				(order.sum.toNumber() + payload.price * payload.count).toFixed(1),
 			)}\n\n💳 долг: ${parseFloat((order.debt.toNumber() + payload.price * payload.count).toFixed(1))}\n\n👨‍💼 клиент: ${order.client.name}`
 
-			const pdfBuffer = await generatePdfBufferWithProduct(order, {
-				name: product.name,
-				price: payload.price,
-				count: payload.count,
-			})
+			// const pdfBuffer = await generatePdfBufferWithProduct(order, {
+			// 	name: product.name,
+			// 	price: payload.price,
+			// 	count: payload.count,
+			// })
 
-			await this.#_telegram.sendMessageWithDocument(parseInt(process.env.ORDER_CHANEL_ID), text, Buffer.from(pdfBuffer), 'order-details.pdf')
+			await this.#_telegram.sendMessage(parseInt(process.env.ORDER_CHANEL_ID), text)
+			// await this.#_telegram.sendMessageWithDocument(parseInt(process.env.ORDER_CHANEL_ID), text, Buffer.from(pdfBuffer), 'order-details.pdf')
 
 			if (payload.sendUser && order.client.chatId) {
-				await this.#_telegram.sendMessageWithDocument(parseInt(process.env.ORDER_CHANEL_ID), text, Buffer.from(pdfBuffer), 'order-details.pdf')
+				await this.#_telegram.sendMessage(parseInt(process.env.ORDER_CHANEL_ID), text)
+				// await this.#_telegram.sendMessageWithDocument(parseInt(process.env.ORDER_CHANEL_ID), text, Buffer.from(pdfBuffer), 'order-details.pdf')
 			}
 		}
 
