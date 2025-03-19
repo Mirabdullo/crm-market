@@ -256,6 +256,7 @@ export class UserService {
 		if (type === 'product') {
 			productOption = {
 				products: {
+					where: { deletedAt: null },
 					select: {
 						id: true,
 						cost: true,
@@ -319,6 +320,7 @@ export class UserService {
 						updatedAt: true,
 						description: true,
 						products: {
+							where: { deletedAt: null },
 							select: {
 								id: true,
 								count: true,

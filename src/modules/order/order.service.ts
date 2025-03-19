@@ -642,6 +642,18 @@ export class OrderService {
 		const workbook = new ExcelJS.Workbook()
 		const worksheet = workbook.addWorksheet('Order List')
 
+		// const imagePath = 'path/to/your/logo.png' // Rasmning manzili
+		// const imageId = workbook.addImage({
+		// 	filename: imagePath,
+		// 	extension: 'png', // Rasm formati (png, jpeg, gif, ...)
+		// })
+
+		// // Rasmni worksheetga qo'shish
+		// worksheet.addImage(imageId, {
+		// 	tl: { col: 1, row: 1, nativeCol: 1, nativeRow: 1, nativeColOff: 0, nativeRowOff: 0 },
+		// 	br: { col: 3, row: 5, nativeCol: 3, nativeRow: 5, nativeColOff: 0, nativeRowOff: 0 },
+		// })
+		
 		// Xaridor nomi uchun titleRow
 		const titleRow = worksheet.addRow([
 			`Xaridor: ${order.client.name}`, // A1
