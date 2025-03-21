@@ -965,7 +965,7 @@ export class OrderService {
 
 			// Send to user if requested and chat ID exists
 			if (sendUser && order.client.chatId) {
-				await this.#_telegram.sendMessage(parseInt(process.env.ORDER_CHANEL_ID), text)
+				await this.#_telegram.sendMessage(parseInt(order.client.chatId), text)
 				// await this.#_telegram.sendMessageWithDocument(parseInt(order.client.chatId), text, Buffer.from(pdfBuffer), 'order-details.pdf')
 			}
 		} catch (error) {

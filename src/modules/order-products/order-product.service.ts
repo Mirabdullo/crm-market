@@ -200,7 +200,7 @@ export class OrderProductService {
 			// await this.#_telegram.sendMessageWithDocument(parseInt(process.env.ORDER_CHANEL_ID), text, Buffer.from(pdfBuffer), 'order-details.pdf')
 
 			if (payload.sendUser && order.client.chatId) {
-				await this.#_telegram.sendMessage(parseInt(process.env.ORDER_CHANEL_ID), text)
+				await this.#_telegram.sendMessage(Number(order.client.chatId), text)
 				// await this.#_telegram.sendMessageWithDocument(parseInt(process.env.ORDER_CHANEL_ID), text, Buffer.from(pdfBuffer), 'order-details.pdf')
 			}
 		}
