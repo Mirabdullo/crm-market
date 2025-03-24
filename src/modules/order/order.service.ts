@@ -938,7 +938,7 @@ export class OrderService {
 						},
 						sendUser,
 					)
-				})
+				}, 0)
 			}
 
 			return null
