@@ -97,10 +97,10 @@ export class PaymentService {
 				seller: {
 					select: {
 						id: true,
-                        name: true,
-                        phone: true,
-					}
-				}
+						name: true,
+						phone: true,
+					},
+				},
 			},
 			...paginationOptions,
 			orderBy: { createdAt: 'desc' },
@@ -410,17 +410,18 @@ export class PaymentService {
 		})
 
 		if (order && order.accepted === false) {
-			const text = `💼 продажа\n\n✍️ ид заказа: ${order.articl}\n\n💵 сумма: ${order.sum}\n\n💳 долг: ${order.debt}\n\n👨‍💼 клиент: ${order.client.name}`
+			setTimeout(async () => {
+				const text = `💼 продажа\n\n✍️ ид заказа: ${order.articl}\n\n💵 сумма: ${order.sum}\n\n💳 долг: ${order.debt}\n\n👨‍💼 клиент: ${order.client.name}`
 
-			await this.#_telegram.sendMessage(parseInt(process.env.ORDER_CHANEL_ID), text)
+				await this.#_telegram.sendMessage(parseInt(process.env.ORDER_CHANEL_ID), text)
 
-			// const pdfBuffer = await generatePdfBuffer(order)
+				const pdfBuffer = await generatePdfBuffer(order)
 
-			// await this.#_telegram.sendDocument(parseInt(process.env.ORDER_CHANEL_ID), Buffer.from(pdfBuffer), 'order-details.pdf')
-			// await this.#_telegram.sendMessageWithDocument(parseInt(process.env.ORDER_CHANEL_ID), text, Buffer.from(pdfBuffer), 'order-details.pdf')
-			if (payload.sendUser && order.client.chatId) {
-				await this.#_telegram.sendMessage(Number(order.client.chatId), text)
-			}
+				await this.#_telegram.sendMessageWithDocument(parseInt(process.env.ORDER_CHANEL_ID), text, Buffer.from(pdfBuffer), 'order-details.pdf')
+				if (payload.sendUser && order.client.chatId) {
+					await this.#_telegram.sendMessageWithDocument(Number(order.client.chatId), text, Buffer.from(pdfBuffer), 'order-details.pdf')
+				}
+			}, 0)
 		}
 
 		if (payment) {
@@ -479,11 +480,12 @@ export class PaymentService {
 			})
 		}
 
-		const message = `обновлено\n\n${payment.order ? 'тип: для продажи\n' : 'тип: для клиента\n'}Клиент: ${
-			payment.client.name
-		}\nСумма: ${sum?.toFixed(1)}\n\nналичными: ${cash?.toFixed(1)}\nкарты: ${card?.toFixed(1)}\nперечислением: ${transfer?.toFixed(1)}\nдруги: ${other?.toFixed(1)}\nДата: ${format(new Date(), 'yyyy-MM-dd HH:mm')}\nИнфо: ${
-			payment.description
-		}\nid: #${payment.id}`
+		const message = `обновлено\n\n${payment.order ? 'тип: для продажи\n' : 'тип: для клиента\n'}Клиент: ${payment.client.name}\nСумма: ${sum?.toFixed(
+			1,
+		)}\n\nналичными: ${cash?.toFixed(1)}\nкарты: ${card?.toFixed(1)}\nперечислением: ${transfer?.toFixed(1)}\nдруги: ${other?.toFixed(1)}\nДата: ${format(
+			new Date(),
+			'yyyy-MM-dd HH:mm',
+		)}\nИнфо: ${payment.description}\nid: #${payment.id}`
 
 		await this.#_telegram.sendMessage(parseInt(process.env.PAYMENT_CHANEL_ID), message)
 
@@ -515,11 +517,11 @@ export class PaymentService {
 			})
 		}
 
-		const message = `удалено\n\n${payment.order ? 'тип: для продажи\n' : 'тип: для клиента\n'}Клиент: ${payment.client.name}\nСумма: ${payment.totalPay?.toFixed(1)}\n\nналичными: ${
-			payment.cash?.toFixed(1)
-		}\nкарты: ${payment.card?.toFixed(1)}\nперечислением: ${payment.transfer?.toFixed(1)}\nдруги: ${payment.other?.toFixed(1)}\nДата: ${format(new Date(), 'yyyy-MM-dd HH:mm')}\nИнфо: ${
-			payment.description
-		}\nid: #${payment.id}`
+		const message = `удалено\n\n${payment.order ? 'тип: для продажи\n' : 'тип: для клиента\n'}Клиент: ${payment.client.name}\nСумма: ${payment.totalPay?.toFixed(
+			1,
+		)}\n\nналичными: ${payment.cash?.toFixed(1)}\nкарты: ${payment.card?.toFixed(1)}\nперечислением: ${payment.transfer?.toFixed(1)}\nдруги: ${payment.other?.toFixed(
+			1,
+		)}\nДата: ${format(new Date(), 'yyyy-MM-dd HH:mm')}\nИнфо: ${payment.description}\nid: #${payment.id}`
 		await this.#_telegram.sendMessage(parseInt(process.env.PAYMENT_CHANEL_ID), message)
 
 		return null

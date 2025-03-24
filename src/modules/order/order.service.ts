@@ -962,12 +962,12 @@ export class OrderService {
 			// Send PDF document
 			const pdfBuffer = await generatePdfBuffer(order)
 
-			await this.#_telegram.sendMessage(parseInt(process.env.ORDER_CHANEL_ID), text)
+			// await this.#_telegram.sendMessage(parseInt(process.env.ORDER_CHANEL_ID), text)
 			await this.#_telegram.sendMessageWithDocument(parseInt(process.env.ORDER_CHANEL_ID), text, Buffer.from(pdfBuffer), 'order-details.pdf')
 
 			// Send to user if requested and chat ID exists
 			if (sendUser && order.client.chatId) {
-				await this.#_telegram.sendMessage(parseInt(order.client.chatId), text)
+				// await this.#_telegram.sendMessage(parseInt(order.client.chatId), text)
 				await this.#_telegram.sendMessageWithDocument(parseInt(order.client.chatId), text, Buffer.from(pdfBuffer), 'order-details.pdf')
 			}
 		} catch (error) {
