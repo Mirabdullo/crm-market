@@ -157,6 +157,7 @@ model Order {
   debt         Decimal      @map("debt")          @db.Decimal(10,3)  @default(0)
   adminId      String       @map("admin_id")      @db.Uuid()
   accepted     Boolean      @map("accepted")      @db.Boolean    @default(false)
+  description  String?      @map("description")   @db.VarChar()
   sellingDate  DateTime     @map("selling_date")  @db.Timestamp  @default(now())
   createdAt    DateTime     @map("created_at")    @db.Timestamp  @default(now())
   updatedAt    DateTime     @map("updated_at")    @db.Timestamp  @updatedAt

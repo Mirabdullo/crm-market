@@ -99,6 +99,7 @@ export class OrderService {
 					accepted: true,
 					createdAt: true,
 					sellingDate: true,
+					description: true,
 					client: {
 						select: {
 							id: true,
@@ -393,6 +394,7 @@ export class OrderService {
 				createdAt: true,
 				sellingDate: true,
 				debt: true,
+				description: true,
 				client: {
 					select: {
 						id: true,
@@ -630,6 +632,7 @@ export class OrderService {
 							},
 						},
 					},
+					orderBy: { createdAt: 'desc' },
 				},
 			},
 		})
@@ -653,7 +656,7 @@ export class OrderService {
 		// 	tl: { col: 1, row: 1, nativeCol: 1, nativeRow: 1, nativeColOff: 0, nativeRowOff: 0 },
 		// 	br: { col: 3, row: 5, nativeCol: 3, nativeRow: 5, nativeColOff: 0, nativeRowOff: 0 },
 		// })
-		
+
 		// Xaridor nomi uchun titleRow
 		const titleRow = worksheet.addRow([
 			`Xaridor: ${order.client.name}`, // A1
@@ -760,7 +763,7 @@ export class OrderService {
 
 	async OrderCreate(payload: OrderCreateRequest): Promise<OrderCreateResponse> {
 		try {
-			const { clientId, userId, products, sellingDate } = payload
+			const { clientId, userId, products, sellingDate, description } = payload
 
 			// Mijozni tekshirish
 			const user = await this.#_prisma.users.findFirst({
@@ -778,6 +781,7 @@ export class OrderService {
 					adminId: userId,
 					sum: totalSum,
 					debt: totalSum,
+					description,
 					sellingDate: sellingDate ? new Date(sellingDate) : now,
 				},
 			})
@@ -803,7 +807,7 @@ export class OrderService {
 	}
 
 	async OrderUpdate(payload: OrderUpdateRequest): Promise<null> {
-		const { id, accepted, clientId, sellingDate, sendUser } = payload
+		const { id, accepted, clientId, sellingDate, sendUser, description } = payload
 		// 1. Get order with all necessary data
 		const order = await this.#_prisma.order.findUnique({
 			where: { id },
@@ -827,6 +831,7 @@ export class OrderService {
 					select: { name: true },
 				},
 				products: {
+					where: { deletedAt: null },
 					select: {
 						id: true,
 						cost: true,
@@ -837,6 +842,7 @@ export class OrderService {
 							select: { name: true },
 						},
 					},
+					orderBy: { createdAt: 'desc' },
 				},
 			},
 		})
@@ -919,6 +925,7 @@ export class OrderService {
 							accepted,
 							clientId,
 							sellingDate: date,
+							description,
 						},
 					})
 				},

@@ -6,6 +6,7 @@ export interface OrderCreateRequest {
 	sum?: number
 	sellingDate?: string
 	accepted?: boolean
+	description?: string
 	products: OrderProductRequest[]
 	userId: string
 }
@@ -18,6 +19,7 @@ export interface OrderUpdateRequest {
 	id: string
 	accepted?: boolean
 	sellingDate?: string
+	description?: string
 	sendUser?: boolean
 	clientId?: string
 }

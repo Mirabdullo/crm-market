@@ -413,11 +413,10 @@ export class PaymentService {
 			setTimeout(async () => {
 				const text = `💼 продажа\n\n✍️ ид заказа: ${order.articl}\n\n💵 сумма: ${order.sum}\n\n💳 долг: ${order.debt}\n\n👨‍💼 клиент: ${order.client.name}`
 
-				await this.#_telegram.sendMessage(parseInt(process.env.ORDER_CHANEL_ID), text)
-
 				const pdfBuffer = await generatePdfBuffer(order)
 
 				await this.#_telegram.sendMessageWithDocument(parseInt(process.env.ORDER_CHANEL_ID), text, Buffer.from(pdfBuffer), 'order-details.pdf')
+				
 				if (payload.sendUser && order.client.chatId) {
 					await this.#_telegram.sendMessageWithDocument(Number(order.client.chatId), text, Buffer.from(pdfBuffer), 'order-details.pdf')
 				}

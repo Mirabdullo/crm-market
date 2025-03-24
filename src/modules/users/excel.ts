@@ -70,7 +70,7 @@ export async function UserDeedUpload(data: any, payload: UserDeedRetrieveRequest
 			})
 		} else if (entry.type === 'order') {
 			totalSum += entry.sum.toNumber()
-			const row = worksheet.addRow([index + 1, format(entry.sellingDate, 'dd.MM.yyyy HH:mm'), `Продажа: ${entry.articl}`, entry.sum.toNumber(), '', ''])
+			const row = worksheet.addRow([index + 1, format(entry.sellingDate, 'dd.MM.yyyy HH:mm'), `Продажа: ${entry.articl}`, entry.sum.toNumber(), '', entry?.description])
 
 			row.eachCell((cell) => {
 				cell.alignment = { vertical: 'middle', horizontal: 'center' }

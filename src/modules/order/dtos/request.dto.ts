@@ -88,6 +88,11 @@ export class OrderCreateRequestDto implements OrderCreateRequest {
 	@IsOptional()
 	sellingDate?: string
 
+	@ApiProperty({ type: String })
+	@IsString()
+	@IsOptional()
+	description?: string
+
 	@ApiProperty({ type: [OrderProductRequestDto] })
 	@IsArray()
 	@IsNotEmpty()
@@ -112,6 +117,11 @@ export class OrderUpdateRequestDto implements OrderUpdateRequest {
 	@IsString()
 	@IsOptional()
 	sellingDate?: string
+
+	@ApiProperty({ type: String })
+	@IsString()
+	@IsOptional()
+	description?: string
 
 	@ApiPropertyOptional({ type: Boolean, example: false })
 	@IsOptional()

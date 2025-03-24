@@ -174,6 +174,7 @@ export class UserService {
 						createdAt: true,
 						updatedAt: true,
 						accepted: true,
+						description: true,
 					},
 				},
 				payments: {
@@ -290,6 +291,7 @@ export class UserService {
 						updatedAt: true,
 						accepted: true,
 						sellingDate: true,
+						description: true,
 						...productOption,
 					},
 				},
