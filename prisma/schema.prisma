@@ -27,12 +27,13 @@ model Admins {
   updatedAt  DateTime       @map("updated_at")  @db.Timestamp  @updatedAt
   deletedAt  DateTime?      @map("deleted_at")  @db.Timestamp
 
-  permissions    Permissions[]
-  incomingOrders IncomingOrder[]
-  orders         Order[] 
-  returnedOrders ReturnedOrder[]
-  refundIncoming RefundIncoming[]
-  payments       Payment[]
+  permissions      Permissions[]
+  incomingOrders   IncomingOrder[]
+  orders           Order[] 
+  returnedOrders   ReturnedOrder[]
+  refundIncoming   RefundIncoming[]
+  payments         Payment[]
+  employeePayment  EmployeePayment[]
 
   @@id([ id ])
   @@map("admins")
@@ -310,4 +311,19 @@ model RefundIncomingProduct {
 
   @@id([ id ])
   @@map("refund_incoming_product")
+}
+
+model EmployeePayment {
+  id           String       @map("id")            @db.Uuid       @default(dbgenerated("GEN_RANDOM_UUID()"))
+  sum          Decimal      @map("sum")           @db.Decimal(10,3)
+  employeeId   String       @map("employee_id")   @db.Uuid()
+  description  String?      @map("description")   @db.VarChar()
+  createdAt    DateTime     @map("created_at")    @db.Timestamp  @default(now())
+  updatedAt    DateTime     @map("updated_at")    @db.Timestamp  @updatedAt
+  deletedAt    DateTime?    @map("deleted_at")    @db.Timestamp
+
+  employee   Admins  @relation(fields: [employeeId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([ id ])
+  @@map("employee_payment")
 }
