@@ -123,7 +123,7 @@ export class EmloyeePaymentUpdateRequestDto implements EmloyeePaymentUpdateReque
 	@IsOptional()
 	sum?: number
 
-	@ApiProperty({ type: String })
+	@ApiPropertyOptional({ type: String })
 	@IsString()
 	@IsOptional()
 	description?: string

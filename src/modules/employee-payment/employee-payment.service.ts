@@ -18,11 +18,9 @@ import { generatePdfBuffer } from '../order/format-to-pdf'
 @Injectable()
 export class EmloyeePaymentService {
 	readonly #_prisma: PrismaService
-	readonly #_telegram: TelegramService
 
-	constructor(prisma: PrismaService, telegramService: TelegramService) {
+	constructor(prisma: PrismaService) {
 		this.#_prisma = prisma
-		this.#_telegram = telegramService
 	}
 
 	async employeePaymentRetrieveAll(payload: EmloyeePaymentRetriveAllRequest): Promise<EmloyeePaymentRetriveAllResponse> {
@@ -31,13 +29,6 @@ export class EmloyeePaymentService {
 			paginationOptions = {
 				take: payload.pageSize,
 				skip: (payload.pageNumber - 1) * payload.pageSize,
-			}
-		}
-
-		let clientOption = {}
-		if (payload.clientId) {
-			clientOption = {
-				clientId: payload.clientId,
 			}
 		}
 
@@ -65,12 +56,12 @@ export class EmloyeePaymentService {
 		let sellerOption = {}
 		if (payload.sellerId) {
 			sellerOption = {
-				sellerId: payload.sellerId,
+				employeeId: payload.sellerId,
 			}
 		}
 
 		const employeePaymentList = await this.#_prisma.employeePayment.findMany({
-			where: { deletedAt: null, ...clientOption, ...searchOption, ...dateOption, ...sellerOption },
+			where: { deletedAt: null, ...searchOption, ...dateOption, ...sellerOption },
 			select: {
 				id: true,
 				sum: true,
@@ -94,7 +85,7 @@ export class EmloyeePaymentService {
 		}))
 
 		const totalCount = await this.#_prisma.employeePayment.count({
-			where: { deletedAt: null, ...clientOption, ...searchOption, ...dateOption, ...sellerOption },
+			where: { deletedAt: null, ...searchOption, ...dateOption, ...sellerOption },
 		})
 
 		return {
@@ -164,10 +155,10 @@ export class EmloyeePaymentService {
 
 
 		await this.#_prisma.employeePayment.update({
-			where: { id: payload.id },
+			where: { id },
 			data: {
 				sum,
-				description: description,
+				description,
 			},
 		})
 

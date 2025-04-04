@@ -33,7 +33,6 @@ export interface EmloyeePaymentRetriveAllRequest {
 	pageNumber?: number
 	search?: string
 	res: Response
-	clientId?: string
 	pagination?: boolean
 	startDate?: string
 	endDate?: string
