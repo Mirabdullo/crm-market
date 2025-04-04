@@ -7,6 +7,7 @@ import {
 	AdminModule,
 	AuthModule,
 	BackupModule,
+	EmloyeePaymentModule,
 	IncomingOrderModule,
 	IncomingOrderPaymentModule,
 	IncomingProductModule,
@@ -47,6 +48,7 @@ import { ReturnedOrderModule } from './modules/returned-order/returned-order.mod
 		PaymentModule,
 		TelegramModule,
 		BackupModule,
+		EmloyeePaymentModule,
 	],
 })
 export class AppModule {}
