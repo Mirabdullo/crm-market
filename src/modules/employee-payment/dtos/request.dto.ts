@@ -121,32 +121,7 @@ export class EmloyeePaymentUpdateRequestDto implements EmloyeePaymentUpdateReque
 	@ApiPropertyOptional({ type: Number })
 	@IsNumber()
 	@IsOptional()
-	totalPay?: number
-
-	@ApiPropertyOptional({ type: Number })
-	@IsNumber()
-	@IsOptional()
-	debt?: number
-
-	@ApiPropertyOptional({ type: Number })
-	@IsNumber()
-	@IsOptional()
-	cash?: number
-
-	@ApiPropertyOptional({ type: Number })
-	@IsNumber()
-	@IsOptional()
-	card?: number
-
-	@ApiPropertyOptional({ type: Number })
-	@IsNumber()
-	@IsOptional()
-	transfer?: number
-
-	@ApiPropertyOptional({ type: Number })
-	@IsNumber()
-	@IsOptional()
-	other?: number
+	sum?: number
 
 	@ApiProperty({ type: String })
 	@IsString()
