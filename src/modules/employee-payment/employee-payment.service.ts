@@ -133,14 +133,14 @@ export class EmloyeePaymentService {
 	}
 
 	async employeePaymentCreate(payload: EmloyeePaymentCreateRequest): Promise<null> {
-		const { employeeId, sum, description, userId } = payload
+		const { employeeId, sum, description } = payload
 
 		const condidat = await this.#_prisma.admins.findFirst({
 			where: { id: employeeId },
 		})
 
-		if (condidat) {
-			throw new NotFoundException('Admin topilmadim!')
+		if (!condidat) {
+			throw new NotFoundException('Admin topilmadi!')
 		}
 
 		await this.#_prisma.employeePayment.create({
