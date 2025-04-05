@@ -11,7 +11,7 @@ import {
 	UserRetrieveAllResponseDto,
 	UserDeedRetrieveRequestDto,
 } from './dtos'
-import { ApiBearerAuth, ApiNoContentResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger'
+import { ApiBearerAuth, ApiOkResponse, ApiTags } from '@nestjs/swagger'
 import { UserRetriveAllResponse, UserRetriveResponse } from './interfaces'
 import { Permissions } from '@enums'
 import { Permission } from '@decorators'

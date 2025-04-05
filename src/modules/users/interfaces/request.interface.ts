@@ -15,10 +15,10 @@ export declare interface UserDeleteRequest {
 	id: string
 }
 
-export enum DebtTypeEnum{
+export enum DebtTypeEnum {
 	equal = 'equal',
 	greater = 'greater',
-	less = 'less'
+	less = 'less',
 }
 export declare interface UserRetriveAllRequest {
 	pageSize?: number

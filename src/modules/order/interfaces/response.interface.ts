@@ -36,7 +36,7 @@ export declare interface OrderStatisticsResponse {
 }
 
 export declare interface DebtResponse {
-	client: number,
+	client: number
 	supplier: number
 }
 

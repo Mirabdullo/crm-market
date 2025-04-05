@@ -139,7 +139,7 @@ export class EmloyeePaymentService {
 				employeeId,
 				sum,
 				description: description,
-			}
+			},
 		})
 
 		return null
@@ -152,7 +152,6 @@ export class EmloyeePaymentService {
 			where: { id },
 		})
 		if (!employeePayment) throw new NotFoundException('employeePayment not found')
-
 
 		await this.#_prisma.employeePayment.update({
 			where: { id },

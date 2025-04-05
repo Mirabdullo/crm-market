@@ -1,5 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { EmloyeePaymentClient, EmloyeePaymentOrder, EmloyeePaymentResponse, EmloyeePaymentRetriveAllResponse, EmloyeePaymentRetriveResponse, EmloyeePaymentTotalCalcResponse } from '../interfaces'
+import {
+	EmloyeePaymentClient,
+	EmloyeePaymentOrder,
+	EmloyeePaymentResponse,
+	EmloyeePaymentRetriveAllResponse,
+	EmloyeePaymentRetriveResponse,
+	EmloyeePaymentTotalCalcResponse,
+} from '../interfaces'
 
 export class EmloyeePaymentOrderDto implements EmloyeePaymentOrder {
 	@ApiProperty({ type: String })

@@ -129,7 +129,7 @@ export class ReturnedProductService {
 					data: {
 						count: { increment: payload.count },
 					},
-				})
+				}),
 			)
 		}
 

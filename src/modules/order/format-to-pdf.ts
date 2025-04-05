@@ -409,14 +409,14 @@ function drawTable(doc: PDFKit.PDFDocument, headers: string[], rows: string[][],
 }
 
 function calculateTextHeight(doc: PDFKit.PDFDocument, text: string, width: number) {
-    // Matnning balandligini hisoblash
-    const textObject = doc.text(text, 0, 0, {
-      width: width,
-      continued: true,
-      lineBreak: true
-    });
-    return doc.heightOfString(text, { width: width });
-  }
+	// Matnning balandligini hisoblash
+	const textObject = doc.text(text, 0, 0, {
+		width: width,
+		continued: true,
+		lineBreak: true,
+	})
+	return doc.heightOfString(text, { width: width })
+}
 
 // export async function generatePdfBufferWithProduct(orderData: any, payload: any) {
 // 	const browser = await Puppeteer.launch({

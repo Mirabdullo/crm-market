@@ -79,7 +79,7 @@ export class ReturnedOrderController {
 	@Get('upload/:id')
 	@ApiOkResponse({ type: ReturnedOrderRetrieveResponseDto })
 	ReturnedOrderRetrieveUpload(@Param() payload: ReturnedOrderRetrieveRequestDto, @Res() res: Response): Promise<void> {
-		return this.#_service.ReturnedOrderRetrieveUpload({...payload, res})
+		return this.#_service.ReturnedOrderRetrieveUpload({ ...payload, res })
 	}
 
 	@Permission(Permissions.ORDER_CREATE)

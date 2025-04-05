@@ -907,7 +907,7 @@ export class OrderService {
 					let date = undefined
 					if (sellingDate) {
 						date = new Date(sellingDate)
-						let now = this.adjustToTashkentTime()
+						const now = this.adjustToTashkentTime()
 						if (format(date, 'yyyy-MM-dd') !== format(now, 'yyyy-MM-dd')) {
 							date = new Date(format(date, 'yyyy-MM-dd'))
 						} else {

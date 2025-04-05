@@ -1,5 +1,5 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common'
-import * as bcrypt from 'bcrypt'
+import * as bcrypt from 'bcryptjs'
 import { AdminSignInRequest, AdminSignInResponse } from './interfaces'
 import { JwtService } from '@nestjs/jwt'
 import { PrismaService } from '@prisma'

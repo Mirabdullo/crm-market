@@ -10,7 +10,6 @@ import {
 	RefundIncomingProductUpdateRequest,
 } from './interfaces'
 import { Decimal } from '../../types'
-import { TelegramService } from '../telegram'
 
 @Injectable()
 export class RefundIncomingProductService {

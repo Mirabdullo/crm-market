@@ -1,5 +1,13 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { DebtResponse, OrderCreateResponse, OrderRetriveAllResponse, OrderRetriveResponse, OrderStatisticsResponse, OrderTotalCalcResponse, WeeklyChartResponse } from '../interfaces'
+import {
+	DebtResponse,
+	OrderCreateResponse,
+	OrderRetriveAllResponse,
+	OrderRetriveResponse,
+	OrderStatisticsResponse,
+	OrderTotalCalcResponse,
+	WeeklyChartResponse,
+} from '../interfaces'
 import { UserRetrieveResponseDto, UserRetriveResponse } from '../../users'
 import { AdminResponse } from '../../admins'
 import { PaymentResponseDto, PaymentResponse } from '../../payment'

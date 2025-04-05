@@ -12,7 +12,6 @@ import {
 } from './interfaces'
 import { Decimal } from '../../types'
 import { addHours, endOfDay, format } from 'date-fns'
-import { TelegramService } from '../telegram'
 
 @Injectable()
 export class RefundIncomingService {
@@ -208,13 +207,12 @@ export class RefundIncomingService {
 
 			const totalSum = products.reduce((sum, product) => sum + product.price * product.count, 0)
 
-			const now = this.adjustToTashkentTime()
-
 			const refundIncoming = await this.#_prisma.refundIncoming.create({
 				data: {
 					supplierId: supplierId,
 					adminId: userId,
 					sum: totalSum,
+					description,
 				},
 			})
 
@@ -256,7 +254,7 @@ export class RefundIncomingService {
 
 	async RefundIncomingUpdate(payload: RefundIncomingUpdateRequest): Promise<null> {
 		try {
-			// const { id, } = payload
+			const { id } = payload
 
 			// const refundIncoming = await this.#_prisma.refundIncoming.findUnique({
 			// 	where: { id },

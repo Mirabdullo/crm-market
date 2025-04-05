@@ -1,4 +1,3 @@
-import { Response } from 'express'
 import { ReturnedProductRequest } from '../../returned-products'
 
 export interface RefundIncomingCreateRequest {

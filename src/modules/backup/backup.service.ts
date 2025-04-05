@@ -43,20 +43,20 @@ export class BackupService {
 	}
 
 	private parseDatabaseUrl(url: string) {
-		const regex = /postgres(?:ql)?:\/\/([^:]+):([^@]+)@([^:/]+):(\d+)\/([^?]+)/;
-		const matches = url.match(regex);
-	
+		const regex = /postgres(?:ql)?:\/\/([^:]+):([^@]+)@([^:/]+):(\d+)\/([^?]+)/
+		const matches = url.match(regex)
+
 		if (!matches) {
-			throw new Error('Invalid database URL');
+			throw new Error('Invalid database URL')
 		}
-	
+
 		return {
 			user: matches[1],
 			password: matches[2],
 			host: matches[3],
 			port: matches[4],
 			database: matches[5].split('?')[0],
-		};
+		}
 	}
 
 	private dumpDatabase(): Promise<Buffer> {
@@ -67,7 +67,7 @@ export class BackupService {
 			// 🔹 pg_dump ni ishga tushirish
 			const pg_dump = spawn('pg_dump', [`-U`, user, `-h`, host, `-p`, port, `-d`, database, `-F`, 'p'], { env: { ...process.env, PGPASSWORD: password } })
 
-			let backupBuffer: Buffer[] = []
+			const backupBuffer: Buffer[] = []
 
 			pg_dump.stdout.on('data', (data) => {
 				backupBuffer.push(data)

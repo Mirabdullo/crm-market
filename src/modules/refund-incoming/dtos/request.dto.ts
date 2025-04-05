@@ -1,4 +1,4 @@
-import { IsArray, IsInt, IsNotEmpty, IsNumber, IsOptional, IsPositive, IsString, IsUUID } from 'class-validator'
+import { IsArray, IsInt, IsNotEmpty, IsOptional, IsPositive, IsString, IsUUID } from 'class-validator'
 import { Type } from 'class-transformer'
 import { RefundIncomingCreateRequest, RefundIncomingDeleteRequest, RefundIncomingRetriveAllRequest, RefundIncomingRetriveRequest, RefundIncomingUpdateRequest } from '../interfaces'
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'

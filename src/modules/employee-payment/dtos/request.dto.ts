@@ -1,6 +1,13 @@
 import { IsBoolean, IsInt, IsNotEmpty, IsNumber, IsOptional, IsPositive, IsString, IsUUID } from 'class-validator'
 import { Type } from 'class-transformer'
-import { EmloyeePaymentCreateRequest, EmloyeePaymentDeleteRequest, EmloyeePaymentRequest, EmloyeePaymentRetriveAllRequest, EmloyeePaymentRetriveRequest, EmloyeePaymentUpdateRequest } from '../interfaces'
+import {
+	EmloyeePaymentCreateRequest,
+	EmloyeePaymentDeleteRequest,
+	EmloyeePaymentRequest,
+	EmloyeePaymentRetriveAllRequest,
+	EmloyeePaymentRetriveRequest,
+	EmloyeePaymentUpdateRequest,
+} from '../interfaces'
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
 import { Response } from 'express'
 
