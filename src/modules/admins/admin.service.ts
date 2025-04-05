@@ -1,6 +1,6 @@
 import { Injectable, ForbiddenException, NotFoundException } from '@nestjs/common'
 import { PrismaService } from '@prisma'
-import * as bcrypt from 'bcrypt'
+import * as bcrypt from 'bcryptjs'
 import {
 	AdminCreateRequest,
 	AdminDeleteRequest,
